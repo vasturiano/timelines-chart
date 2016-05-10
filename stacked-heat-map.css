@@ -1,0 +1,80 @@
+.stacked-heat-map .axises {
+    shape-rendering: crispedges;
+}
+.stacked-heat-map .axises line, .stacked-heat-map .axises path {
+    fill: none;
+    stroke: #808080;
+}
+.stacked-heat-map .y-axis line, .stacked-heat-map .y-axis path, .stacked-heat-map .grp-axis line, .stacked-heat-map .grp-axis path {
+    stroke: none;
+}
+.stacked-heat-map .y-axis text, .stacked-heat-map .grp-axis text {
+    fill: #2F4F4F;
+}
+.stacked-heat-map .x-grid line {
+    stroke: #D3D3D3;
+}
+.stacked-heat-map rect.heatmap-group {
+    fill-opacity: 0.6;
+    stroke: #808080;
+    stroke-opacity: 0.2;
+    cursor: crosshair;
+}
+.stacked-heat-map rect.heatmap-segment {
+    stroke: none;
+    cursor: crosshair;
+}
+
+
+.legend .legendText {
+    fill: #666;
+}
+
+
+.brusher .axis text {
+  font: 11px sans-serif;
+}
+
+.brusher .axis path {
+  display: none;
+}
+
+.brusher .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brusher .grid-background {
+  fill: #C0C0C0;
+}
+
+.brusher .grid line, .brusher .grid path {
+  fill: none;
+  stroke: #fff;
+}
+
+.brusher .grid .minor.tick line {
+  stroke-opacity: .5;
+}
+
+.brusher .brush .extent {
+  stroke: blue;
+  stroke-opacity: 0.6;
+  fill: blue;
+  fill-opacity: 0.3;
+  shape-rendering: crispEdges;
+}
+
+
+/*
+ * Cancel selection interaction
+ */
+.stat-noselect {
+	-webkit-touch-callout: none;
+  	-webkit-user-select: none;
+  	-khtml-user-select: none;
+  	-moz-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
+}

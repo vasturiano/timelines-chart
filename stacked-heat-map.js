@@ -297,7 +297,7 @@ var StackedTimeSeriesHeatMap = function() {
                     this
                 );
 
-                env.overviewArea.init(env.$elem[0]);
+                env.overviewArea.init(($('<div>').appendTo(env.$elem))[0]);
 
                 env.$elem.bind('zoomScent', function(event, zoomX, zoomY) {
                     if (!env.overviewArea || !zoomX) return;

@@ -120,8 +120,8 @@ d3.selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
             .attr("x", colorBinWidth*(index+.5))
             .attr("y", h*0.5)
             .style("text-anchor", "middle")
-            .attr('dy','.4em')
-            .style('fill', '#CCC' )
+            .style("alignment-baseline", "central")
+            .style('fill', tinycolor(scale(val)).isLight()?'#333':'#DDD' )
             .style('font-family', 'Sans-Serif')
             .textFitToBox(colorBinWidth, h*0.8);
 
@@ -165,7 +165,8 @@ d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .attr("x", w*0.5)
         .attr("y", h*0.5)
         .style("text-anchor", "middle")
-        .attr('dy','.35em')
+        .style("alignment-baseline", "central")
+        .style('fill', tinycolor(scale((scale.domain()[scale.domain().length-1] - scale.domain()[0])/2)).isLight()?'#444':'#CCC' )
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.8, h*0.9);
 
@@ -174,9 +175,9 @@ d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .attr("x", w*0.02)
         .attr("y", h*0.5)
         .style("text-anchor", "start")
-        .attr('dy','.4em')
+        .style("alignment-baseline", "central")
         .style('font', h*0.7 + 'px sans-serif')
-        .style('fill', '#CCC' )
+        .style('fill', tinycolor(scale.range()[0]).isLight()?'#444':'#CCC' )
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 
@@ -185,8 +186,8 @@ d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .attr("x", w*0.98)
         .attr("y", h*0.5)
         .style("text-anchor", "end")
-        .attr('dy','.4em')
-        .style('fill', '#CCC' )
+        .style("alignment-baseline", "central")
+        .style('fill', tinycolor(scale.range()[scale.range().length-1]).isLight()?'#444':'#CCC' )
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 

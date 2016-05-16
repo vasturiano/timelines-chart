@@ -96,16 +96,59 @@ d3.selection.prototype.addDropShadow = function() {
     return shadowId;
 };
 
-d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
+d3.selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
+
+    var legend = this;
+
+    var colorBinWidth = w / scale.domain().length;
+    scale.domain().forEach(function(val, index) {
+
+        var colorG = legend.append('g');
+
+        colorG.append("rect")
+            .attr("width", colorBinWidth)
+            .attr("height", h)
+            .attr("x", colorBinWidth*index)
+            .attr("y", 0)
+            .attr("rx", 0)
+            .attr("ry", 0)
+            .attr("stroke-width", 0)
+            .attr("fill", scale(val));
+
+        colorG.append("text")
+            .text(val)
+            .attr("x", colorBinWidth*(index+.5))
+            .attr("y", h*0.5)
+            .style("text-anchor", "middle")
+            .attr('dy','.4em')
+            .style('fill', '#CCC' )
+            .style('font-family', 'Sans-Serif')
+            .textFitToBox(colorBinWidth, h*0.8);
+
+        colorG.append('title')
+            .text(val + ' ' + label);
+    });
+
+    legend.append("rect")
+        .attr("width", w)
+        .attr("height", h)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("rx", 3)
+        .attr("ry", 3)
+        .attr("stroke", "black")
+        .attr("stroke-width", 0.5)
+        .attr("fill-opacity", 0)
+        .style("pointer-events", 'none');
+
+    return legend;
+};
+
+d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
 
     var gradId = this.addGradient(scale, 0);
 
-    var legendG = this.append("g")
-            .attr("class", "legend");
-
-    legendG.attr("transform", "translate(" + x + "," + y + ")");
-
-    legendG.append("rect")
+    this.append("rect")
         .attr("width", w)
         .attr("height", h)
         .attr("x", 0)
@@ -116,7 +159,7 @@ d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
         .attr("stroke-width", 0.5)
         .style("fill", 'url(#' + gradId + ')');
 
-    legendG.append("text")
+    this.append("text")
         .attr("class", "legendText")
         .text(label)
         .attr("x", w*0.5)
@@ -126,7 +169,7 @@ d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.8, h*0.9);
 
-    legendG.append("text")
+    this.append("text")
         .text(scale.domain()[0])
         .attr("x", w*0.02)
         .attr("y", h*0.5)
@@ -137,7 +180,7 @@ d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 
-    legendG.append("text")
+    this.append("text")
         .text(scale.domain()[scale.domain().length-1])
         .attr("x", w*0.98)
         .attr("y", h*0.5)
@@ -147,7 +190,18 @@ d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
         .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 
-    return legendG;
+    return this;
+};
+
+d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
+    var legendG = this.append("g")
+        .attr("class", "legend");
+
+    legendG.attr("transform", "translate(" + x + "," + y + ")");
+
+    return (scale.copy().domain([1, 2]).range([1, 2])(1.5) === 1)
+        ?legendG.appendOrdinalColorLegend(w, h, scale, label)
+        :legendG.appendLinearColorLegend(w, h, scale, label);
 };
 
 d3.selection.prototype.appendSvgThrobber = function(x, y, r, color, duration, angleFull) {

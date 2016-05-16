@@ -388,7 +388,7 @@ var StackedTimeSeriesHeatMap = function() {
                     var normVal = env.valScale.domain()[env.valScale.domain().length-1] - env.valScale.domain()[0];
                     var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
                     return "<strong>" + d.labelVal + " </strong>" + env.zDataLabel
-                        + " (<strong>" + d3.round((d.val-env.valScale.domain()[0])/normVal*100, 2) + "%</strong>)<br>"
+                        + (normVal?" (<strong>" + d3.round((d.val-env.valScale.domain()[0])/normVal*100, 2) + "%</strong>)":"") + "<br>"
                         + "<strong>From: </strong>" + dateFormat(d.timeRange[0]) + "<br>"
                         + "<strong>To: </strong>" + dateFormat(d.timeRange[1]);
                 });

@@ -23,9 +23,8 @@
     "url": "https://github.com/vasturiano/stacked-heatmap.git"
   },
   "scripts": {
-    "start": "",
     "build": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
-    "minify": "uglifyjs --preamble \"$(preamble)\" dist/stacked-timelines-chart.js -o dist/stacked-timelines-chart.min.js -c -m",
+    "minify": "uglifyjs dist/stacked-timelines-chart.js -o dist/stacked-timelines-chart.min.js -c -m --preamble \"$(preamble)\"",
     "prepublish": "npm run build && npm run minify"
   },
   "dependencies": {},

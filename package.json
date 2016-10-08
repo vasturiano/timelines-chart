@@ -27,10 +27,14 @@
     "minify": "uglifyjs dist/stacked-timelines-chart.js -o dist/stacked-timelines-chart.min.js -c -m --preamble \"$(preamble)\"",
     "prepublish": "npm run build && npm run minify"
   },
-  "dependencies": {},
+  "dependencies": {
+    "tinycolor2": "^1.4.1"
+  },
   "devDependencies": {
     "package-preamble": "^0.0.2",
     "rollup": "^0.36.1",
+    "rollup-plugin-commonjs": "^5.0.4",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-postcss": "^0.2.0",
     "uglify-js": "^2.7.3"
   }

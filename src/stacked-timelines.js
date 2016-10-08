@@ -1,40 +1,46 @@
-/* Stacked Time-Series Heat Map SVG Layout
+import './stacked-timelines.css';
 
-Exposed functions:
- .width(<px>)
- .leftMargin(<px>)
- .rightMargin(<px>)
- .topMargin(<px>)
- .bottomMargin(<px>)
- .maxHeight(<px>)
- .throbberImg(<image URI>)
- .dataDomain([<min>, <max>])
- .dataScale(<d3 scale object>)
- .getNLines()
- .getTotalNLines()
- .zoomX([<start date>, <end date>], <force redraw (boolean). default: true>)
- .zoomY([<start row index, end row index], <force redraw (boolean). default: true>)
- .zoomYLabels([<(start) {group,label}>, <(end) {group,label}>], <force redraw (boolean). default: true>)
- .getVisibleStructure()
- .minSegmentDuration(<msecs>)
- .zDataLabel(<unit text on tooltips>)
- .zScaleLabel(<legend unit text>)
- .sort(<label compare function>, <group compare function>)
- .sortAlpha(<ascending (boolean)>)
- .sortChrono(<ascending (boolean)>)
- .replaceData(<new data>, <keep graph structure (boolean). default: false>)
- .enableOverview(<boolean>)
- .overviewDomain(<new time range for overview: [<start date>, <end date>]>)
- .animationsEnabled(<(boolean)>)
- .forceThrobber(<force throbber on (boolean>). default: false>)
- .axisClickURL(<URL to follow when clicking on Y axises>)
- .getSvg()
- .onZoom(<callback function for user initiated zoom>)
- .refresh()
+import './d3-utils.js';
+import TimeOverview from './time-overview.js';
+import XYOverviewArea from './xy-overview-area.js';
 
- */
+export default function() {
 
-var StackedTimeSeriesHeatMap = function() {
+    /* Stacked Timelines SVG Layout
+
+     Exposed functions:
+     .width(<px>)
+     .leftMargin(<px>)
+     .rightMargin(<px>)
+     .topMargin(<px>)
+     .bottomMargin(<px>)
+     .maxHeight(<px>)
+     .throbberImg(<image URI>)
+     .dataDomain([<min>, <max>])
+     .dataScale(<d3 scale object>)
+     .getNLines()
+     .getTotalNLines()
+     .zoomX([<start date>, <end date>], <force redraw (boolean). default: true>)
+     .zoomY([<start row index, end row index], <force redraw (boolean). default: true>)
+     .zoomYLabels([<(start) {group,label}>, <(end) {group,label}>], <force redraw (boolean). default: true>)
+     .getVisibleStructure()
+     .minSegmentDuration(<msecs>)
+     .zDataLabel(<unit text on tooltips>)
+     .zScaleLabel(<legend unit text>)
+     .sort(<label compare function>, <group compare function>)
+     .sortAlpha(<ascending (boolean)>)
+     .sortChrono(<ascending (boolean)>)
+     .replaceData(<new data>, <keep graph structure (boolean). default: false>)
+     .enableOverview(<boolean>)
+     .overviewDomain(<new time range for overview: [<start date>, <end date>]>)
+     .animationsEnabled(<(boolean)>)
+     .forceThrobber(<force throbber on (boolean>). default: false>)
+     .axisClickURL(<URL to follow when clicking on Y axises>)
+     .getSvg()
+     .onZoom(<callback function for user initiated zoom>)
+     .refresh()
+
+     */
 
     var env = {
         $elem: null,

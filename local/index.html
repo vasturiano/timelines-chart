@@ -4,17 +4,13 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.7/d3-tip.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/tinycolor/1.3.0/tinycolor.min.js"></script>
 
-	<script src="d3-utils.js"></script>
-	<script src="time-overview.js"></script>
-	<script src="stacked-heat-map.js"></script>
 	<script src="mockup-data.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="stacked-heat-map.css">
+	<script src="../dist/stacked-timelines-chart.js"></script>
 
 	<script>
 		var myData = getMockupData();
 		$(function() {
-			var myPlot = StackedTimeSeriesHeatMap()
+			var myPlot = StackedTimelinesChart()
 				.width($(window).width())
 				.throbberImg('throbber.gif')
 				.zScaleLabel("My Scale Units");

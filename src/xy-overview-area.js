@@ -1,4 +1,4 @@
-var XYOverviewArea = function() {
+export default function() {
 
     var env = {
         svg: null,

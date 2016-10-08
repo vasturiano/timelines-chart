@@ -1,0 +1,38 @@
+{
+  "name": "stacked-timelines-chart",
+  "version": "0.1.0",
+  "description": "A stacked timelines D3 chart for representing state of time-series over time.",
+  "keywords": [
+    "d3",
+    "timelines",
+    "time-series",
+    "stacked",
+    "heatmap",
+    "lines"
+  ],
+  "author": {
+    "name": "Vasco Asturiano",
+    "url": "http://bl.ocks.org/vasturiano"
+  },
+  "license": "GPL-3.0",
+  "main": "dist/stacked-timelines-chart.js",
+  "jsnext:main": "src/index",
+  "homepage": "https://github.com/vasturiano/stacked-heatmap.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vasturiano/stacked-heatmap.git"
+  },
+  "scripts": {
+    "start": "",
+    "build": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
+    "minify": "uglifyjs --preamble \"$(preamble)\" dist/stacked-timelines-chart.js -o dist/stacked-timelines-chart.min.js -c -m",
+    "prepublish": "npm run build && npm run minify"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "package-preamble": "^0.0.2",
+    "rollup": "^0.36.1",
+    "rollup-plugin-postcss": "^0.2.0",
+    "uglify-js": "^2.7.3"
+  }
+}

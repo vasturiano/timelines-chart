@@ -3,7 +3,7 @@
  */
 
 
-var TimeOverview = function(options, callback, context){
+export default function(options, callback, context){
     var timeMapper, timeTicker, brusherBucketLevelsMinutes, timeGrid, margins, width, hideIfLessThanSeconds,
         height, brush, xAxis, svg, groupOverview, timeUnitGrid, $this, margins, dom, labels, verticalLabels,
         format;

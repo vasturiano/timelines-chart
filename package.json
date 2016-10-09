@@ -17,10 +17,10 @@
   "license": "GPL-3.0",
   "main": "dist/stacked-timelines-chart.js",
   "jsnext:main": "src/index",
-  "homepage": "https://github.com/vasturiano/stacked-heatmap.git",
+  "homepage": "https://github.com/vasturiano/stacked-timelines-chart",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vasturiano/stacked-heatmap.git"
+    "url": "https://github.com/vasturiano/stacked-timelines-chart.git"
   },
   "scripts": {
     "start": "",

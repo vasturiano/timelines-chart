@@ -12,7 +12,7 @@
 				.throbberImg('throbber.gif')
 				.zScaleLabel("My Scale Units");
 
-			myPlot($('#myHeatMap'), myData);
+			myPlot($('#myHeatMap')[0], myData);
 
 			$('#myJson').text(JSON.stringify(myData, null, 4));
 		});

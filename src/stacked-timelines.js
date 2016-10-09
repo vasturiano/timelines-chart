@@ -112,14 +112,14 @@ export default function() {
     };
 
 
-    function chart($elem, data) {
+    function chart(nodeElem, data) {
 
-        env.$elem = $elem;
+        env.$elem = $(nodeElem);
 
-        env.$elem.addClass('stacked-heat-map')
-            .css('text-align', 'center');
-
-        env.svg = d3.select($elem[0]).append("svg");
+        env.svg = d3.select(nodeElem)
+            .attr('class', 'stacked-heat-map')
+            .style('text-align', 'center')
+            .append("svg");
 
         initStatic();
         drawNewData(data);

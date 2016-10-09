@@ -5,7 +5,7 @@
 import * as d3 from 'd3';
 
 export default function(options, callback, context){
-    var margins, width, hideIfLessThanSeconds,
+    var margins, width, hideIfLessThanSeconds, externalMoveEvent,
         height, brush, xAxis, svg, groupOverview, $this, dom, labels, verticalLabels, format;
 
     $this = this;
@@ -24,17 +24,15 @@ export default function(options, callback, context){
 
 
     this._afterInteraction = function(){
+        if (!d3.event.sourceEvent) return;
 
-        if (!d3.event.sourceEvent
-            || !d3.event.sourceEvent.srcElement
-            || !d3.select(d3.event.sourceEvent.srcElement).classed('overlay')
-        ) {
+        if (externalMoveEvent) {
             // Don't callback for events not initiated by the brusher
-            return;
+            externalMoveEvent = false;
+        } else {
+            var selection = d3.event.selection.map(xAxis.invert);
+            callback.call(context, selection[0], selection[1]);
         }
-
-        var selection = d3.event.selection.map(xAxis.invert);
-        callback.call(context, selection[0], selection[1]);
     };
 
     this.render = function(domainRange, currentSelection){
@@ -134,6 +132,7 @@ export default function(options, callback, context){
 
     this.updateSelection = function(currentSelection){
         if (this.currentSelection !== currentSelection){
+            externalMoveEvent = true;
             groupOverview
                 .call(brush.move, currentSelection.map(xAxis));
             return true;

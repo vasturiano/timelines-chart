@@ -117,7 +117,7 @@ export default function() {
         env.$elem = $(nodeElem);
 
         env.svg = d3.select(nodeElem)
-            .attr('class', 'stacked-heat-map')
+            .attr('class', 'stacked-timelines-chart')
             .style('text-align', 'center')
             .append("svg");
 
@@ -767,7 +767,7 @@ export default function() {
 
         function renderGroups() {
 
-            var groups = env.graph.selectAll('rect.heatmap-group').data(env.structData, function(d) { return d.group});
+            var groups = env.graph.selectAll('rect.series-group').data(env.structData, function(d) { return d.group});
 
             groups.exit()
                 .transition().duration(env.transDuration)
@@ -776,7 +776,7 @@ export default function() {
                     .remove();
 
             var newGroups = groups.enter()
-                .append('rect').attr("class", "heatmap-group")
+                .append('rect').attr("class", "series-group")
                 .attr('width', env.graphW)
                 .attr('x', 0)
                 .attr('y', 0)
@@ -815,7 +815,7 @@ export default function() {
 
             env.lineHeight = env.graphH/env.nLines*0.8;
 
-            var timelines = env.graph.selectAll('rect.heatmap-segment').data(
+            var timelines = env.graph.selectAll('rect.series-segment').data(
                 env.flatData.filter(dataFilter),
                 function(d) { return d.group + d.label + d.timeRange[0];}
             );
@@ -826,7 +826,7 @@ export default function() {
                     .remove();
 
             var newSegments = timelines.enter()
-                .append('rect').attr("class", "heatmap-segment")
+                .append('rect').attr("class", "series-segment")
                     .attr('rx', 1)
                     .attr('ry', 1)
                     .attr('x', env.graphW/2)

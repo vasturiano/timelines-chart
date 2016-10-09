@@ -1,26 +1,26 @@
-.stacked-heat-map .axises {
+.stacked-timelines-chart .axises {
     shape-rendering: crispedges;
 }
-.stacked-heat-map .axises line, .stacked-heat-map .axises path {
+.stacked-timelines-chart .axises line, .stacked-timelines-chart .axises path {
     fill: none;
     stroke: #808080;
 }
-.stacked-heat-map .y-axis line, .stacked-heat-map .y-axis path, .stacked-heat-map .grp-axis line, .stacked-heat-map .grp-axis path {
+.stacked-timelines-chart .y-axis line, .stacked-timelines-chart .y-axis path, .stacked-timelines-chart .grp-axis line, .stacked-timelines-chart .grp-axis path {
     stroke: none;
 }
-.stacked-heat-map .y-axis text, .stacked-heat-map .grp-axis text {
+.stacked-timelines-chart .y-axis text, .stacked-timelines-chart .grp-axis text {
     fill: #2F4F4F;
 }
-.stacked-heat-map .x-grid line {
+.stacked-timelines-chart .x-grid line {
     stroke: #D3D3D3;
 }
-.stacked-heat-map rect.heatmap-group {
+.stacked-timelines-chart rect.series-group {
     fill-opacity: 0.6;
     stroke: #808080;
     stroke-opacity: 0.2;
     cursor: crosshair;
 }
-.stacked-heat-map rect.heatmap-segment {
+.stacked-timelines-chart rect.series-segment {
     stroke: none;
     cursor: crosshair;
 }
@@ -66,7 +66,7 @@
   shape-rendering: crispEdges;
 }
 
-.stacked-heat-map {
+.stacked-timelines-chart {
     /* Cancel selection interaction */
     -webkit-touch-callout: none;
     -webkit-user-select: none;

@@ -12,7 +12,7 @@
 				.throbberImg('throbber.gif')
 				.zScaleLabel("My Scale Units");
 
-			myPlot($('#myHeatMap')[0], myData);
+			myPlot($('#myPlot')[0], myData);
 
 			$('#myJson').text(JSON.stringify(myData, null, 4));
 		});
@@ -20,7 +20,7 @@
 </head>
 
 <body>
-	<div id="myHeatMap"></div>
+	<div id="myPlot"></div>
 	<div style="display: initial">
 		<hr><b>JSON format:</b><br><br>
 		<div id="myJson" style="font-family: monospace; white-space: pre;"></div>

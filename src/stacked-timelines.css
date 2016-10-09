@@ -58,23 +58,10 @@
   stroke-opacity: .5;
 }
 
-.brusher .brush .extent {
+.brusher .brush .selection {
   stroke: blue;
   stroke-opacity: 0.6;
   fill: blue;
   fill-opacity: 0.3;
   shape-rendering: crispEdges;
-}
-
-
-/*
- * Cancel selection interaction
- */
-.stat-noselect {
-	-webkit-touch-callout: none;
-  	-webkit-user-select: none;
-  	-khtml-user-select: none;
-  	-moz-user-select: none;
-  	-ms-user-select: none;
-  	user-select: none;
 }

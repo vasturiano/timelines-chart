@@ -98,7 +98,7 @@ export default function() {
         throbberR: 23,
         forceThrobber: false,   // Force the throbber to stay on
 
-        enableOverview: false, //true, // ToDo: Put this back to true
+        enableOverview: true,
 
         axisClickURL: null,
 
@@ -269,12 +269,6 @@ export default function() {
                 env.overviewArea = new TimeOverview(
                     {
                         margins: overviewMargins,
-                        granularityLevels: {
-                            "day": 43200 * 0.5, // 1 tick =  1 day if the total time window is within 0.5 month
-                            "week": 43200 * 5, // 1 tick =  1 week if the total time window is 5 month
-                            "month": (43200 * 12 * 1), // 1 tick =  1 month if the total time window is 1 year
-                            "year": (43200 * 12 * 20)
-                        },
                         width: env.width*0.8,
                         height: env.overviewHeight + overviewMargins.top + overviewMargins.bottom,
                         verticalLabels: false

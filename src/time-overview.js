@@ -2,18 +2,17 @@
  * Based on http://bl.ocks.org/mbostock/6232620
  */
 
+import * as d3 from 'd3';
 
 export default function(options, callback, context){
-    var timeMapper, timeTicker, brusherBucketLevelsMinutes, timeGrid, margins, width, hideIfLessThanSeconds,
-        height, brush, xAxis, svg, groupOverview, timeUnitGrid, $this, margins, dom, labels, verticalLabels,
-        format;
+    var margins, width, hideIfLessThanSeconds,
+        height, brush, xAxis, svg, groupOverview, $this, dom, labels, verticalLabels, format;
 
     $this = this;
     margins = options.margins;
-    brusherBucketLevelsMinutes = options.granularityLevels;
     hideIfLessThanSeconds = options.hideIfLessThanSeconds;
     verticalLabels = (options.verticalLabels != null) ? options.verticalLabels : true;
-    format = options.format || d3.time.format("%Y-%m-%d");
+    format = options.format;
 
      this.init = function(domElement, domainRange, currentSelection){
         dom = domElement;
@@ -26,69 +25,9 @@ export default function(options, callback, context){
 
     this._afterInteraction = function(){
         if (!d3.event.sourceEvent) return;
-        var extent0, selectionPoints, boundedLeft, boundedRight, selectionPointsRounded, magneticEffect;
-
-        extent0 = brush.extent();
-
-        boundedLeft = false;
-        boundedRight = false;
-        magneticEffect = 10 * 60 * 60 * 1000;
-
-        // Magnetic effect
-        selectionPoints = extent0;
-        selectionPointsRounded = extent0.map(timeUnitGrid.round);
-
-        if (selectionPoints[0].getTime() <= $this.domainRange[0].getTime() + magneticEffect){
-            selectionPoints[0] = $this.domainRange[0];
-            boundedLeft = true;
-        }
-
-        if (selectionPoints[1].getTime()  >= $this.domainRange[1].getTime() - magneticEffect){
-            selectionPoints[1] = $this.domainRange[1];
-            boundedRight = true;
-        }
-
-        if (boundedLeft && !boundedRight){
-            selectionPoints[1] = selectionPointsRounded[1];
-        }else if (!boundedLeft && boundedRight){
-            selectionPoints[0] = selectionPointsRounded[0];
-        }else if (!boundedLeft && !boundedRight){
-            selectionPoints[0] = selectionPointsRounded[0];
-            selectionPoints[1] = selectionPointsRounded[1];
-        }
-
-
-        if (selectionPoints[0] >= selectionPoints[1]) {
-            selectionPoints[0] = timeUnitGrid.floor(extent0[0]);
-            selectionPoints[1] = timeUnitGrid.ceil(extent0[1]);
-        }
-
-
-        // Apply magnetic feedback
-        d3.select(this).transition()
-            .call(brush.extent(selectionPoints));
-
-        callback.call(context, selectionPoints[0], selectionPoints[1]);
+        var selection = d3.event.selection.map(xAxis.invert);
+        callback.call(context, selection[0], selection[1]);
     };
-
-    this._duringInteraction = function(){
-        if (!d3.event.sourceEvent) return;
-        var extent0, selectionPoints;
-
-        extent0 = brush.extent();
-
-        // Magnetic effect
-        selectionPoints = extent0.map(timeUnitGrid.round);
-        if (selectionPoints[0] >= selectionPoints[1]) {
-            selectionPoints[0] = timeUnitGrid.floor(extent0[0]);
-            selectionPoints[1] = timeUnitGrid.ceil(extent0[1]);
-        }
-
-        // Apply magnetic feedback
-        d3.select(this).transition()
-            .call(brush.extent(selectionPoints));
-    };
-
 
     this.render = function(domainRange, currentSelection){
         var timeWindow;
@@ -102,86 +41,61 @@ export default function(options, callback, context){
             return false;
         }
 
-        if (timeWindow < (brusherBucketLevelsMinutes.day * 60 * 1000)){
-            timeMapper = d3.time.day;
-            timeTicker = d3.time.days;
-            timeGrid = d3.time.hours;
-            timeUnitGrid = d3.time.hour;
-        }else if (timeWindow < (brusherBucketLevelsMinutes.week * 60 * 1000)){
-            timeMapper = d3.time.week;
-            timeTicker = d3.time.weeks;
-            timeGrid = d3.time.days;
-            timeUnitGrid = d3.time.day;
-        }else if (timeWindow < (brusherBucketLevelsMinutes.month * 60 * 1000)){
-            timeMapper = d3.time.month;
-            timeTicker = d3.time.months;
-            timeGrid = d3.time.weeks;
-            timeUnitGrid = d3.time.week;
-        }else{
-            timeMapper = d3.time.year;
-            timeTicker = d3.time.years;
-            timeGrid = d3.time.months;
-            timeUnitGrid = d3.time.month;
-        }
-
 
         width = options.width;
         height = options.height - margins.top - margins.bottom;
 
         xAxis = d3
-            .time
-            .scale
-            .utc()
+            .scaleUtc()
             .domain(domainRange)
             .range([0, width]);
 
-        brush = d3.svg.brush()
-            .x(xAxis)
-            .extent(currentSelection)
-            //.on("brush", brushing)
-            .on("brushend", $this._afterInteraction);
+        brush = d3.brushX()
+            .extent([[0, 0], [width, height]])
+            .on("end", $this._afterInteraction);
 
         svg = d3.select(dom)
             .append("svg")
-            .attr("class", "brusher")
-            .attr("width", width + margins.left + margins.right)
-            .attr("height", height + margins.top + margins.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
+                .attr("class", "brusher")
+                .attr("width", width + margins.left + margins.right)
+                .attr("height", height + margins.top + margins.bottom)
+                .append("g")
+                    .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
 
         svg.append("rect")
             .attr("class", "grid-background")
             .attr("width", width)
             .attr("height", height);
 
+
+
         svg.append("g")
             .attr("class", "x grid")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.svg.axis()
+            .call(d3.axisBottom()
                 .scale(xAxis)
-                .orient("bottom")
-                .ticks(timeGrid)
                 .tickSize(-height)
-                .tickFormat(""))
+                .tickFormat("")
+            )
             .selectAll(".tick")
             .classed("minor", function(d) { return d.getHours(); });
 
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.svg.axis()
+            .call(d3.axisBottom()
                 .scale(xAxis)
-                .orient("bottom")
-                .ticks(timeTicker)
                 .tickFormat(format)
-                .tickPadding(0))
+                .tickPadding(0)
+            )
             .selectAll("text")
             .attr("x", 6)
             .style("text-anchor", null);
 
         groupOverview = svg.append("g")
             .attr("class", "brush")
-            .call(brush);
+            .call(brush)
+            .call(brush.move, currentSelection.map(xAxis));
 
         groupOverview.selectAll("rect")
             .attr("height", height);
@@ -214,9 +128,10 @@ export default function(options, callback, context){
 
     this.updateSelection = function(currentSelection){
 
-        if (this.currentSelection != currentSelection){
+        if (+this.currentSelection[0] !== +currentSelection[0] || +this.currentSelection[1] !== +currentSelection[1]){
+            this.currentSelection=currentSelection;
             groupOverview
-                .call(brush.extent(currentSelection));
+                .call(brush.move, currentSelection.map(xAxis));
             return true;
         }
         return false;

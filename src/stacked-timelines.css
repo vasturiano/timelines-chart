@@ -65,3 +65,13 @@
   fill-opacity: 0.3;
   shape-rendering: crispEdges;
 }
+
+.stacked-heat-map {
+    /* Cancel selection interaction */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

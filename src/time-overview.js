@@ -24,7 +24,15 @@ export default function(options, callback, context){
 
 
     this._afterInteraction = function(){
-        if (!d3.event.sourceEvent) return;
+
+        if (!d3.event.sourceEvent
+            || !d3.event.sourceEvent.srcElement
+            || !d3.select(d3.event.sourceEvent.srcElement).classed('overlay')
+        ) {
+            // Don't callback for events not initiated by the brusher
+            return;
+        }
+
         var selection = d3.event.selection.map(xAxis.invert);
         callback.call(context, selection[0], selection[1]);
     };
@@ -40,7 +48,6 @@ export default function(options, callback, context){
         if (timeWindow < hideIfLessThanSeconds * 1000){
             return false;
         }
-
 
         width = options.width;
         height = options.height - margins.top - margins.bottom;
@@ -114,7 +121,6 @@ export default function(options, callback, context){
     };
 
     this.update = function(domainRange, currentSelection){
-
         if (this.domainRange == domainRange){
             return this.updateSelection(currentSelection);
         }else{
@@ -127,9 +133,7 @@ export default function(options, callback, context){
     };
 
     this.updateSelection = function(currentSelection){
-
-        if (+this.currentSelection[0] !== +currentSelection[0] || +this.currentSelection[1] !== +currentSelection[1]){
-            this.currentSelection=currentSelection;
+        if (this.currentSelection !== currentSelection){
             groupOverview
                 .call(brush.move, currentSelection.map(xAxis));
             return true;

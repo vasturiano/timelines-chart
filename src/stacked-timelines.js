@@ -392,8 +392,6 @@ export default function() {
 
                 var startCoords = d3.mouse(e);
 
-                d3.select("body").classed("stat-noselect", true);
-
                 d3.select(window)
                     .on("mousemove.zoomRect", function() {
                         d3.event.stopPropagation();
@@ -433,7 +431,7 @@ export default function() {
 
                         var newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(function(d) {
                             var range = env.yScale.range(),
-                                yIndex = env.yScale.domain().length * (d - range[0]) / (range[1] - range[0]);
+                                yIndex = Math.floor(env.yScale.domain().length * (d - range[0]) / (range[1] - range[0]));
 
                             return yIndex + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
                         });

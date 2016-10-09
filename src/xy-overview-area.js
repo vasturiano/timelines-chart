@@ -1,11 +1,13 @@
+import * as d3 from 'd3';
+
 export default function() {
 
     var env = {
         svg: null,
         selection:null,
         margin : {top: 2, right: 2, bottom: 2, left: 2 },
-        xScale: d3.time.scale(),
-        yScale: d3.scale.linear(),
+        xScale: d3.scaleTime(),
+        yScale: d3.scaleLinear(),
         transitionDuration: 700
     };
 

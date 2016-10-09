@@ -1,14 +1,15 @@
 // D3 selections util funcs
 
-import { default as tinycolor } from 'tinycolor2';
+import { selection as d3Selection } from 'd3';
+import tinycolor from 'tinycolor2';
 
-d3.selection.prototype.moveToFront = function() {
+d3Selection.prototype.moveToFront = function() {
     return this.each(function(){
         this.parentNode.appendChild(this);
     });
 };
 
-d3.selection.prototype.textFitToBox = function(w,h,passes) {
+d3Selection.prototype.textFitToBox = function(w,h,passes) {
     passes = passes||3;
 
     var startSize = parseInt(this.style("font-size").split('px')[0]);
@@ -23,7 +24,7 @@ d3.selection.prototype.textFitToBox = function(w,h,passes) {
     return this;
 };
 
-d3.selection.prototype.textAbbreviateToFit = function(maxW) {
+d3Selection.prototype.textAbbreviateToFit = function(maxW) {
     function abbreviateText(txt, maxChars) {
         return txt.length<=maxChars?txt:(
             txt.substring(0, maxChars*2/3)
@@ -40,9 +41,9 @@ d3.selection.prototype.textAbbreviateToFit = function(maxW) {
     return this;
 };
 
-// colorScale: d3.scale.linear().domain([0, 1, 2]).range(['red', 'yellow', 'green'])
+// colorScale: d3.scaleLinear().domain([0, 1, 2]).range(['red', 'yellow', 'green'])
 // angle: 0 (left-right), 90 (down-up), ...
-d3.selection.prototype.addGradient = function(colorScale, angle) {
+d3Selection.prototype.addGradient = function(colorScale, angle) {
 
     angle = angle||0; // Horizontal
 
@@ -70,7 +71,7 @@ d3.selection.prototype.addGradient = function(colorScale, angle) {
     return gradId;
 };
 
-d3.selection.prototype.addDropShadow = function() {
+d3Selection.prototype.addDropShadow = function() {
 
     var shadowId = "areaGradient" + Math.round(Math.random()*10000);
 
@@ -98,7 +99,7 @@ d3.selection.prototype.addDropShadow = function() {
     return shadowId;
 };
 
-d3.selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
+d3Selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
 
     var legend = this;
 
@@ -146,7 +147,7 @@ d3.selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
     return legend;
 };
 
-d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
+d3Selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
 
     var gradId = this.addGradient(scale, 0);
 
@@ -196,7 +197,7 @@ d3.selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
     return this;
 };
 
-d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
+d3Selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
     var legendG = this.append("g")
         .attr("class", "legend");
 
@@ -207,7 +208,7 @@ d3.selection.prototype.appendColorLegend = function(x, y, w, h, scale, label) {
         :legendG.appendLinearColorLegend(w, h, scale, label);
 };
 
-d3.selection.prototype.appendSvgThrobber = function(x, y, r, color, duration, angleFull) {
+d3Selection.prototype.appendSvgThrobber = function(x, y, r, color, duration, angleFull) {
 
     function genDonutSlice(cx, cy, r, thickness, startAngle, endAngle) {
         startAngle = startAngle/180*Math.PI;
@@ -260,7 +261,7 @@ d3.selection.prototype.appendSvgThrobber = function(x, y, r, color, duration, an
     return path;
 };
 
-d3.selection.prototype.appendImage = function(imgUrl, x, y, maxW, maxH, svgAlign) {
+d3Selection.prototype.appendImage = function(imgUrl, x, y, maxW, maxH, svgAlign) {
 
     svgAlign = svgAlign || "xMidYMid";
 

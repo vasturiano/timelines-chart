@@ -1,5 +1,8 @@
 import './stacked-timelines.css';
 
+import * as d3 from 'd3';
+import d3Tip from 'd3-tip';
+
 import './d3-utils.js';
 import TimeOverview from './time-overview.js';
 import XYOverviewArea from './xy-overview-area.js';
@@ -53,10 +56,10 @@ export default function() {
         margin : {top: 26, right: 100, bottom: 30, left: 90 },
         groupBkgGradient : ['#FAFAFA', '#E0E0E0'],
 
-        xScale : d3.time.scale(),
-        yScale : d3.scale.ordinal(),
-        grpScale : d3.scale.ordinal(),
-        valScale : d3.scale.linear()
+        xScale : d3.scaleTime(),
+        yScale : d3.scalePoint(),
+        grpScale : d3.scaleOrdinal(),
+        valScale : d3.scaleLinear()
             .domain([0, 0.5, 1])
             .range(["red", "yellow", "green"])
             .clamp(false),
@@ -64,10 +67,10 @@ export default function() {
         zDataLabel: "", // Units of z data. Used in the tooltip descriptions
         zScaleLabel: "", // Units of valScale. Used in the legend label.
 
-        xAxis : d3.svg.axis(),
-        xGrid : d3.svg.axis(),
-        yAxis : d3.svg.axis(),
-        grpAxis : d3.svg.axis(),
+        xAxis : d3.axisBottom(),
+        xGrid : d3.axisTop(),
+        yAxis : d3.axisRight(),
+        grpAxis : d3.axisLeft(),
 
         svg : null,
         graph : null,
@@ -95,7 +98,7 @@ export default function() {
         throbberR: 23,
         forceThrobber: false,   // Force the throbber to stay on
 
-        enableOverview: true,
+        enableOverview: false, //true, // ToDo: Put this back to true
 
         axisClickURL: null,
 
@@ -169,7 +172,7 @@ export default function() {
             env.grpScale.invert = invertOrdinal;
 
             env.groupGradId = env.svg.addGradient(
-                d3.scale.linear()
+                d3.scaleLinear()
                     .domain([0, 1])
                     .range(env.groupBkgGradient),
                 -90
@@ -184,14 +187,14 @@ export default function() {
             var axises = env.svg.append('g');
 
             env.graph = env.svg.append('g')
-                    .attr("transform", "translate(" + env.margin.left + "," + env.margin.top + ")");
+                .attr("transform", "translate(" + env.margin.left + "," + env.margin.top + ")");
 
             axises.attr("class", "axises")
                 .attr("transform", "translate(" + env.margin.left + "," + env.margin.top + ")");
 
             axises.append("g")
                 .attr("class", "x-axis")
-                .style({ font: '12px sans-serif'});
+                .style('font', '12px sans-serif');
 
             axises.append("g")
                 .attr("class", "x-grid");
@@ -204,36 +207,16 @@ export default function() {
                 .attr("class", "grp-axis");
 
             env.xAxis.scale(env.xScale)
-                .orient("bottom")
                 .ticks(Math.round(env.graphW*0.011));
 
-            // Abbreviated month names
-            var xAxisFormat = d3.time.format.multi([
-                [".%L", function(d) { return d.getMilliseconds(); }],
-                [":%S", function(d) { return d.getSeconds(); }],
-                ["%I:%M", function(d) { return d.getMinutes(); }],
-                ["%I %p", function(d) { return d.getHours(); }],
-                ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
-                ["%b %d", function(d) { return d.getDate() != 1; }],
-                ["%b", function(d) { return d.getMonth(); }],
-                ["%Y", function() { return true; }]
-            ]);
-
-            env.xAxis.tickFormat(xAxisFormat);
-
             env.xGrid.scale(env.xScale)
-                .orient("top")
                 .tickFormat("")
                 .ticks(env.xAxis.ticks()[0]);
 
-            env.yAxis
-                .scale(env.yScale)
-                .orient("right")
+            env.yAxis.scale(env.yScale)
                 .tickSize(0);
 
-            env.grpAxis
-                .scale(env.grpScale)
-                .orient("left")
+            env.grpAxis.scale(env.grpScale)
                 .tickSize(0);
 
             env.svg.appendColorLegend(
@@ -331,18 +314,16 @@ export default function() {
         }
 
         function addTooltips() {
-            env.groupTooltip = d3.tip()
+            env.groupTooltip = d3Tip()
                 .direction('w')
                 .offset([0, 0])
-                .style({
-                    color: '#eee',
-                    background: "rgba(0,0,140,0.85)",
-                    padding: '5px',
-                    'border-radius': '3px',
-                    font: '14px sans-serif',
-                    'font-weight': 'bold',
-                    'z-index': 4000
-                })
+                .style('color', '#eee')
+                .style('background', "rgba(0,0,140,0.85)")
+                .style('padding', '5px')
+                .style('border-radius', '3px')
+                .style('font', '14px sans-serif')
+                .style('font-weight', 'bold')
+                .style('z-index', 4000)
                 .html(function(d) {
                     var leftPush = (d.hasOwnProperty("timeRange")
                         ?env.xScale(d.timeRange[0])
@@ -358,18 +339,16 @@ export default function() {
 
             env.svg.call(env.groupTooltip);
 
-            env.lineTooltip = d3.tip()
+            env.lineTooltip = d3Tip()
                 .direction('e')
                 .offset([0, 0])
-                .style({
-                    color: '#eee',
-                    background: "rgba(0,0,140,0.85)",
-                    padding: '5px',
-                    'border-radius': '3px',
-                    font: '13px sans-serif',
-                    'font-weight': 'bold',
-                    'z-index': 4000
-                })
+                .style('color', '#eee')
+                .style('background', "rgba(0,0,140,0.85)")
+                .style('padding', '5px')
+                .style('border-radius', '3px')
+                .style('font', '13px sans-serif')
+                .style('font-weight', 'bold')
+                .style('z-index', 4000)
                 .html(function(d) {
                     var rightPush = (d.hasOwnProperty("timeRange")?env.xScale.range()[1]-env.xScale(d.timeRange[1]):0);
                     env.lineTooltip.offset([0, rightPush]);
@@ -378,23 +357,21 @@ export default function() {
 
             env.svg.call(env.lineTooltip);
 
-            env.segmentTooltip = d3.tip()
+            env.segmentTooltip = d3Tip()
                 .direction('s')
                 .offset([5, 0])
-                .style({
-                    color: '#eee',
-                    background: "rgba(0,0,140,0.7)",
-                    padding: "5px",
-                    'border-radius': "3px",
-                    font: '11px sans-serif',
-                    'text-align': 'center',
-                    'z-index': 4000
-                })
+                .style('color', '#eee')
+                .style('background', "rgba(0,0,140,0.7)")
+                .style('padding', "5px")
+                .style('border-radius', "3px")
+                .style('font', '11px sans-serif')
+                .style('text-align', 'center')
+                .style('z-index', 4000)
                 .html(function(d) {
                     var normVal = env.valScale.domain()[env.valScale.domain().length-1] - env.valScale.domain()[0];
-                    var dateFormat = d3.time.format("%Y-%m-%d %H:%M:%S");
+                    var dateFormat = d3.timeFormat("%Y-%m-%d %H:%M:%S");
                     return "<strong>" + d.labelVal + " </strong>" + env.zDataLabel
-                        + (normVal?" (<strong>" + d3.round((d.val-env.valScale.domain()[0])/normVal*100, 2) + "%</strong>)":"") + "<br>"
+                        + (normVal?" (<strong>" + Math.round((d.val-env.valScale.domain()[0])/normVal*100*100)/100 + "%</strong>)":"") + "<br>"
                         + "<strong>From: </strong>" + dateFormat(d.timeRange[0]) + "<br>"
                         + "<strong>To: </strong>" + dateFormat(d.timeRange[1]);
                 });
@@ -415,12 +392,10 @@ export default function() {
                 env.disableHover=true;
 
                 var rect = env.graph.append("rect")
-                    .style({
-                        stroke: 'blue',
-                        'stroke-opacity': .6,
-                        fill: 'blue',
-                        'fill-opacity': .3
-                    });
+                    .style('stroke', 'blue')
+                    .style('stroke-opacity', .6)
+                    .style('fill', 'blue')
+                    .style('fill-opacity', .3);
 
                 var startCoords = d3.mouse(e);
 
@@ -464,8 +439,10 @@ export default function() {
                         var newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(env.xScale.invert);
 
                         var newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(function(d) {
-                            return env.yScale.domain().indexOf(env.yScale.invert(d))
-                                + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
+                            var range = env.yScale.range(),
+                                yIndex = env.yScale.domain().length * (d - range[0]) / (range[1] - range[0]);
+
+                            return yIndex + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
                         });
 
                         var changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper
@@ -487,12 +464,10 @@ export default function() {
                 .attr("x", env.margin.left + env.graphW*.99)
                 .attr("y", env.margin.top *.8)
                 .style("text-anchor", "end")
-                .style({
-                    'font-family': 'sans-serif',
-                    fill: "blue",
-                    opacity: .6,
-                    cursor: 'pointer'
-                })
+                .style('font-family', 'sans-serif')
+                .style('fill', "blue")
+                .style('opacity', .6)
+                .style('cursor', 'pointer')
                 .textFitToBox(env.graphW *.4, Math.min(13,env.margin.top *.8))
                 .on("mouseup" , function() {
                     env.$elem.trigger('resetZoom');
@@ -533,9 +508,8 @@ export default function() {
                     :[
                         d3.min(env.flatData, function(d) { return d.timeRange[0]; }),
                         d3.max(env.flatData, function(d) { return d.timeRange[1]; })
-                    ];
-
-                newZoomY = [null, null];
+                    ],
+                    newZoomY = [null, null];
 
                 if (prevZoomX[0]<newZoomX[0] || prevZoomX[1]>newZoomX[1]
                     || prevZoomY[0]!=newZoomY[0] || prevZoomY[1]!=newZoomX[1]) {
@@ -696,7 +670,7 @@ export default function() {
             }
 
             env.yScale.domain(labels);
-            env.yScale.rangePoints([env.graphH/labels.length*0.5, env.graphH*(1-0.5/labels.length)]);
+            env.yScale.range([env.graphH/labels.length*0.5, env.graphH*(1-0.5/labels.length)]);
         }
 
         function adjustGrpScale() {
@@ -722,17 +696,13 @@ export default function() {
 
             // X
             env.svg.select('g.x-axis')
-                .style({
-                    'stroke-opacity': 0,
-                    'fill-opacity': 0
-                })
+                .style('stroke-opacity', 0)
+                .style('fill-opacity', 0)
                 .attr("transform", "translate(0," + env.graphH + ")")
                 .transition().duration(env.transDuration)
                     .call(env.xAxis)
-                    .style({
-                        'stroke-opacity': 1,
-                        'fill-opacity': 1
-                    });
+                    .style('stroke-opacity', 1)
+                    .style('fill-opacity', 1);
 
             /* Angled x axis labels
             env.svg.select('g.x-axis').selectAll("text")
@@ -759,7 +729,7 @@ export default function() {
             });
             env.svg.select('g.y-axis')
                 .transition().duration(env.transDuration)
-                    .style({ font: fontSize + 'px sans-serif'})
+                    .style('font', fontSize + 'px sans-serif')
                     .call(env.yAxis);
 
             // Grp
@@ -774,7 +744,7 @@ export default function() {
             });
             env.svg.select('g.grp-axis')
                 .transition().duration(env.transDuration)
-                    .style({ font: fontSize + 'px sans-serif'})
+                    .style('font', fontSize + 'px sans-serif')
                     .call(env.grpAxis);
 
             // Make Axises clickable
@@ -801,13 +771,11 @@ export default function() {
 
             groups.exit()
                 .transition().duration(env.transDuration)
-                    .style({
-                        "stroke-opacity": 0,
-                        "fill-opacity": 0
-                    })
+                    .style("stroke-opacity", 0)
+                    .style("fill-opacity", 0)
                     .remove();
 
-            groups.enter()
+            var newGroups = groups.enter()
                 .append('rect').attr("class", "heatmap-group")
                 .attr('width', env.graphW)
                 .attr('x', 0)
@@ -815,11 +783,14 @@ export default function() {
                 .attr('height', 0)
                 .style('fill', 'url(#' + env.groupGradId + ')')
                 .on('mouseover', env.groupTooltip.show)
-                .on('mouseout', env.groupTooltip.hide)
-                .append('title')
+                .on('mouseout', env.groupTooltip.hide);
+
+            newGroups.append('title')
                 .text('click-drag to zoom in');
 
-            groups.transition().duration(env.transDuration)
+            groups = groups.merge(newGroups);
+
+            newGroups.transition().duration(env.transDuration)
                 .attr('height', function (d) {
                     return env.graphH*d.lines.length/env.nLines;
                 })
@@ -851,9 +822,7 @@ export default function() {
 
             timelines.exit()
                 .transition().duration(env.transDuration)
-                    .style({
-                        "fill-opacity": 0
-                    })
+                    .style("fill-opacity", 0)
                     .remove();
 
             var newSegments = timelines.enter()
@@ -864,12 +833,10 @@ export default function() {
                     .attr('y', env.graphH/2)
                     .attr('width', 0)
                     .attr('height', 0)
-                    .style({
-                            fill: function(d) {
-                                return env.valScale(d.val);
-                            },
-                            'fill-opacity': 0
-                        })
+                    .style('fill', function(d) {
+                        return env.valScale(d.val);
+                    })
+                    .style('fill-opacity', 0)
                     .on('mouseover.groupTooltip', env.groupTooltip.show)
                     .on('mouseout.groupTooltip', env.groupTooltip.hide)
                     .on('mouseover.lineTooltip', env.lineTooltip.show)
@@ -897,9 +864,7 @@ export default function() {
                             return env.yScale(d.group+"+&+"+d.label)-(env.lineHeight+hoverEnlarge)/2;
                         })
                         .attr('height', env.lineHeight+hoverEnlarge)
-                        .style({
-                            "fill-opacity": 1
-                        });
+                        .style("fill-opacity", 1);
                 })
                 .on("mouseout", function() {
                     d3.select(this)
@@ -914,10 +879,10 @@ export default function() {
                             return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
                         })
                         .attr('height', env.lineHeight)
-                        .style({
-                            "fill-opacity": .8
-                        });
+                        .style("fill-opacity", .8);
                 });
+
+            timelines = timelines.merge(newSegments);
 
             timelines.transition().duration(env.transDuration)
                     .attr('x', function (d) {
@@ -930,7 +895,7 @@ export default function() {
                         return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
                     })
                     .attr('height', env.lineHeight)
-                    .style({ 'fill-opacity': .8 });
+                    .style('fill-opacity', .8);
         }
     }
 

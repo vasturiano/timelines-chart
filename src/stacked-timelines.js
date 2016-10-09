@@ -2,7 +2,7 @@ import './stacked-timelines.css';
 
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
-import jquery from 'jquery';
+import jquery from 'jquery'; // ToDo: get rid of jquery dependency
 var $ = jquery;
 
 import './d3-utils.js';
@@ -253,16 +253,25 @@ export default function() {
 
             // Applies to ordinal scales (invert not supported in d3)
             function invertOrdinal(val, cmpFunc) {
-                cmpFunc = cmpFunc || function(a, b) {
-                    return (a>=b);
-                };
+                cmpFunc = cmpFunc || function (a, b) {
+                        return (a >= b);
+                    };
 
-                var bias = this.range()[0];
-                for (var i=0, len=this.range().length; i<len; i++) {
-                    if (cmpFunc(this.range()[i]+bias, val)) {
-                        return this.domain()[i];
+                var domain = this.domain(),
+                    range = this.range();
+
+                if (range.length === 2 && domain.length !== 2) {
+                    // Special case, interpolate range vals
+                    range = d3.range(range[0], range[1], (range[1] - range[0]) / domain.length);
+                }
+
+                var bias = range[0];
+                for (var i = 0, len = range.length; i < len; i++) {
+                    if (cmpFunc(range[i] + bias, val)) {
+                        return domain[Math.round(i * domain.length / range.length)];
                     }
                 }
+
                 return this.domain()[this.domain().length-1];
             }
 
@@ -432,11 +441,8 @@ export default function() {
                         var newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(env.xScale.invert);
 
                         var newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(function(d) {
-                            var range = env.yScale.range(),
-                                yIndex = Math.floor(env.yScale.domain().length * (d - range[0]) / (range[1] - range[0]));
-
-                            // ToDo: Use invertOrdinal to calc val
-                            return yIndex + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
+                            return env.yScale.domain().indexOf(env.yScale.invert(d))
+                                + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
                         });
 
                         var changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper

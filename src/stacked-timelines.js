@@ -277,8 +277,7 @@ export default function() {
                         },
                         width: env.width*0.8,
                         height: env.overviewHeight + overviewMargins.top + overviewMargins.bottom,
-                        verticalLabels: false,
-                        format: xAxisFormat
+                        verticalLabels: false
                     },
                     function(startTime, endTime) {
                         env.$elem.trigger('zoom', [[startTime, endTime], null]);
@@ -790,7 +789,7 @@ export default function() {
 
             groups = groups.merge(newGroups);
 
-            newGroups.transition().duration(env.transDuration)
+            groups.transition().duration(env.transDuration)
                 .attr('height', function (d) {
                     return env.graphH*d.lines.length/env.nLines;
                 })

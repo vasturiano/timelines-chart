@@ -2,6 +2,8 @@ import './stacked-timelines.css';
 
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
+import jquery from 'jquery';
+var $ = jquery;
 
 import './d3-utils.js';
 import TimeOverview from './time-overview.js';

@@ -296,7 +296,7 @@ export default function() {
                     d3.select(env.$elem[0]).append('div').node()
                 );
 
-                env.$elem.bind('zoomScent', function(event, zoomX, zoomY) {
+                env.$elem.on('zoomScent', function(event, zoomX, zoomY) {
                     if (!env.overviewArea || !zoomX) return;
 
                     // Out of overview bounds
@@ -486,7 +486,7 @@ export default function() {
 
         function setEvents() {
 
-            env.$elem.bind('zoom', function(event, zoomX, zoomY, redraw) {
+            env.$elem.on('zoom', function(event, zoomX, zoomY, redraw) {
 
                 redraw = (redraw==null)?true:redraw;
 
@@ -503,7 +503,7 @@ export default function() {
                 if (env.onZoom) env.onZoom(env.zoomX, env.zoomY);
             });
 
-            env.$elem.bind('resetZoom', function() {
+            env.$elem.on('resetZoom', function() {
                 var prevZoomX = env.zoomX;
                 var prevZoomY = env.zoomY || [null, null];
 

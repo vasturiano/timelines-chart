@@ -1,3 +1,5 @@
+
+// ToDo: move most of the inline style to css and BEM it
 import './stacked-timelines.css';
 
 import * as d3 from 'd3';
@@ -290,7 +292,9 @@ export default function() {
                     this
                 );
 
-                env.overviewArea.init(($('<div>').appendTo(env.$elem))[0]);
+                env.overviewArea.init(
+                    d3.select(env.$elem[0]).append('div').node()
+                );
 
                 env.$elem.bind('zoomScent', function(event, zoomX, zoomY) {
                     if (!env.overviewArea || !zoomX) return;

@@ -435,6 +435,7 @@ export default function() {
                             var range = env.yScale.range(),
                                 yIndex = Math.floor(env.yScale.domain().length * (d - range[0]) / (range[1] - range[0]));
 
+                            // ToDo: Use invertOrdinal to calc val
                             return yIndex + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
                         });
 

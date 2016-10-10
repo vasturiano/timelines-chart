@@ -1,6 +1,6 @@
-# Stacked Timelines Chart
+# Timelines Chart
 
-A stacked timelines layout for representing state of time-series over time. 
+A parallel timelines layout (swimlanes) for representing state of time-series over time. 
 Each timeline segment can be assigned a value on a color scale, either continuous (heatmap mode) or ordinal (for categorical representation).
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
 Current example (index.html in local folder) populated with randomly generated data.
@@ -18,15 +18,15 @@ open ```local/index.html``` in the browser.
 ## How to instantiate
 
 ```
-import { default as StackedTimelinesChart } from 'stacked-timelines-chart';
+import { default as TimelinesChart } from 'timelines-chart';
 ```
 or
 ```
-var StackedTimelinesChart = require('stacked-timelines-chart');
+var TimelinesChart = require('timelines-chart');
 ```
 then
 ```
-var myChart = StackedTimelinesChart();
+var myChart = TimelinesChart();
 
 myChart(<myDOMElement>, <myData>);
 ```
@@ -34,7 +34,7 @@ myChart(<myDOMElement>, <myData>);
 ## API functionality
 
 ```
-StackedTimelinesChart()
+TimelinesChart()
      .width(<px>)
      .leftMargin(<px>)
      .rightMargin(<px>)

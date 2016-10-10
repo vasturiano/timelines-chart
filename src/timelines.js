@@ -1,4 +1,4 @@
-import './stacked-timelines.css';
+import './timelines.css';
 
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
@@ -76,7 +76,7 @@ export default function() {
     function chart(nodeElem, data) {
 
         var elem = d3.select(nodeElem)
-            .attr('class', 'stacked-timelines-chart');
+            .attr('class', 'timelines-chart');
 
         env.svg = elem.append("svg");
         env.overviewAreaElem = elem.append('div');

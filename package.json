@@ -1,11 +1,12 @@
 {
-  "name": "stacked-timelines-chart",
+  "name": "timelines-chart",
   "version": "1.0.0",
-  "description": "A stacked timelines D3 chart for representing state of time-series over time.",
+  "description": "A parallel (swimlanes) timelines D3 chart for representing state of time-series over time.",
   "keywords": [
-    "d3",
     "timelines",
     "time-series",
+    "d3",
+    "swimlanes",
     "stacked",
     "heatmap",
     "lines"
@@ -15,17 +16,17 @@
     "url": "http://bl.ocks.org/vasturiano"
   },
   "license": "GPL-3.0",
-  "main": "dist/stacked-timelines-chart.js",
+  "main": "dist/timelines-chart.js",
   "jsnext:main": "src/index",
-  "homepage": "https://github.com/vasturiano/stacked-timelines-chart",
+  "homepage": "https://github.com/vasturiano/timelines-chart",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vasturiano/stacked-timelines-chart.git"
+    "url": "https://github.com/vasturiano/timelines-chart.git"
   },
   "scripts": {
     "build": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
     "watch": "rollup -c -w",
-    "minify": "uglifyjs dist/stacked-timelines-chart.js -o dist/stacked-timelines-chart.min.js -c -m --preamble \"$(preamble)\"",
+    "minify": "uglifyjs dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --preamble \"$(preamble)\"",
     "prepublish": "npm run build && npm run minify"
   },
   "dependencies": {

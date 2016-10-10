@@ -1,1 +1,1 @@
-export { default } from "./stacked-timelines.js";
+export { default } from "./timelines.js";

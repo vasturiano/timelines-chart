@@ -6,9 +6,9 @@ import postCssNested from 'postcss-nested';
 
 export default {
     entry: 'src/index.js',
-    dest: 'dist/stacked-timelines-chart.js',
+    dest: 'dist/timelines-chart.js',
     format: 'umd',
-    moduleName: 'StackedTimelinesChart',
+    moduleName: 'TimelinesChart',
     plugins: [
         commonJs(),
         nodeResolve({

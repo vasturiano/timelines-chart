@@ -18,7 +18,9 @@ open (local/index.html) in browser
 ## How to instantiate
 
 ```
-var myChart = StackedTimelinesChart();
+var StackedTimelinesChart = require('stacked-timelines-chart'),
+    myChart = StackedTimelinesChart();
+    
 myChart(myDOMElement, myData);
 ```
 

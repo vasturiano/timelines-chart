@@ -126,6 +126,16 @@ export default function() {
         initStatic();
         drawNewData(data);
 
+        //
+        var n = d3.select(nodeElem);
+
+        n.on('try', function(a,b,c,d,e) {
+            console.log(d3.event.detail);
+        });
+
+        n.dispatch('try', { detail: [1,2,3] });
+        //
+
         return chart;
     }
 
@@ -184,7 +194,7 @@ export default function() {
 
             env.graphW = env.width-env.margin.left-env.margin.right;
             env.xScale.range([0, env.graphW])
-                  .clamp(true);
+                .clamp(true);
 
             env.svg.attr("width", env.width);
 
@@ -287,7 +297,10 @@ export default function() {
                         verticalLabels: false
                     },
                     function(startTime, endTime) {
-                        env.$elem.trigger('zoom', [[startTime, endTime], null]);
+                        env.svg.dispatch('zoom', { detail: {
+                            zoomX: [startTime, endTime],
+                            zoomY: null
+                        }});
                     },
                     this
                 );
@@ -296,7 +309,9 @@ export default function() {
                     d3.select(env.$elem[0]).append('div').node()
                 );
 
-                env.$elem.on('zoomScent', function(event, zoomX, zoomY) {
+                env.svg.on('zoomScent', function() {
+                    var zoomX = d3.event.detail.zoomX;
+
                     if (!env.overviewArea || !zoomX) return;
 
                     // Out of overview bounds
@@ -311,12 +326,6 @@ export default function() {
                     } else { // Normal case
                         env.overviewArea.updateSelection(zoomX);
                     }
-
-                    /*
-                    var startLine = (zoomY&&zoomY[0]!=null)?zoomY[0]:0;
-                    var endLine = env.nLines?env.nLines+startLine:env.overviewArea.yDomain()[1];
-                    */
-
                 });
             }
         }
@@ -419,14 +428,13 @@ export default function() {
                             .attr("width", Math.abs(newCoords[0] - startCoords[0]))
                             .attr("height", Math.abs(newCoords[1] - startCoords[1]));
 
-                        env.$elem.trigger('zoomScent', [
-                                [startCoords[0], newCoords[0]].sort(d3.ascending).map(env.xScale.invert),
-                                [startCoords[1], newCoords[1]].sort(d3.ascending).map(function(d) {
-                                    return env.yScale.domain().indexOf(env.yScale.invert(d))
-                                        + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
-                                })
-                            ]
-                        );
+                        env.svg.dispatch('zoomScent', { detail: {
+                            zoomX: [startCoords[0], newCoords[0]].sort(d3.ascending).map(env.xScale.invert),
+                            zoomY: [startCoords[1], newCoords[1]].sort(d3.ascending).map(function(d) {
+                                return env.yScale.domain().indexOf(env.yScale.invert(d))
+                                    + ((env.zoomY && env.zoomY[0])?env.zoomY[0]:0);
+                            })
+                        }});
                     })
                     .on("mouseup.zoomRect", function() {
                         d3.select(window).on("mousemove.zoomRect", null).on("mouseup.zoomRect", null);
@@ -453,10 +461,10 @@ export default function() {
                         var changeY=(newDomainY[0]!=env.zoomY[0] || newDomainY[1]!=env.zoomY[1]);
 
                         if (changeX || changeY) {
-                            env.$elem.trigger('zoom', [
-                                changeX?newDomainX:null,
-                                changeY?newDomainY:null
-                            ]);
+                            env.svg.dispatch('zoom', { detail: {
+                                zoomX: changeX?newDomainX:null,
+                                zoomY: changeY?newDomainY:null
+                            }});
                         }
                     }, true);
 
@@ -474,7 +482,7 @@ export default function() {
                 .style('cursor', 'pointer')
                 .textFitToBox(env.graphW *.4, Math.min(13,env.margin.top *.8))
                 .on("mouseup" , function() {
-                    env.$elem.trigger('resetZoom');
+                    env.svg.dispatch('resetZoom');
                 })
                 .on("mouseover", function(){
                     d3.select(this).style('opacity', 1);
@@ -486,16 +494,21 @@ export default function() {
 
         function setEvents() {
 
-            env.$elem.on('zoom', function(event, zoomX, zoomY, redraw) {
-
-                redraw = (redraw==null)?true:redraw;
+            env.svg.on('zoom', function() {
+                var evData = d3.event.detail,
+                    zoomX = evData.zoomX,
+                    zoomY = evData.zoomY,
+                    redraw = (evData.redraw==null)?true:evData.redraw;
 
                 if (!zoomX && !zoomY) return;
 
                 if (zoomX) env.zoomX=zoomX;
                 if (zoomY) env.zoomY=zoomY;
 
-                env.$elem.trigger('zoomScent', [zoomX, zoomY]);
+                env.svg.dispatch('zoomScent', { detail: {
+                    zoomX: zoomX,
+                    zoomY: zoomY
+                }});
 
                 if (!redraw) return;
 
@@ -503,7 +516,7 @@ export default function() {
                 if (env.onZoom) env.onZoom(env.zoomX, env.zoomY);
             });
 
-            env.$elem.on('resetZoom', function() {
+            env.svg.on('resetZoom', function() {
                 var prevZoomX = env.zoomX;
                 var prevZoomY = env.zoomY || [null, null];
 
@@ -523,7 +536,10 @@ export default function() {
                         new Date(Math.max(prevZoomX[1],newZoomX[1]))
                     ];
                     env.zoomY = newZoomY;
-                    env.$elem.trigger('zoomScent', [env.zoomX, env.zoomY]);
+                    env.svg.dispatch('zoomScent', { detail: {
+                        zoomX: env.zoomX,
+                        zoomY: env.zoomY
+                    }});
 
                     draw();
                 }
@@ -1048,16 +1064,24 @@ export default function() {
     chart.zoomX = function(_, redraw) {
         if (!arguments.length) { return env.zoomX; }
         env.zoomX = _;
-        if (env.$elem)
-            env.$elem.trigger('zoom', [_, null, redraw]);
+        if (env.svg)
+            env.svg.dispatch('zoom', { detail: {
+                zoomX: _,
+                zoomY: null,
+                redraw: redraw
+            }});
         return chart;
     };
 
     chart.zoomY = function(_, redraw) {
         if (!arguments.length) { return env.zoomY; }
         env.zoomY = _;
-        if (env.$elem)
-            env.$elem.trigger('zoom', [null, _, redraw]);
+        if (env.svg)
+            env.svg.dispatch('zoom', { detail: {
+                zoomX: null,
+                zoomY: _,
+                redraw: redraw
+            }});
         return chart;
     };
 

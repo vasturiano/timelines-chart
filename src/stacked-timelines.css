@@ -9,68 +9,54 @@
     user-select: none;
 
     .axises {
-        shape-rendering: crispedges;
-
         line, path {
-            fill: none;
             stroke: #808080;
         }
-    }
 
-    .y-axis, .grp-axis {
-        line, path {
-            stroke: none;
+        .x-grid line {
+            stroke: #D3D3D3;
         }
-        text {
-            fill: #2F4F4F;
+
+        .y-axis, .grp-axis {
+            line, path {
+                stroke: none;
+            }
+            text {
+                fill: #2F4F4F;
+            }
         }
     }
 
-    .x-grid line {
-        stroke: #D3D3D3;
-    }
-
-    rect.series-group {
+    .series-group {
         fill-opacity: 0.6;
         stroke: #808080;
         stroke-opacity: 0.2;
-        cursor: crosshair;
     }
 
-    rect.series-segment {
+    .series-segment {
         stroke: none;
+    }
+
+    .series-group, .series-segment {
         cursor: crosshair;
     }
-}
 
-.legend .legendText {
-    fill: #666;
+    .legend .legendText {
+        fill: #666;
+    }
 }
 
 .brusher {
-    .axis {
-        text {
-            font: 11px sans-serif;
-        }
-
-        path {
-            display: none;
-        }
-
-        line {
-            fill: none;
-            stroke: #000;
-            shape-rendering: crispEdges;
-        }
-    }
-
     .grid-background {
         fill: #C0C0C0;
     }
 
+    .axis path {
+        display: none;
+    }
+
     .grid {
         line, path {
-            fill: none;
             stroke: #fff;
         }
 

@@ -59,3 +59,38 @@ StackedTimelinesChart()
      .onZoom(<callback function for user initiated zoom>)
      .refresh()
 ```
+## Data syntax
+
+```
+[
+  {
+    group: "group1name",
+    data: [
+      {
+        label: "label1name",
+        data: [
+          {
+            timeRange: [date, date],
+            val: 0.6
+          },
+          {
+            timeRange: [date, date],
+            val: 0.3
+          },
+          (...)
+        ]
+      },
+      {
+        label: "label2name",
+        data: [...]
+      },
+      (...)
+    ],
+  },
+  {
+    group: "group2name",
+    data: [...]
+  },
+  (...)
+]
+```

@@ -21,7 +21,7 @@ open (local/index.html) in browser
 var StackedTimelinesChart = require('stacked-timelines-chart'),
     myChart = StackedTimelinesChart();
     
-myChart(myDOMElement, myData);
+myChart(<myDOMElement>, <myData>);
 ```
 
 ## Exposed functionality

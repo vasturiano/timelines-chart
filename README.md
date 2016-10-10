@@ -31,7 +31,7 @@ var myChart = StackedTimelinesChart();
 myChart(<myDOMElement>, <myData>);
 ```
 
-## Exposed functionality
+## API functionality
 
 ```
 StackedTimelinesChart()

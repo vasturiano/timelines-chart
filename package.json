@@ -1,6 +1,6 @@
 {
   "name": "stacked-timelines-chart",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A stacked timelines D3 chart for representing state of time-series over time.",
   "keywords": [
     "d3",

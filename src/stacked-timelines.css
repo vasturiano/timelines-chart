@@ -1,5 +1,7 @@
 .stacked-timelines-chart {
 
+    text-align: center;
+
     /* Cancel selection interaction */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -11,6 +13,10 @@
     .axises {
         line, path {
             stroke: #808080;
+        }
+
+        .x-axis {
+            font: 12px sans-serif;
         }
 
         .x-grid line {
@@ -44,6 +50,13 @@
     .legend .legendText {
         fill: #666;
     }
+
+    .reset-zoom-btn {
+        font-family: sans-serif;
+        fill: blue;
+        opacity: .6;
+        cursor: pointer;
+    }
 }
 
 .brusher {
@@ -64,12 +77,37 @@
             stroke-opacity: .5;
         }
     }
+}
 
-    .brush .selection {
-        stroke: blue;
-        stroke-opacity: 0.6;
-        fill: blue;
-        fill-opacity: 0.3;
-        shape-rendering: crispEdges;
+.chart-zoom-selection, .brusher .brush .selection {
+    stroke: blue;
+    stroke-opacity: 0.6;
+    fill: blue;
+    fill-opacity: 0.3;
+    shape-rendering: crispEdges;
+}
+
+.chart-tooltip {
+    color: #eee;
+    background: rgba(0,0,140,0.85);
+    padding: 5px;
+    border-radius: 3px;
+    font: 11px sans-serif;
+    z-index: 4000;
+
+    &.group-tooltip {
+        font-size: 14px;
+    }
+
+    &.line-tooltip {
+        font-size: 13px;
+    }
+
+    &.group-tooltip, &.line-tooltip {
+        font-weight: bold;
+    }
+
+    &.segment-tooltip {
+         text-align: center;
     }
 }

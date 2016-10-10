@@ -1,5 +1,3 @@
-
-// ToDo: move most of the inline style to css and BEM it
 import './stacked-timelines.css';
 
 import * as d3 from 'd3';
@@ -115,8 +113,7 @@ export default function() {
     function chart(nodeElem, data) {
 
         var elem = d3.select(nodeElem)
-            .attr('class', 'stacked-timelines-chart')
-            .style('text-align', 'center');
+            .attr('class', 'stacked-timelines-chart');
 
         env.svg = elem.append("svg");
         env.overviewAreaElem = elem.append('div');
@@ -195,8 +192,7 @@ export default function() {
                 .attr("transform", "translate(" + env.margin.left + "," + env.margin.top + ")");
 
             axises.append("g")
-                .attr("class", "x-axis")
-                .style('font', '12px sans-serif');
+                .attr("class", "x-axis");
 
             axises.append("g")
                 .attr("class", "x-grid");
@@ -318,15 +314,9 @@ export default function() {
 
         function addTooltips() {
             env.groupTooltip = d3Tip()
+                .attr('class', 'chart-tooltip group-tooltip')
                 .direction('w')
                 .offset([0, 0])
-                .style('color', '#eee')
-                .style('background', "rgba(0,0,140,0.85)")
-                .style('padding', '5px')
-                .style('border-radius', '3px')
-                .style('font', '14px sans-serif')
-                .style('font-weight', 'bold')
-                .style('z-index', 4000)
                 .html(function(d) {
                     var leftPush = (d.hasOwnProperty("timeRange")
                         ?env.xScale(d.timeRange[0])
@@ -343,15 +333,9 @@ export default function() {
             env.svg.call(env.groupTooltip);
 
             env.lineTooltip = d3Tip()
+                .attr('class', 'chart-tooltip line-tooltip')
                 .direction('e')
                 .offset([0, 0])
-                .style('color', '#eee')
-                .style('background', "rgba(0,0,140,0.85)")
-                .style('padding', '5px')
-                .style('border-radius', '3px')
-                .style('font', '13px sans-serif')
-                .style('font-weight', 'bold')
-                .style('z-index', 4000)
                 .html(function(d) {
                     var rightPush = (d.hasOwnProperty("timeRange")?env.xScale.range()[1]-env.xScale(d.timeRange[1]):0);
                     env.lineTooltip.offset([0, rightPush]);
@@ -361,15 +345,9 @@ export default function() {
             env.svg.call(env.lineTooltip);
 
             env.segmentTooltip = d3Tip()
+                .attr('class', 'chart-tooltip segment-tooltip')
                 .direction('s')
                 .offset([5, 0])
-                .style('color', '#eee')
-                .style('background', "rgba(0,0,140,0.7)")
-                .style('padding', "5px")
-                .style('border-radius', "3px")
-                .style('font', '11px sans-serif')
-                .style('text-align', 'center')
-                .style('z-index', 4000)
                 .html(function(d) {
                     var normVal = env.valScale.domain()[env.valScale.domain().length-1] - env.valScale.domain()[0];
                     var dateFormat = d3.timeFormat("%Y-%m-%d %H:%M:%S");
@@ -395,10 +373,7 @@ export default function() {
                 env.disableHover=true;
 
                 var rect = env.graph.append("rect")
-                    .style('stroke', 'blue')
-                    .style('stroke-opacity', .6)
-                    .style('fill', 'blue')
-                    .style('fill-opacity', .3);
+                    .attr('class', 'chart-zoom-selection');
 
                 var startCoords = d3.mouse(e);
 
@@ -458,14 +433,11 @@ export default function() {
             });
 
             env.svg.append('text')
+                .attr('class', 'reset-zoom-btn')
                 .text("Reset Zoom")
                 .attr("x", env.margin.left + env.graphW*.99)
                 .attr("y", env.margin.top *.8)
                 .style("text-anchor", "end")
-                .style('font-family', 'sans-serif')
-                .style('fill', "blue")
-                .style('opacity', .6)
-                .style('cursor', 'pointer')
                 .textFitToBox(env.graphW *.4, Math.min(13,env.margin.top *.8))
                 .on("mouseup" , function() {
                     env.svg.dispatch('resetZoom');
@@ -781,8 +753,8 @@ export default function() {
                     .style("fill-opacity", 0)
                     .remove();
 
-            var newGroups = groups.enter()
-                .append('rect').attr("class", "series-group")
+            var newGroups = groups.enter().append('rect')
+                .attr("class", "series-group")
                 .attr('width', env.graphW)
                 .attr('x', 0)
                 .attr('y', 0)
@@ -832,7 +804,8 @@ export default function() {
                     .remove();
 
             var newSegments = timelines.enter()
-                .append('rect').attr("class", "series-segment")
+                .append('rect')
+                    .attr("class", "series-segment")
                     .attr('rx', 1)
                     .attr('ry', 1)
                     .attr('x', env.graphW/2)
@@ -860,48 +833,48 @@ export default function() {
                     d3.select(this)
                         .moveToFront()
                         .transition().duration(70)
-                        .attr('x', function (d) {
-                            return env.xScale(d.timeRange[0])-hoverEnlarge/2;
-                        })
-                        .attr('width', function (d) {
-                            return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])])+hoverEnlarge;
-                        })
-                        .attr('y', function (d) {
-                            return env.yScale(d.group+"+&+"+d.label)-(env.lineHeight+hoverEnlarge)/2;
-                        })
-                        .attr('height', env.lineHeight+hoverEnlarge)
-                        .style("fill-opacity", 1);
+                            .attr('x', function (d) {
+                                return env.xScale(d.timeRange[0])-hoverEnlarge/2;
+                            })
+                            .attr('width', function (d) {
+                                return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])])+hoverEnlarge;
+                            })
+                            .attr('y', function (d) {
+                                return env.yScale(d.group+"+&+"+d.label)-(env.lineHeight+hoverEnlarge)/2;
+                            })
+                            .attr('height', env.lineHeight+hoverEnlarge)
+                            .style("fill-opacity", 1);
                 })
                 .on("mouseout", function() {
                     d3.select(this)
                         .transition().duration(250)
-                        .attr('x', function (d) {
-                            return env.xScale(d.timeRange[0]);
-                        })
-                        .attr('width', function (d) {
-                            return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])]);
-                        })
-                        .attr('y', function (d) {
-                            return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
-                        })
-                        .attr('height', env.lineHeight)
-                        .style("fill-opacity", .8);
+                            .attr('x', function (d) {
+                                return env.xScale(d.timeRange[0]);
+                            })
+                            .attr('width', function (d) {
+                                return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])]);
+                            })
+                            .attr('y', function (d) {
+                                return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
+                            })
+                            .attr('height', env.lineHeight)
+                            .style("fill-opacity", .8);
                 });
 
             timelines = timelines.merge(newSegments);
 
             timelines.transition().duration(env.transDuration)
-                    .attr('x', function (d) {
-                        return env.xScale(d.timeRange[0]);
-                    })
-                    .attr('width', function (d) {
-                        return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])]);
-                    })
-                    .attr('y', function (d) {
-                        return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
-                    })
-                    .attr('height', env.lineHeight)
-                    .style('fill-opacity', .8);
+                .attr('x', function (d) {
+                    return env.xScale(d.timeRange[0]);
+                })
+                .attr('width', function (d) {
+                    return d3.max([1, env.xScale(d.timeRange[1])-env.xScale(d.timeRange[0])]);
+                })
+                .attr('y', function (d) {
+                    return env.yScale(d.group+"+&+"+d.label)-env.lineHeight/2;
+                })
+                .attr('height', env.lineHeight)
+                .style('fill-opacity', .8);
         }
     }
 

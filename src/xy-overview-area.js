@@ -11,12 +11,12 @@ export default function() {
         transitionDuration: 700
     };
 
-    function area($elem, w, h) {
+    function area(node, w, h) {
 
         env.xScale.range([env.margin.left, w-env.margin.right]);
         env.yScale.range([env.margin.top, h-env.margin.bottom]);
 
-        env.svg = d3.select($elem[0]).append("svg")
+        env.svg = d3.select(node).append("svg")
             .attr("width", w)
             .attr("height", h);
 
@@ -34,24 +34,17 @@ export default function() {
             .attr('ry', 2)
             .attr('width', env.xScale.range()[1])
             .attr('height', env.yScale.range()[1])
-            .style({
-                fill: '#EEE',
-                stroke: 'grey'
-            });
+            .style('fill', '#EEE')
+            .style('stroke', 'grey');
 
         env.selection = env.svg.append('rect')
+            .attr('class', 'chart-zoom-selection')
             .attr('x', env.xScale.range()[0])
             .attr('y', env.yScale.range()[0])
             .attr('rx', 1)
             .attr('ry', 1)
             .attr('width', 0)
-            .attr('height', 0)
-            .style({
-                stroke: 'blue',
-                'stroke-opacity': .6,
-                fill: 'blue',
-                'fill-opacity': .3
-            });
+            .attr('height', 0);
     }
 
     area.transitionDuration = function(_) {

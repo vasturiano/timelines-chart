@@ -47,8 +47,12 @@
         cursor: crosshair;
     }
 
-    .legend .legendText {
-        fill: #666;
+    .legend {
+        font-family: Sans-Serif;
+
+        .legendText {
+            fill: #666;
+        }
     }
 
     .reset-zoom-btn {

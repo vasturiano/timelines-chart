@@ -125,7 +125,6 @@ d3Selection.prototype.appendOrdinalColorLegend = function(w, h, scale, label) {
             .style("text-anchor", "middle")
             .style("dominant-baseline", "central")
             .style('fill', tinycolor(scale(val)).isLight()?'#333':'#DDD' )
-            .style('font-family', 'Sans-Serif')
             .textFitToBox(colorBinWidth, h*0.8);
 
         colorG.append('title')
@@ -170,7 +169,6 @@ d3Selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .style("text-anchor", "middle")
         .style("dominant-baseline", "central")
         .style('fill', tinycolor(scale((scale.domain()[scale.domain().length-1] - scale.domain()[0])/2)).isLight()?'#444':'#CCC' )
-        .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.8, h*0.9);
 
     this.append("text")
@@ -181,7 +179,6 @@ d3Selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .style("dominant-baseline", "central")
         .style('font', h*0.7 + 'px sans-serif')
         .style('fill', tinycolor(scale.range()[0]).isLight()?'#444':'#CCC' )
-        .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 
     this.append("text")
@@ -191,7 +188,6 @@ d3Selection.prototype.appendLinearColorLegend = function(w, h, scale, label) {
         .style("text-anchor", "end")
         .style("dominant-baseline", "central")
         .style('fill', tinycolor(scale.range()[scale.range().length-1]).isLight()?'#444':'#CCC' )
-        .style('font-family', 'Sans-Serif')
         .textFitToBox(w*0.3, h*0.7);
 
     return this;
@@ -248,15 +244,15 @@ d3Selection.prototype.appendSvgThrobber = function(x, y, r, color, duration, ang
         .attr('fill', color);
 
     path.append('animateTransform')
-            .attr('attributeName', 'transform')
-            .attr('attributeType', 'XML')
-            .attr('type', 'rotate')
-            .attr('from', '0 ' + x + ' ' + y)
-            .attr('to', '360 ' + x + ' ' + y)
-            .attr('begin', '0s')
-            .attr('dur', duration + 's')
-            .attr('fill', 'freeze')
-            .attr('repeatCount', 'indefinite');
+        .attr('attributeName', 'transform')
+        .attr('attributeType', 'XML')
+        .attr('type', 'rotate')
+        .attr('from', '0 ' + x + ' ' + y)
+        .attr('to', '360 ' + x + ' ' + y)
+        .attr('begin', '0s')
+        .attr('dur', duration + 's')
+        .attr('fill', 'freeze')
+        .attr('repeatCount', 'indefinite');
 
     return path;
 };

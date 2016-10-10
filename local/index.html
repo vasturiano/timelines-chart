@@ -1,27 +1,23 @@
 <head>
-	<script src="//code.jquery.com/jquery-2.2.3.min.js"></script>
-
 	<script src="mockup-data.js"></script>
 	<script src="../dist/stacked-timelines-chart.js"></script>
 
 	<script>
-		var myData = getMockupData();
-		$(function() {
-			var myPlot = StackedTimelinesChart()
-				.width($(window).width())
-				.throbberImg('throbber.gif')
+		var myData = getMockupData(),
+			myPlot = StackedTimelinesChart()
+				.width(window.innerWidth)
 				.zScaleLabel("My Scale Units");
 
-			myPlot($('#myPlot')[0], myData);
-
-			$('#myJson').text(JSON.stringify(myData, null, 4));
+		document.addEventListener("DOMContentLoaded", function() {
+			myPlot(document.getElementById("myPlot"), myData);
+			document.getElementById("myJson").innerText = JSON.stringify(myData, null, 4);
 		});
 	</script>
 </head>
 
 <body>
 	<div id="myPlot"></div>
-	<div style="display: initial">
+	<div>
 		<hr><b>JSON format:</b><br><br>
 		<div id="myJson" style="font-family: monospace; white-space: pre;"></div>
 	</div>

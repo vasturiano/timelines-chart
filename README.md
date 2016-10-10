@@ -70,12 +70,12 @@ StackedTimelinesChart()
         label: "label1name",
         data: [
           {
-            timeRange: [date, date],
-            val: 0.6
+            timeRange: [<date>, <date>],
+            val: <val: number (continuous dataScale) or string (ordinal dataScale)> 
           },
           {
-            timeRange: [date, date],
-            val: 0.3
+            timeRange: [<date>, <date>],
+            val: <val>
           },
           (...)
         ]

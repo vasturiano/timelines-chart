@@ -6,3 +6,54 @@ Time-series can be grouped into logical groups, represented as distinct sections
 Current example (index.html in local folder) populated with randomly generated data.
 
 Live example at: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
+
+## Quick start
+
+```
+npm install
+npm run build
+open (local/index.html) in browser
+```
+
+## How to instantiate
+
+```
+var myChart = StackedTimelinesChart();
+myChart(myDOMElement, myData);
+```
+
+## Exposed functionality
+
+```
+StackedTimelinesChart()
+     .width(<px>)
+     .leftMargin(<px>)
+     .rightMargin(<px>)
+     .topMargin(<px>)
+     .bottomMargin(<px>)
+     .maxHeight(<px>)
+     .throbberImg(<image URI>)
+     .dataDomain([<min>, <max>])
+     .dataScale(<d3 scale object>)
+     .getNLines()
+     .getTotalNLines()
+     .zoomX([<start date>, <end date>], <force redraw (boolean). default: true>)
+     .zoomY([<start row index, end row index], <force redraw (boolean). default: true>)
+     .zoomYLabels([<(start) {group,label}>, <(end) {group,label}>], <force redraw (boolean). default: true>)
+     .getVisibleStructure()
+     .minSegmentDuration(<msecs>)
+     .zDataLabel(<unit text on tooltips>)
+     .zScaleLabel(<legend unit text>)
+     .sort(<label compare function>, <group compare function>)
+     .sortAlpha(<ascending (boolean)>)
+     .sortChrono(<ascending (boolean)>)
+     .replaceData(<new data>, <keep graph structure (boolean). default: false>)
+     .enableOverview(<boolean>)
+     .overviewDomain(<new time range for overview: [<start date>, <end date>]>)
+     .animationsEnabled(<(boolean)>)
+     .forceThrobber(<force throbber on (boolean>). default: false>)
+     .axisClickURL(<URL to follow when clicking on Y axises>)
+     .getSvg()
+     .onZoom(<callback function for user initiated zoom>)
+     .refresh()
+```

@@ -1,72 +1,5 @@
-.stacked-timelines-chart .axises {
-    shape-rendering: crispedges;
-}
-.stacked-timelines-chart .axises line, .stacked-timelines-chart .axises path {
-    fill: none;
-    stroke: #808080;
-}
-.stacked-timelines-chart .y-axis line, .stacked-timelines-chart .y-axis path, .stacked-timelines-chart .grp-axis line, .stacked-timelines-chart .grp-axis path {
-    stroke: none;
-}
-.stacked-timelines-chart .y-axis text, .stacked-timelines-chart .grp-axis text {
-    fill: #2F4F4F;
-}
-.stacked-timelines-chart .x-grid line {
-    stroke: #D3D3D3;
-}
-.stacked-timelines-chart rect.series-group {
-    fill-opacity: 0.6;
-    stroke: #808080;
-    stroke-opacity: 0.2;
-    cursor: crosshair;
-}
-.stacked-timelines-chart rect.series-segment {
-    stroke: none;
-    cursor: crosshair;
-}
-
-
-.legend .legendText {
-    fill: #666;
-}
-
-
-.brusher .axis text {
-  font: 11px sans-serif;
-}
-
-.brusher .axis path {
-  display: none;
-}
-
-.brusher .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.brusher .grid-background {
-  fill: #C0C0C0;
-}
-
-.brusher .grid line, .brusher .grid path {
-  fill: none;
-  stroke: #fff;
-}
-
-.brusher .grid .minor.tick line {
-  stroke-opacity: .5;
-}
-
-.brusher .brush .selection {
-  stroke: blue;
-  stroke-opacity: 0.6;
-  fill: blue;
-  fill-opacity: 0.3;
-  shape-rendering: crispEdges;
-}
-
 .stacked-timelines-chart {
+
     /* Cancel selection interaction */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -74,4 +7,83 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    .axises {
+        shape-rendering: crispedges;
+
+        line, path {
+            fill: none;
+            stroke: #808080;
+        }
+    }
+
+    .y-axis, .grp-axis {
+        line, path {
+            stroke: none;
+        }
+        text {
+            fill: #2F4F4F;
+        }
+    }
+
+    .x-grid line {
+        stroke: #D3D3D3;
+    }
+
+    rect.series-group {
+        fill-opacity: 0.6;
+        stroke: #808080;
+        stroke-opacity: 0.2;
+        cursor: crosshair;
+    }
+
+    rect.series-segment {
+        stroke: none;
+        cursor: crosshair;
+    }
+}
+
+.legend .legendText {
+    fill: #666;
+}
+
+.brusher {
+    .axis {
+        text {
+            font: 11px sans-serif;
+        }
+
+        path {
+            display: none;
+        }
+
+        line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+    }
+
+    .grid-background {
+        fill: #C0C0C0;
+    }
+
+    .grid {
+        line, path {
+            fill: none;
+            stroke: #fff;
+        }
+
+        .minor.tick line {
+            stroke-opacity: .5;
+        }
+    }
+
+    .brush .selection {
+        stroke: blue;
+        stroke-opacity: 0.6;
+        fill: blue;
+        fill-opacity: 0.3;
+        shape-rendering: crispEdges;
+    }
 }

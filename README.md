@@ -12,15 +12,22 @@ Live example at: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
 ```
 npm install
 npm run build
-open (local/index.html) in browser
 ```
+open ```local/index.html``` in the browser.
 
 ## How to instantiate
 
 ```
-var StackedTimelinesChart = require('stacked-timelines-chart'),
-    myChart = StackedTimelinesChart();
-    
+import { default as StackedTimelinesChart } from 'stacked-timelines-chart';
+```
+or
+```
+var StackedTimelinesChart = require('stacked-timelines-chart');
+```
+then
+```
+var myChart = StackedTimelinesChart();
+
 myChart(<myDOMElement>, <myData>);
 ```
 

@@ -4,8 +4,6 @@ import './stacked-timelines.css';
 
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
-import jquery from 'jquery'; // ToDo: get rid of jquery dependency
-var $ = jquery;
 
 import './d3-utils.js';
 import TimeOverview from './time-overview.js';
@@ -50,7 +48,6 @@ export default function() {
      */
 
     var env = {
-        $elem: null,
         width : 720,  // default width
         height : null,
         maxHeight : 640, // default maxHeight
@@ -78,6 +75,7 @@ export default function() {
 
         svg : null,
         graph : null,
+        overviewAreaElem: null,
         overviewArea: null,
 
         graphW : null,
@@ -116,25 +114,15 @@ export default function() {
 
     function chart(nodeElem, data) {
 
-        env.$elem = $(nodeElem);
-
-        env.svg = d3.select(nodeElem)
+        var elem = d3.select(nodeElem)
             .attr('class', 'stacked-timelines-chart')
-            .style('text-align', 'center')
-            .append("svg");
+            .style('text-align', 'center');
+
+        env.svg = elem.append("svg");
+        env.overviewAreaElem = elem.append('div');
 
         initStatic();
         drawNewData(data);
-
-        //
-        var n = d3.select(nodeElem);
-
-        n.on('try', function(a,b,c,d,e) {
-            console.log(d3.event.detail);
-        });
-
-        n.dispatch('try', { detail: [1,2,3] });
-        //
 
         return chart;
     }
@@ -305,9 +293,7 @@ export default function() {
                     this
                 );
 
-                env.overviewArea.init(
-                    d3.select(env.$elem[0]).append('div').node()
-                );
+                env.overviewArea.init(env.overviewAreaElem.node());
 
                 env.svg.on('zoomScent', function() {
                     var zoomX = d3.event.detail.zoomX;

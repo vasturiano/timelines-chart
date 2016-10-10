@@ -32,7 +32,6 @@
   "dependencies": {
     "d3": "^4.2",
     "d3-tip": "^0.7",
-    "jquery":"^3.1",
     "tinycolor2": "^1.4"
   },
   "devDependencies": {

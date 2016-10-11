@@ -24,6 +24,10 @@ or
 ```
 var TimelinesChart = require('timelines-chart');
 ```
+or even
+```
+<script src="/path/to/dist/timelines-chart.js"></script>
+```
 then
 ```
 var myChart = TimelinesChart();

@@ -1,14 +1,15 @@
 # Timelines Chart
 
+<p align="center">
+     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/e8149ee26ebd37735d0c91b364a10816b784d386/preview.png"></a>
+</p>
+
 A parallel timelines layout (swimlanes) for representing state of time-series over time. 
 Each timeline segment can be assigned a value on a color scale, either continuous (heatmap mode) or ordinal (for categorical representation).
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
 Current example (index.html in local folder) populated with randomly generated data.
 
-Live example:
-<p align="center">
-     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/e8149ee26ebd37735d0c91b364a10816b784d386/preview.png"></a>
-</p>
+Live example: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
 
 ## Quick start
 

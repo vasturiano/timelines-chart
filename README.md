@@ -1,7 +1,7 @@
 # Timelines Chart
 
 <p align="center">
-     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/e8149ee26ebd37735d0c91b364a10816b784d386/preview.png"></a>
+     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="http://gist.github.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/preview.png"></a>
 </p>
 
 A parallel timelines layout (swimlanes) for representing state of time-series over time. 

@@ -7,7 +7,7 @@ Current example (index.html in local folder) populated with randomly generated d
 
 Live example:
 <p align="center">
-     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/c1c43cdb643f81a0e28b9c046e81811c52eddf5a/thumbnail.png"></a>
+     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/e8149ee26ebd37735d0c91b364a10816b784d386/preview.png"></a>
 </p>
 
 ## Quick start
@@ -18,7 +18,7 @@ npm run build
 ```
 open ```local/index.html``` in the browser.
 
-## How to instantiate
+### How to instantiate
 
 ```
 import { default as TimelinesChart } from 'timelines-chart';
@@ -34,11 +34,10 @@ or even
 then
 ```
 var myChart = TimelinesChart();
-
 myChart(<myDOMElement>, <myData>);
 ```
 
-## API functionality
+## API reference
 
 ```
 TimelinesChart()

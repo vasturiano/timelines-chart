@@ -5,7 +5,10 @@ Each timeline segment can be assigned a value on a color scale, either continuou
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
 Current example (index.html in local folder) populated with randomly generated data.
 
-Live example at: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
+Live example:
+<p align="center">
+     <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img src="https://gist.githubusercontent.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/c1c43cdb643f81a0e28b9c046e81811c52eddf5a/thumbnail.png"></a>
+</p>
 
 ## Quick start
 

@@ -64,6 +64,7 @@ export default function() {
         enableOverview: true,
 
         axisClickURL: null,
+        axisClickCallback: null,
 
         labelCmpFunction: alphaNumCmp,
         grpCmpFunction: alphaNumCmp,
@@ -689,20 +690,33 @@ export default function() {
                     .call(env.grpAxis);
 
             // Make Axises clickable
-            if (env.axisClickURL) {
-                env.svg.selectAll('g.y-axis,g.grp-axis').selectAll("text")
+            if (env.axisClickURL || env.axisClickCallback) {
+                var axisItems = env.svg.selectAll('g.y-axis,g.grp-axis').selectAll("text")
                     .style("cursor", "pointer")
                     .on("click", function(d){
                         var segms = d.split('+&+');
-                        var lbl = segms[segms.length-1];
-                        window.open(env.axisClickURL + lbl, '_blank');
-                    })
-                    .append('title')
-                        .text(function(d) {
-                            var segms = d.split('+&+');
+
+                        if (env.axisClickURL) {
                             var lbl = segms[segms.length-1];
-                            return 'Open ' + lbl + ' on ' + env.axisClickURL;
-                        });
+                            window.open(env.axisClickURL + lbl, '_blank');
+                        }
+
+                        if (env.axisClickCallback && typeof env.axisClickCallback === 'function') {
+                            env.axisClickCallback(
+                                (typeof segms[0] === "string") ? segms[0] : '',
+                                (typeof segms[1] === "string") ? segms[1] : ''
+                            );
+                        }
+                    })
+ 
+                    if (env.axisClickURL) {
+                        axisItems.append('title')
+                            .text(function(d) {
+                                var segms = d.split('+&+');
+                                var lbl = segms[segms.length-1];
+                                return 'Open ' + lbl + ' on ' + env.axisClickURL;
+                            });
+                    }
             }
         }
 
@@ -1157,6 +1171,13 @@ export default function() {
         env.axisClickURL = _;
         return chart;
     };
+    
+    chart.axisClickCallback = function(_) {
+        if (!arguments.length) { return env.axisClickCallback; }
+        env.axisClickCallback = _;
+        return chart;
+    };
+
 
     chart.getSvg = function() {
         return d3.select(env.svg.node().parentNode).html();

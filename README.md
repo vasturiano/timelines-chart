@@ -11,6 +11,8 @@ Current example (index.html in local folder) populated with randomly generated d
 
 Live example: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
 
+[![NPM](https://nodei.co/npm/timelines-chart.png?compact=true)](https://nodei.co/npm/timelines-chart/)
+
 ## Quick start
 
 ```

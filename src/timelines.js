@@ -1,11 +1,250 @@
 import './timelines.css';
 
+import Kapsule from 'kapsule';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 
 import './d3-utils.js';
 import TimeOverview from './time-overview.js';
 import XYOverviewArea from './xy-overview-area.js';
+
+function alphaNumCmp(a,b){
+    var alist = a.split(/(\d+)/),
+        blist = b.split(/(\d+)/);
+
+    (alist.length && alist[alist.length-1] == '') ? alist.pop() : null; // remove the last element if empty
+    (blist.length && blist[blist.length-1] == '') ? blist.pop() : null; // remove the last element if empty
+
+    for (var i = 0, len = Math.max(alist.length, blist.length); i < len;i++){
+        if (alist.length==i || blist.length==i) { // Out of bounds for one of the sides
+            return alist.length - blist.length;
+        }
+        if (alist[i] != blist[i]){ // find the first non-equal part
+            if (alist[i].match(/\d/)) // if numeric
+            {
+                return (+alist[i])-(+blist[i]); // compare as number
+            } else {
+                return (alist[i].toLowerCase() > blist[i].toLowerCase())?1:-1; // compare as string
+            }
+        }
+    }
+    return 0;
+}
+
+export default Kapsule({
+    props: {
+        width: { default: 720, triggerUpdate: false },
+        leftMargin: { default: 90, triggerUpdate: false },
+        rightMargin: { default: 100, triggerUpdate: false },
+        topMargin: {default: 26, triggerUpdate: false },
+        bottomMargin: {default: 30, triggerUpdate: false },
+        maxHeight: { default: 640 },
+        throbberImg: { triggerUpdate: false },
+        zoomX: {
+            onChange(zoomX, state) {
+                if (state.svg)
+                    state.svg.dispatch('zoom', { detail: {
+                        zoomX: zoomX,
+                        zoomY: null,
+                        redraw: false
+                    }});
+            }
+        },
+        zoomY: {
+            onChange(zoomY, state) {
+                if (state.svg)
+                    state.svg.dispatch('zoom', { detail: {
+                        zoomX: null,
+                        zoomY: zoomY,
+                        redraw: false
+                    }});
+            }
+        },
+        minSegmentDuration: {},
+        zDataLabel: { triggerUpdate: false },
+        zScaleLabel: { triggerUpdate: false },
+        enableOverview: {}, // True/False
+        animationsEnabled: {
+            default: true,
+            onChange(val, state) {
+                state.transDuration = val?700:0;
+            }
+        },
+        forceThrobber: { // True/false (true = shows throbber and leaves it on permanently. false = automatic internal management)
+            onChange(val, state) {
+                if (val && state.throbber) {
+                    state.throbber.show();
+                }
+            }
+        },
+        axisClickURL: { triggerUpdate: false },
+        onZoom: {}
+    },
+
+    methods: {
+        getNLines: s => s.nLines,
+        getTotalNLines: s => s.totalNLines,
+        getVisibleStructure: s => s.structData,
+        getSvg: s => d3.select(s.svg.node().parentNode).html(),
+        zoomYLabels(state, _) {
+            if (!_) { return [y2Label(state.zoomY[0]), y2Label(state.zoomY[1])]; }
+            return this.zoomY([label2Y(_[0], true), label2Y(_[1], false)]);
+
+            //
+
+            function y2Label(y) {
+
+                if (y==null) return y;
+
+                var cntDwn = y;
+                for (var i=0, len=state.completeStructData.length; i<len; i++) {
+                    if (state.completeStructData[i].lines.length>cntDwn)
+                        return getIdxLine(state.completeStructData[i], cntDwn);
+                    cntDwn-=state.completeStructData[i].lines.length;
+                }
+
+                // y larger than all lines, return last
+                return getIdxLine(state.completeStructData[state.completeStructData.length-1], state.completeStructData[state.completeStructData.length-1].lines.length-1);
+
+                //
+
+                function getIdxLine(grpData, idx) {
+                    return {
+                        'group': grpData.group,
+                        'label': grpData.lines[idx]
+                    };
+                }
+            }
+
+            function label2Y(label, useIdxAfterIfNotFound) {
+
+                useIdxAfterIfNotFound = useIdxAfterIfNotFound || false;
+                var subIdxNotFound = useIdxAfterIfNotFound?0:1;
+
+                if (label==null) return label;
+
+                var idx=0;
+                for (var i=0, lenI=state.completeStructData.length; i<lenI; i++) {
+                    var grpCmp = state.grpCmpFunction(label.group, state.completeStructData[i].group);
+                    if (grpCmp<0) break;
+                    if (grpCmp==0 && label.group==state.completeStructData[i].group) {
+                        for (var j=0, lenJ=state.completeStructData[i].lines.length; j<lenJ; j++) {
+                            var cmpRes = state.labelCmpFunction(label.label, state.completeStructData[i].lines[j]);
+                            if (cmpRes<0) {
+                                return idx+j-subIdxNotFound;
+                            }
+                            if (cmpRes==0 && label.label==state.completeStructData[i].lines[j]) {
+                                return idx+j;
+                            }
+                        }
+                        return idx+state.completeStructData[i].lines.length-subIdxNotFound;
+                    }
+                    idx+=state.completeStructData[i].lines.length;
+                }
+                return idx-subIdxNotFound;
+            }
+        },
+        sort(state, labelCmpFunction, grpCmpFunction) {
+            if (labelCmpFunction==null) { labelCmpFunction = state.labelCmpFunction }
+            if (grpCmpFunction==null) { grpCmpFunction = state.grpCmpFunction }
+
+            state.labelCmpFunction = labelCmpFunction;
+            state.grpCmpFunction = grpCmpFunction;
+
+            state.completeStructData.sort(function(a, b) {
+                return grpCmpFunction(a.group, b.group);
+            });
+
+            for (var i=0, len=state.completeStructData.length;i<len;i++) {
+                state.completeStructData[i].lines.sort(labelCmpFunction);
+            }
+
+            updateFn(state);
+
+            return this;
+        },
+        sortAlpha(state, asc) {
+            if (asc==null) { asc=true }
+            var alphaCmp = function (a, b) { return alphaNumCmp(asc?a:b, asc?b:a); };
+            return this.sort(alphaCmp, alphaCmp);
+        },
+        sortChrono(state, asc) {
+            if (asc==null) { asc=true }
+
+            function buildIdx(accessFunction) {
+                var idx = {};
+                for (var i= 0, len=state.completeFlatData.length; i<len; i++ ) {
+                    var key = accessFunction(state.completeFlatData[i]);
+                    if (idx.hasOwnProperty(key)) { continue; }
+
+                    var itmList = state.completeFlatData.filter(function(d) { return key == accessFunction(d); });
+                    idx[key] = [
+                        d3.min(itmList, function(d) { return d.timeRange[0]}),
+                        d3.max(itmList, function(d) { return d.timeRange[1]})
+                    ];
+                }
+                return idx;
+            }
+
+            var timeCmp = function (a, b) {
+
+                var aT = a[1], bT=b[1];
+
+                if (!aT || !bT) return null; // One of the two vals is null
+
+                if (aT[1].getTime()==bT[1].getTime()) {
+                    if (aT[0].getTime()==bT[0].getTime()) {
+                        return alphaNumCmp(a[0],b[0]); // If first and last is same, use alphaNum
+                    }
+                    return aT[0]-bT[0];   // If last is same, earliest first wins
+                }
+                return bT[1]-aT[1]; // latest last wins
+            };
+
+            function getCmpFunction(accessFunction, asc) {
+                return function(a, b) {
+                    return timeCmp(accessFunction(asc?a:b), accessFunction(asc?b:a));
+                }
+            }
+
+            var grpIdx = buildIdx(function(d) { return d.group; });
+            var lblIdx = buildIdx(function(d) { return d.label; });
+
+            var grpCmp = getCmpFunction(function(d) { return [d, grpIdx[d] || null]; }, asc);
+            var lblCmp = getCmpFunction(function(d) { return [d, lblIdx[d] || null]; }, asc);
+
+            return this.sort(lblCmp, grpCmp);
+        },
+        replaceData(state, newData, keepGraphStructure) {
+            keepGraphStructure = keepGraphStructure || false;
+            // ToDo: Gotta figure out what to do with this!
+            drawNewData(newData, keepGraphStructure);
+            return this;
+        },
+        overviewDomain(state, _) {
+            if (!state.enableOverview) { return null; }
+
+            if (!_) { return state.overviewArea.domainRange; }
+            state.overviewArea.update(_, state.overviewArea.currentSelection);
+            return this;
+        },
+        refresh(state) {
+            // ToDo: How to call update from here?
+            updateFn(state);
+            return this;
+        }
+    },
+
+    init(el, state) {
+        state.overviewHeight = 20; // Height of overview section in bottom
+        state.lineMaxHeight = 12;
+        state.minLabelFont = 2;
+    },
+
+    update: function updateFn(state) {
+
+    }
+});
 
 export default function() {
     var env = {

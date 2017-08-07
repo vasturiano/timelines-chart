@@ -7,7 +7,7 @@
 A parallel timelines layout (swimlanes) for representing state of time-series over time. 
 Each timeline segment can be assigned a value on a color scale, either continuous (heatmap mode) or ordinal (for categorical representation).
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
-Current example (index.html in local folder) populated with randomly generated data.
+Current example (index.html in example folder) populated with randomly generated data.
 
 Live example: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
 

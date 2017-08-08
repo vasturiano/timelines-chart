@@ -6,10 +6,12 @@
 		var myData = getMockupData(),
 			myPlot = TimelinesChart()
 				.width(window.innerWidth)
-				.zScaleLabel("My Scale Units");
+				.zScaleLabel("My Scale Units")
+				//.data(myData);
 
 		document.addEventListener("DOMContentLoaded", function() {
-			myPlot(document.getElementById("myPlot"), myData);
+			myPlot(document.getElementById("myPlot"))
+					.data(myData);
 			document.getElementById("myJson").innerText = JSON.stringify(myData, null, 4);
 		});
 	</script>

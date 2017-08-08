@@ -33,6 +33,59 @@ function alphaNumCmp(a,b){
 
 export default Kapsule({
     props: {
+        data: {
+            default: [],
+            onChange(data, state) {
+                parseData(data);
+
+                state.zoomX = [
+                    d3.min(state.completeFlatData, function(d) { return d.timeRange[0]; }),
+                    d3.max(state.completeFlatData, function(d) { return d.timeRange[1]; })
+                ];
+
+                state.zoomY = [null, null];
+
+                if (state.overviewArea) {
+                    state.overviewArea.update(state.zoomX, state.zoomX);
+                    //var yDomain = [0, state.totalNLines];
+                }
+
+                //
+
+                function parseData(rawData) {
+
+                    state.completeStructData = [];
+                    state.completeFlatData = [];
+                    state.totalNLines = 0;
+
+                    var dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
+
+                    for (var i= 0, ilen=rawData.length; i<ilen; i++) {
+                        var group = rawData[i].group;
+                        state.completeStructData.push({
+                            group: group,
+                            lines: rawData[i].data.map(function(d) { return d.label; })
+                        });
+
+                        for (var j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
+                            for (var k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
+                                state.completeFlatData.push({
+                                    group: group,
+                                    label: rawData[i].data[j].label,
+                                    timeRange: (dateObjs
+                                            ?rawData[i].data[j].data[k].timeRange
+                                            :[new Date(rawData[i].data[j].data[k].timeRange[0]), new Date(rawData[i].data[j].data[k].timeRange[1])]
+                                    ),
+                                    val: rawData[i].data[j].data[k].val,
+                                    labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val']
+                                });
+                            }
+                            state.totalNLines++;
+                        }
+                    }
+                }
+            }
+        },
         width: { default: 720, triggerUpdate: false },
         leftMargin: { default: 90, triggerUpdate: false },
         rightMargin: { default: 100, triggerUpdate: false },
@@ -40,7 +93,8 @@ export default Kapsule({
         bottomMargin: {default: 30, triggerUpdate: false },
         maxHeight: { default: 640 },
         throbberImg: { triggerUpdate: false },
-        zoomX: {
+        zoomX: {    // Which time-range to show (null = min/max)
+            default: [null, null],
             onChange(zoomX, state) {
                 if (state.svg)
                     state.svg.dispatch('zoom', { detail: {
@@ -50,7 +104,8 @@ export default Kapsule({
                     }});
             }
         },
-        zoomY: {
+        zoomY: {    // Which lines to show (null = min/max) [0 indexed]
+            default: [null, null],
             onChange(zoomY, state) {
                 if (state.svg)
                     state.svg.dispatch('zoom', { detail: {
@@ -61,9 +116,9 @@ export default Kapsule({
             }
         },
         minSegmentDuration: {},
-        zDataLabel: { triggerUpdate: false },
-        zScaleLabel: { triggerUpdate: false },
-        enableOverview: {}, // True/False
+        zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
+        zScaleLabel: { default: '', triggerUpdate: false }, // Units of valScale. Used in the legend label
+        enableOverview: { default: true }, // True/False
         animationsEnabled: {
             default: true,
             onChange(val, state) {
@@ -71,6 +126,7 @@ export default Kapsule({
             }
         },
         forceThrobber: { // True/false (true = shows throbber and leaves it on permanently. false = automatic internal management)
+            default: false,
             onChange(val, state) {
                 if (val && state.throbber) {
                     state.throbber.show();
@@ -78,7 +134,9 @@ export default Kapsule({
             }
         },
         axisClickURL: { triggerUpdate: false },
-        onZoom: {}
+
+        // Callbacks
+        onZoom: {} // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
     },
 
     methods: {
@@ -159,6 +217,7 @@ export default Kapsule({
                 state.completeStructData[i].lines.sort(labelCmpFunction);
             }
 
+            // ToDo: How to call update from here?
             updateFn(state);
 
             return this;
@@ -215,12 +274,6 @@ export default Kapsule({
 
             return this.sort(lblCmp, grpCmp);
         },
-        replaceData(state, newData, keepGraphStructure) {
-            keepGraphStructure = keepGraphStructure || false;
-            // ToDo: Gotta figure out what to do with this!
-            drawNewData(newData, keepGraphStructure);
-            return this;
-        },
         overviewDomain(state, _) {
             if (!state.enableOverview) { return null; }
 
@@ -236,17 +289,758 @@ export default Kapsule({
     },
 
     init(el, state) {
-        state.overviewHeight = 20; // Height of overview section in bottom
-        state.lineMaxHeight = 12;
-        state.minLabelFont = 2;
+        Object.assign(state, Object.assign({
+            height : null,
+            overviewHeight : 20, // Height of overview section in bottom
+            lineMaxHeight : 12,
+            minLabelFont : 2,
+            groupBkgGradient : ['#FAFAFA', '#E0E0E0'],
+
+            xScale : d3.scaleTime(),
+            yScale : d3.scalePoint(),
+            grpScale : d3.scaleOrdinal(),
+            valScale : d3.scaleLinear()
+                .domain([0, 0.5, 1])
+                .range(['red', 'yellow', 'green'])
+                .clamp(false),
+
+            xAxis : d3.axisBottom(),
+            xGrid : d3.axisTop(),
+            yAxis : d3.axisRight(),
+            grpAxis : d3.axisLeft(),
+
+            svg : null,
+            graph : null,
+            overviewAreaElem: null,
+            overviewArea: null,
+
+            graphW : null,
+            graphH : null,
+
+            completeStructData : null,
+            structData : null,
+            completeFlatData : null,
+            flatData : null,
+            totalNLines : null,
+            nLines : null,
+
+            minSegmentDuration : 0, // ms
+
+            transDuration : 700,     // ms for transition duration
+
+            throbber: null,
+            throbberR: 23,
+
+            labelCmpFunction: alphaNumCmp,
+            grpCmpFunction: alphaNumCmp
+        }, state));
+
+        const elem = d3.select(el)
+            .attr('class', 'timelines-chart');
+
+        state.svg = elem.append('svg');
+        state.overviewAreaElem = elem.append('div');
+
+        buildDomStructure();
+        addTooltips();
+        addZoomSelection();
+        setEvents();
+
+        //
+
+        function buildDomStructure () {
+
+            state.yScale.invert = invertOrdinal;
+            state.grpScale.invert = invertOrdinal;
+
+            state.groupGradId = state.svg.addGradient(
+                d3.scaleLinear()
+                    .domain([0, 1])
+                    .range(state.groupBkgGradient),
+                -90
+            );
+
+            state.graphW = state.width-state.leftMargin-state.rightMargin;
+            state.xScale.range([0, state.graphW])
+                .clamp(true);
+
+            state.svg.attr('width', state.width);
+
+            var axises = state.svg.append('g');
+
+            state.graph = state.svg.append('g')
+                .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
+
+            axises.attr('class', 'axises')
+                .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
+
+            axises.append('g')
+                .attr('class', 'x-axis');
+
+            axises.append('g')
+                .attr('class', 'x-grid');
+
+            axises.append('g')
+                .attr('class', 'y-axis')
+                .attr('transform', 'translate(' + state.graphW + ', 0)');
+
+            axises.append('g')
+                .attr('class', 'grp-axis');
+
+            state.xAxis.scale(state.xScale)
+                .ticks(Math.round(state.graphW*0.011));
+
+            state.xGrid.scale(state.xScale)
+                .tickFormat('')
+                .ticks(state.xAxis.ticks()[0]);
+
+            state.yAxis.scale(state.yScale)
+                .tickSize(0);
+
+            state.grpAxis.scale(state.grpScale)
+                .tickSize(0);
+
+            state.svg.appendColorLegend(
+                (state.leftMargin + state.graphW*0.05),
+                2,
+                state.graphW/3,
+                state.topMargin*.6,
+                state.valScale,
+                state.zScaleLabel
+            );
+
+
+            if (state.enableOverview) {
+                addOverviewArea();
+            }
+
+            if (state.throbberImg) {
+                state.throbber = state.svg.appendImage(
+                    state.throbberImg,
+                    state.leftMargin + (state.graphW-state.throbberR)/2,
+                    state.topMargin + 5,
+                    state.throbberR,
+                    state.throbberR,
+                    'xMidYMin'
+                ).hide();
+
+                state.throbber.img
+                    .style('opacity', 0.85)
+                    .append('title').text('Loading data...');
+            }
+
+
+            // Applies to ordinal scales (invert not supported in d3)
+            function invertOrdinal(val, cmpFunc) {
+                cmpFunc = cmpFunc || function (a, b) {
+                        return (a >= b);
+                    };
+
+                var domain = this.domain(),
+                    range = this.range();
+
+                if (range.length === 2 && domain.length !== 2) {
+                    // Special case, interpolate range vals
+                    range = d3.range(range[0], range[1], (range[1] - range[0]) / domain.length);
+                }
+
+                var bias = range[0];
+                for (var i = 0, len = range.length; i < len; i++) {
+                    if (cmpFunc(range[i] + bias, val)) {
+                        return domain[Math.round(i * domain.length / range.length)];
+                    }
+                }
+
+                return this.domain()[this.domain().length-1];
+            }
+
+            function addOverviewArea() {
+                var overviewMargins = { top: 1, right: 20, bottom: 20, left: 20 };
+                state.overviewArea = new TimeOverview(
+                    {
+                        margins: overviewMargins,
+                        width: state.width*0.8,
+                        height: state.overviewHeight + overviewMargins.top + overviewMargins.bottom,
+                        verticalLabels: false
+                    },
+                    function(startTime, endTime) {
+                        state.svg.dispatch('zoom', { detail: {
+                            zoomX: [startTime, endTime],
+                            zoomY: null
+                        }});
+                    },
+                    this
+                );
+
+                state.overviewArea.init(state.overviewAreaElem.node());
+
+                state.svg.on('zoomScent', function() {
+                    var zoomX = d3.event.detail.zoomX;
+
+                    if (!state.overviewArea || !zoomX) return;
+
+                    // Out of overview bounds
+                    if (zoomX[0]<state.overviewArea.domainRange[0] || zoomX[1]>state.overviewArea.domainRange[1]) {
+                        state.overviewArea.update(
+                            [
+                                new Date(Math.min(zoomX[0], state.overviewArea.domainRange[0])),
+                                new Date(Math.max(zoomX[1], state.overviewArea.domainRange[1]))
+                            ],
+                            state.zoomX
+                        );
+                    } else { // Normal case
+                        state.overviewArea.updateSelection(zoomX);
+                    }
+                });
+            }
+        }
+
+        function addTooltips() {
+            state.groupTooltip = d3Tip()
+                .attr('class', 'chart-tooltip group-tooltip')
+                .direction('w')
+                .offset([0, 0])
+                .html(function(d) {
+                    var leftPush = (d.hasOwnProperty('timeRange')
+                            ?state.xScale(d.timeRange[0])
+                            :0
+                    );
+                    var topPush = (d.hasOwnProperty('label')
+                            ?state.grpScale(d.group)-state.yScale(d.group+'+&+'+d.label)
+                            :0
+                    );
+                    state.groupTooltip.offset([topPush, -leftPush]);
+                    return d.group;
+                });
+
+            state.svg.call(state.groupTooltip);
+
+            state.lineTooltip = d3Tip()
+                .attr('class', 'chart-tooltip line-tooltip')
+                .direction('e')
+                .offset([0, 0])
+                .html(function(d) {
+                    var rightPush = (d.hasOwnProperty('timeRange')?state.xScale.range()[1]-state.xScale(d.timeRange[1]):0);
+                    state.lineTooltip.offset([0, rightPush]);
+                    return d.label;
+                });
+
+            state.svg.call(state.lineTooltip);
+
+            state.segmentTooltip = d3Tip()
+                .attr('class', 'chart-tooltip segment-tooltip')
+                .direction('s')
+                .offset([5, 0])
+                .html(function(d) {
+                    var normVal = state.valScale.domain()[state.valScale.domain().length-1] - state.valScale.domain()[0];
+                    var dateFormat = d3.timeFormat('%Y-%m-%d %H:%M:%S');
+                    return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
+                        + (normVal?' (<strong>' + Math.round((d.val-state.valScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
+                        + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
+                        + '<strong>To: </strong>' + dateFormat(d.timeRange[1]);
+                });
+
+            state.svg.call(state.segmentTooltip);
+        }
+
+        function addZoomSelection() {
+            state.graph.on('mousedown', function() {
+                if (d3.select(window).on('mousemove.zoomRect')!=null) // Selection already active
+                    return;
+
+                var e = this;
+
+                if (d3.mouse(e)[0]<0 || d3.mouse(e)[0]>state.graphW || d3.mouse(e)[1]<0 || d3.mouse(e)[1]>state.graphH)
+                    return;
+
+                state.disableHover=true;
+
+                var rect = state.graph.append('rect')
+                    .attr('class', 'chart-zoom-selection');
+
+                var startCoords = d3.mouse(e);
+
+                d3.select(window)
+                    .on('mousemove.zoomRect', function() {
+                        d3.event.stopPropagation();
+                        var newCoords = [
+                            Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
+                            Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
+                        ];
+                        rect.attr('x', Math.min(startCoords[0], newCoords[0]))
+                            .attr('y', Math.min(startCoords[1], newCoords[1]))
+                            .attr('width', Math.abs(newCoords[0] - startCoords[0]))
+                            .attr('height', Math.abs(newCoords[1] - startCoords[1]));
+
+                        state.svg.dispatch('zoomScent', { detail: {
+                            zoomX: [startCoords[0], newCoords[0]].sort(d3.ascending).map(state.xScale.invert),
+                            zoomY: [startCoords[1], newCoords[1]].sort(d3.ascending).map(function(d) {
+                                return state.yScale.domain().indexOf(state.yScale.invert(d))
+                                    + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0);
+                            })
+                        }});
+                    })
+                    .on('mouseup.zoomRect', function() {
+                        d3.select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
+                        d3.select('body').classed('stat-noselect', false);
+                        rect.remove();
+                        state.disableHover=false;
+
+                        var endCoords = [
+                            Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
+                            Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
+                        ];
+
+                        if (startCoords[0]==endCoords[0] && startCoords[1]==endCoords[1])
+                            return;
+
+                        var newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(state.xScale.invert);
+
+                        var newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(function(d) {
+                            return state.yScale.domain().indexOf(state.yScale.invert(d))
+                                + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0);
+                        });
+
+                        var changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper
+                        var changeY=(newDomainY[0]!=state.zoomY[0] || newDomainY[1]!=state.zoomY[1]);
+
+                        if (changeX || changeY) {
+                            state.svg.dispatch('zoom', { detail: {
+                                zoomX: changeX?newDomainX:null,
+                                zoomY: changeY?newDomainY:null
+                            }});
+                        }
+                    }, true);
+
+                d3.event.stopPropagation();
+            });
+
+            state.svg.append('text')
+                .attr('class', 'reset-zoom-btn')
+                .text('Reset Zoom')
+                .attr('x', state.leftMargin + state.graphW*.99)
+                .attr('y', state.topMargin *.8)
+                .style('text-anchor', 'end')
+                .textFitToBox(state.graphW *.4, Math.min(13,state.topMargin *.8))
+                .on('mouseup' , function() {
+                    state.svg.dispatch('resetZoom');
+                })
+                .on('mouseover', function(){
+                    d3.select(this).style('opacity', 1);
+                })
+                .on('mouseout', function() {
+                    d3.select(this).style('opacity', .6);
+                });
+        }
+
+        function setEvents() {
+
+            state.svg.on('zoom', function() {
+                var evData = d3.event.detail,
+                    zoomX = evData.zoomX,
+                    zoomY = evData.zoomY,
+                    redraw = (evData.redraw==null)?true:evData.redraw;
+
+                if (!zoomX && !zoomY) return;
+
+                if (zoomX) state.zoomX=zoomX;
+                if (zoomY) state.zoomY=zoomY;
+
+                state.svg.dispatch('zoomScent', { detail: {
+                    zoomX: zoomX,
+                    zoomY: zoomY
+                }});
+
+                if (!redraw) return;
+
+                // ToDo figure this out!!
+                draw();
+                if (state.onZoom) state.onZoom(state.zoomX, state.zoomY);
+            });
+
+            state.svg.on('resetZoom', function() {
+                var prevZoomX = state.zoomX;
+                var prevZoomY = state.zoomY || [null, null];
+
+                var newZoomX = state.enableOverview
+                        ?state.overviewArea.domainRange
+                        :[
+                        d3.min(state.flatData, function(d) { return d.timeRange[0]; }),
+                        d3.max(state.flatData, function(d) { return d.timeRange[1]; })
+                    ],
+                    newZoomY = [null, null];
+
+                if (prevZoomX[0]<newZoomX[0] || prevZoomX[1]>newZoomX[1]
+                    || prevZoomY[0]!=newZoomY[0] || prevZoomY[1]!=newZoomX[1]) {
+
+                    state.zoomX = [
+                        new Date(Math.min(prevZoomX[0],newZoomX[0])),
+                        new Date(Math.max(prevZoomX[1],newZoomX[1]))
+                    ];
+                    state.zoomY = newZoomY;
+                    state.svg.dispatch('zoomScent', { detail: {
+                        zoomX: state.zoomX,
+                        zoomY: state.zoomY
+                    }});
+
+                    draw();
+                }
+
+                if (state.onZoom) state.onZoom(null, null);
+            });
+        }
     },
 
     update: function updateFn(state) {
 
+        applyFilters();
+        setupHeights();
+
+        adjustXScale();
+        adjustYScale();
+        adjustGrpScale();
+
+        renderAxises();
+        renderGroups();
+
+        if (state.throbber) { state.throbber.show(); }
+
+        renderTimelines();
+
+        if (state.throbber && !state.forceThrobber) {
+            state.throbber.hide();
+        }
+
+        //
+
+        function applyFilters() {
+            // Flat data based on segment length
+            state.flatData = (state.minSegmentDuration>0
+                    ?state.completeFlatData.filter(function(d) {
+                    return (d.timeRange[1]-d.timeRange[0])>=state.minSegmentDuration;
+                })
+                    :state.completeFlatData
+            );
+
+            // zoomY
+            if (state.zoomY==null || state.zoomY==[null, null]) {
+                state.structData = state.completeStructData;
+                state.nLines=0;
+                for (var i=0, len=state.structData.length; i<len; i++) {
+                    state.nLines += state.structData[i].lines.length;
+                }
+                return;
+            }
+
+            state.structData = [];
+            var cntDwn = [state.zoomY[0]==null?0:state.zoomY[0]]; // Initial threshold
+            cntDwn.push(Math.max(0, (state.zoomY[1]==null?state.totalNLines:state.zoomY[1]+1)-cntDwn[0])); // Number of lines
+            state.nLines = cntDwn[1];
+            for (var i=0, len=state.completeStructData.length; i<len; i++) {
+
+                var validLines = state.completeStructData[i].lines;
+
+                if(state.minSegmentDuration>0) {  // Use only non-filtered (due to segment length) groups/labels
+                    if (!state.flatData.some(function(d){
+                            return d.group == state.completeStructData[i].group;
+                        })) {
+                        continue; // No data for this group
+                    }
+
+                    validLines = state.completeStructData[i].lines.filter( function(d) {
+                        return state.flatData.some( function (dd) {
+                            return (dd.group == state.completeStructData[i].group && dd.label == d);
+                        })
+                    });
+                }
+
+                if (cntDwn[0]>=validLines.length) { // Ignore whole group (before start)
+                    cntDwn[0]-=validLines.length;
+                    continue;
+                }
+
+                var groupData = {
+                    group: state.completeStructData[i].group,
+                    lines: null
+                };
+
+                if (validLines.length-cntDwn[0]>=cntDwn[1]) {  // Last (or first && last) group (partial)
+                    groupData.lines = validLines.slice(cntDwn[0],cntDwn[1]+cntDwn[0]);
+                    state.structData.push(groupData);
+                    cntDwn[1]=0;
+                    break;
+                }
+
+                if (cntDwn[0]>0) {  // First group (partial)
+                    groupData.lines = validLines.slice(cntDwn[0]);
+                    cntDwn[0]=0;
+                } else {    // Middle group (full fit)
+                    groupData.lines = validLines;
+                }
+
+                state.structData.push(groupData);
+                cntDwn[1]-=groupData.lines.length;
+            }
+
+            state.nLines-=cntDwn[1];
+        }
+
+        function setupHeights() {
+            state.graphH = d3.min([state.nLines*state.lineMaxHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
+            state.height = state.graphH + state.topMargin + state.bottomMargin;
+            state.svg.transition().duration(state.transDuration)
+                .attr('height', state.height);
+        }
+
+        function adjustXScale() {
+
+            state.zoomX[0] = state.zoomX[0] || d3.min(state.flatData, function(d) { return d.timeRange[0]; });
+            state.zoomX[1] = state.zoomX[1] || d3.max(state.flatData, function(d) { return d.timeRange[1]; });
+
+            state.xScale.domain(state.zoomX);
+        }
+
+        function adjustYScale() {
+            var labels = [];
+            for (var i= 0, len=state.structData.length; i<len; i++) {
+                labels = labels.concat(state.structData[i].lines.map(function (d) {
+                    return state.structData[i].group + '+&+' + d
+                }));
+            }
+
+            state.yScale.domain(labels);
+            state.yScale.range([state.graphH/labels.length*0.5, state.graphH*(1-0.5/labels.length)]);
+        }
+
+        function adjustGrpScale() {
+            state.grpScale.domain(state.structData.map(function(d) { return d.group; }));
+
+            var cntLines=0;
+            state.grpScale.range(state.structData.map(function(d) {
+                var pos = (cntLines+d.lines.length/2)/state.nLines*state.graphH;
+                cntLines+=d.lines.length;
+                return pos;
+            }));
+        }
+
+        function renderAxises() {
+
+            function reduceLabel(label, maxChars) {
+                return label.length<=maxChars?label:(
+                label.substring(0, maxChars*2/3)
+                + '...'
+                + label.substring(label.length - maxChars/3, label.length
+                ));
+            }
+
+            // X
+            state.svg.select('g.x-axis')
+                .style('stroke-opacity', 0)
+                .style('fill-opacity', 0)
+                .attr('transform', 'translate(0,' + state.graphH + ')')
+                .transition().duration(state.transDuration)
+                .call(state.xAxis)
+                .style('stroke-opacity', 1)
+                .style('fill-opacity', 1);
+
+            /* Angled x axis labels
+             state.svg.select('g.x-axis').selectAll('text')
+             .style('text-anchor', 'end')
+             .attr('transform', 'translate(-10, 3) rotate(-60)');
+             */
+
+            state.xGrid.tickSize(state.graphH);
+            state.svg.select('g.x-grid')
+                .attr('transform', 'translate(0,' + state.graphH + ')')
+                .transition().duration(state.transDuration)
+                .call(state.xGrid);
+
+            // Y
+            var fontVerticalMargin = 0.6;
+            var labelDisplayRatio = Math.ceil(state.nLines*state.minLabelFont/Math.sqrt(2)/state.graphH/fontVerticalMargin);
+            var tickVals = state.yScale.domain().filter(function(d, i) { return !(i % labelDisplayRatio); });
+            var fontSize = Math.min(12, state.graphH/tickVals.length*fontVerticalMargin*Math.sqrt(2));
+            var maxChars = Math.ceil(state.rightMargin/(fontSize/Math.sqrt(2)));
+
+            state.yAxis.tickValues(tickVals);
+            state.yAxis.tickFormat(function(d) {
+                return reduceLabel(d.split('+&+')[1], maxChars);
+            });
+            state.svg.select('g.y-axis')
+                .transition().duration(state.transDuration)
+                .style('font', fontSize + 'px sans-serif')
+                .call(state.yAxis);
+
+            // Grp
+            var minHeight = d3.min(state.grpScale.range(), function (d,i) {
+                return i>0?d-state.grpScale.range()[i-1]:d*2;
+            });
+            fontSize = Math.min(14, minHeight*fontVerticalMargin*Math.sqrt(2));
+            maxChars = Math.floor(state.leftMargin/(fontSize/Math.sqrt(2)));
+
+            state.grpAxis.tickFormat(function(d) {
+                return reduceLabel(d, maxChars);
+            });
+            state.svg.select('g.grp-axis')
+                .transition().duration(state.transDuration)
+                .style('font', fontSize + 'px sans-serif')
+                .call(state.grpAxis);
+
+            // Make Axises clickable
+            if (state.axisClickURL) {
+                state.svg.selectAll('g.y-axis,g.grp-axis').selectAll('text')
+                    .style('cursor', 'pointer')
+                    .on('click', function(d){
+                        var segms = d.split('+&+');
+                        var lbl = segms[segms.length-1];
+                        window.open(state.axisClickURL + lbl, '_blank');
+                    })
+                    .append('title')
+                    .text(function(d) {
+                        var segms = d.split('+&+');
+                        var lbl = segms[segms.length-1];
+                        return 'Open ' + lbl + ' on ' + state.axisClickURL;
+                    });
+            }
+        }
+
+        function renderGroups() {
+
+            var groups = state.graph.selectAll('rect.series-group').data(state.structData, function(d) { return d.group});
+
+            groups.exit()
+                .transition().duration(state.transDuration)
+                .style('stroke-opacity', 0)
+                .style('fill-opacity', 0)
+                .remove();
+
+            var newGroups = groups.enter().append('rect')
+                .attr('class', 'series-group')
+                .attr('width', state.graphW)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('height', 0)
+                .style('fill', 'url(#' + state.groupGradId + ')')
+                .on('mouseover', state.groupTooltip.show)
+                .on('mouseout', state.groupTooltip.hide);
+
+            newGroups.append('title')
+                .text('click-drag to zoom in');
+
+            groups = groups.merge(newGroups);
+
+            groups.transition().duration(state.transDuration)
+                .attr('height', function (d) {
+                    return state.graphH*d.lines.length/state.nLines;
+                })
+                .attr('y', function (d) {
+                    return state.grpScale(d.group)-state.graphH*d.lines.length/state.nLines/2;
+                });
+        }
+
+        function renderTimelines(maxElems) {
+
+            if (maxElems<0) maxElems=null;
+
+            var hoverEnlargeRatio = .4;
+
+            var dataFilter = function(d, i) {
+                return (maxElems==null || i<maxElems) &&
+                    (state.grpScale.domain().indexOf(d.group)+1 &&
+                    d.timeRange[1]>=state.xScale.domain()[0] &&
+                    d.timeRange[0]<=state.xScale.domain()[1] &&
+                    state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
+            };
+
+            state.lineHeight = state.graphH/state.nLines*0.8;
+
+            var timelines = state.graph.selectAll('rect.series-segment').data(
+                state.flatData.filter(dataFilter),
+                function(d) { return d.group + d.label + d.timeRange[0];}
+            );
+
+            timelines.exit()
+                .transition().duration(state.transDuration)
+                .style('fill-opacity', 0)
+                .remove();
+
+            var newSegments = timelines.enter()
+                .append('rect')
+                .attr('class', 'series-segment')
+                .attr('rx', 1)
+                .attr('ry', 1)
+                .attr('x', state.graphW/2)
+                .attr('y', state.graphH/2)
+                .attr('width', 0)
+                .attr('height', 0)
+                .style('fill', function(d) {
+                    return state.valScale(d.val);
+                })
+                .style('fill-opacity', 0)
+                .on('mouseover.groupTooltip', state.groupTooltip.show)
+                .on('mouseout.groupTooltip', state.groupTooltip.hide)
+                .on('mouseover.lineTooltip', state.lineTooltip.show)
+                .on('mouseout.lineTooltip', state.lineTooltip.hide)
+                .on('mouseover.segmentTooltip', state.segmentTooltip.show)
+                .on('mouseout.segmentTooltip', state.segmentTooltip.hide);
+
+            newSegments
+                .on('mouseover', function() {
+                    if ('disableHover' in state && state.disableHover)
+                        return;
+
+                    var hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
+
+                    d3.select(this)
+                        .moveToFront()
+                        .transition().duration(70)
+                        .attr('x', function (d) {
+                            return state.xScale(d.timeRange[0])-hoverEnlarge/2;
+                        })
+                        .attr('width', function (d) {
+                            return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
+                        })
+                        .attr('y', function (d) {
+                            return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
+                        })
+                        .attr('height', state.lineHeight+hoverEnlarge)
+                        .style('fill-opacity', 1);
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .transition().duration(250)
+                        .attr('x', function (d) {
+                            return state.xScale(d.timeRange[0]);
+                        })
+                        .attr('width', function (d) {
+                            return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+                        })
+                        .attr('y', function (d) {
+                            return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
+                        })
+                        .attr('height', state.lineHeight)
+                        .style('fill-opacity', .8);
+                });
+
+            timelines = timelines.merge(newSegments);
+
+            timelines.transition().duration(state.transDuration)
+                .attr('x', function (d) {
+                    return state.xScale(d.timeRange[0]);
+                })
+                .attr('width', function (d) {
+                    return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+                })
+                .attr('y', function (d) {
+                    return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
+                })
+                .attr('height', state.lineHeight)
+                .style('fill-opacity', .8);
+        }
     }
 });
 
-export default function() {
+function old() {
     var env = {
         width : 720,  // default width
         height : null,

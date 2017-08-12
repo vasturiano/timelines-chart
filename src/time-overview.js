@@ -2,7 +2,19 @@
  * Based on http://bl.ocks.org/mbostock/6232620
  */
 
+import Kapsule from 'kapsule';
 import * as d3 from 'd3';
+
+//export default
+Kapsule({
+    props: {},
+    methods: {},
+    stateInit: {},
+    init(el, state) {
+
+    },
+    update(state) {}
+});
 
 export default function(options, callback, context){
     var margins, width, hideIfLessThanSeconds, externalMoveEvent,

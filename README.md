@@ -37,22 +37,22 @@ or even
 then
 ```
 var myChart = TimelinesChart();
-myChart(<myDOMElement>, <myData>);
+myChart
+    .data(<myData>)
+    (<myDOMElement>);
 ```
 
 ## API reference
 
 ```
 TimelinesChart()
+     .data(<data>)
      .width(<px>)
      .leftMargin(<px>)
      .rightMargin(<px>)
      .topMargin(<px>)
      .bottomMargin(<px>)
      .maxHeight(<px>)
-     .throbberImg(<image URI>)
-     .dataDomain([<min>, <max>])
-     .dataScale(<d3 scale object>)
      .getNLines()
      .getTotalNLines()
      .zoomX([<start date>, <end date>], <force redraw (boolean). default: true>)
@@ -65,15 +65,12 @@ TimelinesChart()
      .sort(<label compare function>, <group compare function>)
      .sortAlpha(<ascending (boolean)>)
      .sortChrono(<ascending (boolean)>)
-     .replaceData(<new data>, <keep graph structure (boolean). default: false>)
      .enableOverview(<boolean>)
      .overviewDomain(<new time range for overview: [<start date>, <end date>]>)
      .animationsEnabled(<(boolean)>)
-     .forceThrobber(<force throbber on (boolean>). default: false>)
      .axisClickURL(<URL to follow when clicking on Y axises>)
      .getSvg()
      .onZoom(<callback function for user initiated zoom>)
-     .refresh()
 ```
 ## Data syntax
 

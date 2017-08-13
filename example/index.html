@@ -3,11 +3,23 @@
 	<script src='../dist/timelines-chart.js'></script>
 
 	<script>
-		var myData = getMockupData(),
+		const myData = getMockupData(true),
 			myPlot = TimelinesChart()
 				.width(window.innerWidth)
 				.zScaleLabel('My Scale Units')
 				.data(myData);
+
+		// Extract categories in ordinal data
+		let categories = {};
+		myData.forEach(g => {
+			g.data.forEach(l => {
+				l.data.forEach(s => {
+					categories[s.val] = null;
+				})
+			})
+		});
+
+		myPlot.zColorScale().domain(Object.keys(categories));
 
 		document.addEventListener('DOMContentLoaded', function() {
 			myPlot(document.getElementById('myPlot'));

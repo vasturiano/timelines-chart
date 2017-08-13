@@ -22,8 +22,6 @@ const OrdinalColorLegend = Kapsule({
             .attr('stroke-width', 0.5)
             .attr('fill-opacity', 0)
             .style('pointer-events', 'none');
-
-
     },
     update(state) {
         const colorBinWidth = state.width / state.scale.domain().length;

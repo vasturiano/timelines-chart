@@ -94,7 +94,7 @@ export default Kapsule({
             }
         },
         minSegmentDuration: {},
-        zColorScale: { default: d3.scaleLinear().domain([0, 0.5, 1]).range(['red', 'yellow', 'green']) },
+        zColorScale: { default: d3.scaleOrdinal(d3.schemeCategory20) }, // Linear: d3.scaleLinear().domain([0, 0.5, 1]).range(['red', 'yellow', 'green'])
         zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
         zScaleLabel: { default: '', triggerUpdate: false }, // Units of colorScale. Used in the legend label
         enableOverview: { default: true }, // True/False

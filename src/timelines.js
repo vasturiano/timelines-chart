@@ -46,7 +46,9 @@ export default Kapsule({
                 state.zoomY = [null, null];
 
                 if (state.overviewArea) {
-                    state.overviewArea.update(state.zoomX, state.zoomX);
+                    state.overviewArea
+                        .domainRange(state.zoomX)
+                        .currentSelection(state.zoomX);
                     //var yDomain = [0, state.totalNLines];
                 }
 
@@ -276,8 +278,8 @@ export default Kapsule({
         overviewDomain(state, _) {
             if (!state.enableOverview) { return null; }
 
-            if (!_) { return state.overviewArea.domainRange; }
-            state.overviewArea.update(_, state.overviewArea.currentSelection);
+            if (!_) { return state.overviewArea.domainRange(); }
+            state.overviewArea.domainRange(_);
             return this;
         },
         refresh(state) {
@@ -454,23 +456,21 @@ export default Kapsule({
 
             function addOverviewArea() {
                 var overviewMargins = { top: 1, right: 20, bottom: 20, left: 20 };
-                state.overviewArea = new TimeOverview(
-                    {
+                state.overviewArea = TimeOverview({
+                        // Options
                         margins: overviewMargins,
                         width: state.width*0.8,
-                        height: state.overviewHeight + overviewMargins.top + overviewMargins.bottom,
-                        verticalLabels: false
-                    },
-                    function(startTime, endTime) {
+                        height: state.overviewHeight + overviewMargins.top + overviewMargins.bottom
+                    })
+                    .onChange((startTime, endTime) => {
                         state.svg.dispatch('zoom', { detail: {
                             zoomX: [startTime, endTime],
                             zoomY: null
                         }});
-                    },
-                    this
-                );
-
-                state.overviewArea.init(state.overviewAreaElem.node(), state.zoomX, state.zoomX);
+                    })
+                    .domainRange(state.zoomX)
+                    .currentSelection(state.zoomX)
+                    (state.overviewAreaElem.node());
 
                 state.svg.on('zoomScent', function() {
                     var zoomX = d3.event.detail.zoomX;
@@ -478,16 +478,16 @@ export default Kapsule({
                     if (!state.overviewArea || !zoomX) return;
 
                     // Out of overview bounds
-                    if (zoomX[0]<state.overviewArea.domainRange[0] || zoomX[1]>state.overviewArea.domainRange[1]) {
+                    if (zoomX[0]<state.overviewArea.domainRange()[0] || zoomX[1]>state.overviewArea.domainRange()[1]) {
                         state.overviewArea.update(
                             [
-                                new Date(Math.min(zoomX[0], state.overviewArea.domainRange[0])),
-                                new Date(Math.max(zoomX[1], state.overviewArea.domainRange[1]))
+                                new Date(Math.min(zoomX[0], state.overviewArea.domainRange()[0])),
+                                new Date(Math.max(zoomX[1], state.overviewArea.domainRange()[1]))
                             ],
                             state.zoomX
                         );
                     } else { // Normal case
-                        state.overviewArea.updateSelection(zoomX);
+                        state.overviewArea.currentSelection(zoomX);
                     }
                 });
             }
@@ -660,7 +660,7 @@ export default Kapsule({
                 var prevZoomY = state.zoomY || [null, null];
 
                 var newZoomX = state.enableOverview
-                        ?state.overviewArea.domainRange
+                        ?state.overviewArea.domainRange()
                         :[
                         d3.min(state.flatData, function(d) { return d.timeRange[0]; }),
                         d3.max(state.flatData, function(d) { return d.timeRange[1]; })

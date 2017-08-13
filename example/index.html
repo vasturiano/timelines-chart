@@ -1,18 +1,17 @@
 <head>
-	<script src="mockup-data.js"></script>
-	<script src="../dist/timelines-chart.js"></script>
+	<script src='mockup-data.js'></script>
+	<script src='../dist/timelines-chart.js'></script>
 
 	<script>
 		var myData = getMockupData(),
 			myPlot = TimelinesChart()
 				.width(window.innerWidth)
-				.zScaleLabel("My Scale Units")
-				//.data(myData);
+				.zScaleLabel('My Scale Units')
+				.data(myData);
 
-		document.addEventListener("DOMContentLoaded", function() {
-			myPlot(document.getElementById("myPlot"))
-					.data(myData);
-			document.getElementById("myJson").innerText = JSON.stringify(myData, null, 4);
+		document.addEventListener('DOMContentLoaded', function() {
+			myPlot(document.getElementById('myPlot'));
+			document.getElementById('myJson').innerText = JSON.stringify(myData, null, 4);
 		});
 	</script>
 </head>

@@ -5,150 +5,103 @@
 import Kapsule from 'kapsule';
 import * as d3 from 'd3';
 
-//export default
-Kapsule({
-    props: {},
+export default Kapsule({
+    props: {
+        domainRange: {},
+        currentSelection: { onChange(_, state) {
+            // Track external requests to prevent infinite event loops
+            state.externalMoveEvent = true;
+        }},
+        onChange: { default: (selectionStart, selectionEnd) => {}}
+    },
     methods: {},
-    stateInit: {},
-    init(el, state) {
+    stateInit: {
+        timeScale: d3.scaleUtc(),
+        brush: d3.brushX()
+    },
+    init(el, state, {
+        width = 300,
+        height = 20,
+        margins = { top: 0, right: 0, bottom: 20, left: 0 },
+        tickFormat = null
+    }) {
+        const brushWidth = width - margins.left - margins.right,
+            brushHeight = height - margins.top - margins.bottom;
+
+        state.timeScale.range([0, brushWidth]);
+
+        state.xGrid = d3.axisBottom()
+            .scale(state.timeScale)
+            .tickSize(-brushHeight)
+            .tickFormat("");
+
+        state.xAxis = d3.axisBottom()
+            .scale(state.timeScale)
+            .tickFormat(tickFormat)
+            .tickPadding(0);
+
+        state.brush
+            .extent([[0, 0], [brushWidth, brushHeight]])
+            .on('end', function() {
+                if (!d3.event.sourceEvent) return;
+
+                if (state.externalMoveEvent) {
+                    // Don't callback for events not initiated by the brusher
+                    state.externalMoveEvent = false;
+                } else {
+                    const selection = d3.event.selection.map(state.timeScale.invert);
+                    state.onChange(selection[0], selection[1]);
+                }
+            });
+
+        // Build dom
+        state.svg = d3.select(el).append('svg')
+            .attr('class', 'brusher')
+            .attr('width', width)
+            .attr('height', height);
+
+        const brusher = state.svg.append('g')
+            .attr('transform', `translate(${margins.left},${margins.top})`);
+
+        brusher.append('rect')
+            .attr('class', 'grid-background')
+            .attr('width', brushWidth)
+            .attr('height', brushHeight);
+
+        brusher.append('g')
+            .attr('class', 'x grid')
+            .attr("transform", "translate(0," + brushHeight + ")");
+
+        brusher.append('g')
+            .attr('class', 'x axis')
+            .attr("transform", "translate(0," + brushHeight + ")");
+
+        brusher.append('g')
+            .attr('class', 'brush')
+            .call(state.brush)
+            .selectAll('rect')
+                .attr('height', brushHeight);
 
     },
-    update(state) {}
+    update(state) {
+        const timeWindow = state.domainRange[1] - state.domainRange[0];
+
+        if (timeWindow <= 0) return;
+
+        state.timeScale.domain(state.domainRange);
+        state.xGrid.scale(state.timeScale);
+        state.xAxis.scale(state.timeScale);
+
+        state.svg.select('.x.grid')
+            .call(state.xGrid)
+            .selectAll('.tick')
+                .classed("minor", d => d.getHours());
+
+        state.svg.select('.x.axis')
+            .call(state.xAxis)
+            .selectAll('text').attr('y', 8);
+
+        state.svg.select('.brush')
+            .call(state.brush.move, state.currentSelection.map(state.timeScale));
+    }
 });
-
-export default function(options, callback, context){
-    var margins, width, hideIfLessThanSeconds, externalMoveEvent,
-        height, brush, xAxis, svg, groupOverview, $this, dom, labels, verticalLabels, format;
-
-    $this = this;
-    margins = options.margins;
-    hideIfLessThanSeconds = options.hideIfLessThanSeconds;
-    verticalLabels = (options.verticalLabels != null) ? options.verticalLabels : true;
-    format = options.format;
-
-     this.init = function(domElement, domainRange, currentSelection){
-        dom = domElement;
-
-        if (domainRange && currentSelection){
-            this.render(domainRange, currentSelection);
-        }
-    };
-
-
-    this._afterInteraction = function(){
-        if (!d3.event.sourceEvent) return;
-
-        if (externalMoveEvent) {
-            // Don't callback for events not initiated by the brusher
-            externalMoveEvent = false;
-        } else {
-            var selection = d3.event.selection.map(xAxis.invert);
-            callback.call(context, selection[0], selection[1]);
-        }
-    };
-
-    this.render = function(domainRange, currentSelection){
-        var timeWindow;
-
-        this.domainRange = domainRange;
-        this.currentSelection = currentSelection;
-
-        timeWindow = domainRange[1] - domainRange[0];
-
-        if (timeWindow < hideIfLessThanSeconds * 1000){
-            return false;
-        }
-
-        width = options.width;
-        height = options.height - margins.top - margins.bottom;
-
-        xAxis = d3
-            .scaleUtc()
-            .domain(domainRange)
-            .range([0, width]);
-
-        brush = d3.brushX()
-            .extent([[0, 0], [width, height]])
-            .on("end", $this._afterInteraction);
-
-        svg = d3.select(dom)
-            .append("svg")
-                .attr("class", "brusher")
-                .attr("width", width + margins.left + margins.right)
-                .attr("height", height + margins.top + margins.bottom)
-                .append("g")
-                    .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
-
-        svg.append("rect")
-            .attr("class", "grid-background")
-            .attr("width", width)
-            .attr("height", height);
-
-
-
-        svg.append("g")
-            .attr("class", "x grid")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom()
-                .scale(xAxis)
-                .tickSize(-height)
-                .tickFormat("")
-            )
-            .selectAll(".tick")
-            .classed("minor", function(d) { return d.getHours(); });
-
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom()
-                .scale(xAxis)
-                .tickFormat(format)
-                .tickPadding(0)
-            )
-            .selectAll("text")
-            .attr("x", 6)
-            .style("text-anchor", null);
-
-        groupOverview = svg.append("g")
-            .attr("class", "brush")
-            .call(brush)
-            .call(brush.move, currentSelection.map(xAxis));
-
-        groupOverview.selectAll("rect")
-            .attr("height", height);
-
-        labels = svg.selectAll("text")
-            .style("text-anchor", "end");
-
-        if (verticalLabels){
-            labels
-                .attr("dx", "-1.2em")
-                .attr("dy", ".15em")
-                .attr('transform', 'rotate(-65)');
-        }
-
-        return true;
-    };
-
-    this.update = function(domainRange, currentSelection){
-        if (this.domainRange == domainRange){
-            return this.updateSelection(currentSelection);
-        }else{
-            d3.select(dom)
-                .select(".brusher")
-                .remove();
-
-            return this.render(domainRange, currentSelection);
-        }
-    };
-
-    this.updateSelection = function(currentSelection){
-        if (this.currentSelection !== currentSelection){
-            externalMoveEvent = true;
-            groupOverview
-                .call(brush.move, currentSelection.map(xAxis));
-            return true;
-        }
-        return false;
-    };
-};

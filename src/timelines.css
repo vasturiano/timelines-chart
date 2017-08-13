@@ -65,11 +65,15 @@
 
 .brusher {
     .grid-background {
-        fill: #C0C0C0;
+        fill: lightgrey;
     }
 
     .axis path {
         display: none;
+    }
+
+    .tick text {
+        text-anchor: middle;
     }
 
     .grid {

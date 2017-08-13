@@ -94,8 +94,9 @@ export default Kapsule({
             }
         },
         minSegmentDuration: {},
+        zColorScale: { default: d3.scaleLinear().domain([0, 0.5, 1]).range(['red', 'yellow', 'green']) },
         zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
-        zScaleLabel: { default: '', triggerUpdate: false }, // Units of valScale. Used in the legend label
+        zScaleLabel: { default: '', triggerUpdate: false }, // Units of colorScale. Used in the legend label
         enableOverview: { default: true }, // True/False
         animationsEnabled: {
             default: true,
@@ -266,10 +267,6 @@ export default Kapsule({
         xScale: d3.scaleTime(),
         yScale: d3.scalePoint(),
         grpScale: d3.scaleOrdinal(),
-        valScale: d3.scaleLinear()
-            .domain([0, 0.5, 1])
-            .range(['red', 'yellow', 'green'])
-            .clamp(false),
 
         xAxis: d3.axisBottom(),
         xGrid: d3.axisTop(),
@@ -366,11 +363,7 @@ export default Kapsule({
             state.grpAxis.scale(state.grpScale)
                 .tickSize(0);
 
-            ColorLegend()
-                .width(state.graphW/3)
-                .height(state.topMargin*.6)
-                .scale(state.valScale)
-                .label(state.zScaleLabel)
+            state.colorLegend = ColorLegend()
                 (state.svg.append('g')
                     .attr('transform', `translate(${state.leftMargin + state.graphW*0.05},2)`)
                     .node()
@@ -480,10 +473,10 @@ export default Kapsule({
                 .direction('s')
                 .offset([5, 0])
                 .html(function(d) {
-                    var normVal = state.valScale.domain()[state.valScale.domain().length-1] - state.valScale.domain()[0];
+                    var normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
                     var dateFormat = d3.timeFormat('%Y-%m-%d %H:%M:%S');
                     return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
-                        + (normVal?' (<strong>' + Math.round((d.val-state.valScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
+                        + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
                         + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
                         + '<strong>To: </strong>' + dateFormat(d.timeRange[1]);
                 });
@@ -652,6 +645,7 @@ export default Kapsule({
         adjustXScale();
         adjustYScale();
         adjustGrpScale();
+        adjustLegend();
 
         renderAxises();
         renderGroups();
@@ -768,6 +762,14 @@ export default Kapsule({
                 cntLines+=d.lines.length;
                 return pos;
             }));
+        }
+
+        function adjustLegend() {
+            state.colorLegend
+                .width(state.graphW/3)
+                .height(state.topMargin*.6)
+                .scale(state.zColorScale)
+                .label(state.zScaleLabel);
         }
 
         function renderAxises() {
@@ -921,7 +923,7 @@ export default Kapsule({
                 .attr('width', 0)
                 .attr('height', 0)
                 .style('fill', function(d) {
-                    return state.valScale(d.val);
+                    return state.zColorScale(d.val);
                 })
                 .style('fill-opacity', 0)
                 .on('mouseover.groupTooltip', state.groupTooltip.show)

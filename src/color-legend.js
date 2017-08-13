@@ -178,6 +178,8 @@ const ColorLegend = Kapsule({
             .attr('class', 'legend');
     },
     update(state) {
+        if (!state.scale) return;
+
         // Check if ordinal or linear scale
         const ordinal = (state.scale.copy().domain([1, 2]).range([1, 2])(1.5) === 1);
 

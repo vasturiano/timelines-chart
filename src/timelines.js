@@ -7,29 +7,7 @@ import d3Tip from 'd3-tip';
 import './d3-utils.js';
 import TimeOverview from './time-overview.js';
 import XYOverviewArea from './xy-overview-area.js';
-
-function alphaNumCmp(a,b){
-    var alist = a.split(/(\d+)/),
-        blist = b.split(/(\d+)/);
-
-    (alist.length && alist[alist.length-1] == '') ? alist.pop() : null; // remove the last element if empty
-    (blist.length && blist[blist.length-1] == '') ? blist.pop() : null; // remove the last element if empty
-
-    for (var i = 0, len = Math.max(alist.length, blist.length); i < len;i++){
-        if (alist.length==i || blist.length==i) { // Out of bounds for one of the sides
-            return alist.length - blist.length;
-        }
-        if (alist[i] != blist[i]){ // find the first non-equal part
-            if (alist[i].match(/\d/)) // if numeric
-            {
-                return (+alist[i])-(+blist[i]); // compare as number
-            } else {
-                return (alist[i].toLowerCase() > blist[i].toLowerCase())?1:-1; // compare as string
-            }
-        }
-    }
-    return 0;
-}
+import { alphaNumCmp } from './comparison.js';
 
 export default Kapsule({
     props: {
@@ -49,7 +27,6 @@ export default Kapsule({
                     state.overviewArea
                         .domainRange(state.zoomX)
                         .currentSelection(state.zoomX);
-                    //var yDomain = [0, state.totalNLines];
                 }
 
                 //
@@ -94,7 +71,6 @@ export default Kapsule({
         topMargin: {default: 26, triggerUpdate: false },
         bottomMargin: {default: 30, triggerUpdate: false },
         maxHeight: { default: 640 },
-        throbberImg: { triggerUpdate: false },
         zoomX: {    // Which time-range to show (null = min/max)
             default: [null, null],
             onChange(zoomX, state) {
@@ -125,14 +101,6 @@ export default Kapsule({
             default: true,
             onChange(val, state) {
                 state.transDuration = val?700:0;
-            }
-        },
-        forceThrobber: { // True/false (true = shows throbber and leaves it on permanently. false = automatic internal management)
-            default: false,
-            onChange(val, state) {
-                if (val && state.throbber) {
-                    state.throbber.show();
-                }
             }
         },
         axisClickURL: { triggerUpdate: false },
@@ -327,9 +295,6 @@ export default Kapsule({
 
         transDuration: 700,     // ms for transition duration
 
-        throbber: null,
-        throbberR: 23,
-
         labelCmpFunction: alphaNumCmp,
         grpCmpFunction: alphaNumCmp
     },
@@ -413,22 +378,6 @@ export default Kapsule({
             if (state.enableOverview) {
                 addOverviewArea();
             }
-
-            if (state.throbberImg) {
-                state.throbber = state.svg.appendImage(
-                    state.throbberImg,
-                    state.leftMargin + (state.graphW-state.throbberR)/2,
-                    state.topMargin + 5,
-                    state.throbberR,
-                    state.throbberR,
-                    'xMidYMin'
-                ).hide();
-
-                state.throbber.img
-                    .style('opacity', 0.85)
-                    .append('title').text('Loading data...');
-            }
-
 
             // Applies to ordinal scales (invert not supported in d3)
             function invertOrdinal(val, cmpFunc) {
@@ -700,13 +649,7 @@ export default Kapsule({
         renderAxises();
         renderGroups();
 
-        if (state.throbber) { state.throbber.show(); }
-
         renderTimelines();
-
-        if (state.throbber && !state.forceThrobber) {
-            state.throbber.hide();
-        }
 
         //
 

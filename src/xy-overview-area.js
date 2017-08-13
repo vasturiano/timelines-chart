@@ -1,78 +1,66 @@
+import Kapsule from 'kapsule';
 import * as d3 from 'd3';
 
-export default function() {
-
-    var env = {
-        svg: null,
-        selection:null,
-        margin : {top: 2, right: 2, bottom: 2, left: 2 },
-        xScale: d3.scaleTime(),
-        yScale: d3.scaleLinear(),
+export default Kapsule({
+    props: {
+        selection: { default: {
+            x: [null, null], // [start, end]
+            y: [null, null]  // [start, end]
+        }},
+        xDomain: { onChange(xDomain, state) {
+            state.xScale.domain(xDomain);
+        }},
+        yDomain: { onChange(yDomain, state) {
+            state.yScale.domain(yDomain);
+        }},
         transitionDuration: 700
-    };
+    },
+    stateInit: {
+        xScale: d3.scaleTime(),
+        yScale: d3.scaleLinear()
+    },
+    init(el, state, {
+        width,
+        height,
+        margin = {top: 2, right: 2, bottom: 2, left: 2 }
+    }) {
+        state.xScale.range([margin.left, width-state.margin.right]);
+        state.yScale.range([margin.top, height-state.margin.bottom]);
 
-    function area(node, w, h) {
+        // Build dom
+        state.svg = d3.select(el).append('svg')
+            .attr('width', width)
+            .attr('height', height);
 
-        env.xScale.range([env.margin.left, w-env.margin.right]);
-        env.yScale.range([env.margin.top, h-env.margin.bottom]);
-
-        env.svg = d3.select(node).append("svg")
-            .attr("width", w)
-            .attr("height", h);
-
-        initStatic();
-
-        return area;
-    }
-
-    function initStatic() {
-
-        env.svg.append('rect')
-            .attr('x', env.xScale.range()[0])
-            .attr('y', env.yScale.range()[0])
+        state.svg.append('rect')
+            .attr('class', 'selection-outer-box')
+            .attr('x', state.xScale.range()[0])
+            .attr('y', state.yScale.range()[0])
             .attr('rx', 2)
             .attr('ry', 2)
-            .attr('width', env.xScale.range()[1])
-            .attr('height', env.yScale.range()[1])
+            .attr('width', state.xScale.range()[1])
+            .attr('height', state.yScale.range()[1])
             .style('fill', '#EEE')
             .style('stroke', 'grey');
 
-        env.selection = env.svg.append('rect')
+        state.selection = state.svg.append('rect')
             .attr('class', 'chart-zoom-selection')
-            .attr('x', env.xScale.range()[0])
-            .attr('y', env.yScale.range()[0])
             .attr('rx', 1)
             .attr('ry', 1)
             .attr('width', 0)
             .attr('height', 0);
+    },
+    update(state) {
+        state.svg.select('rect.selection-outer-box')
+            .attr('x', state.xScale.range()[0])
+            .attr('y', state.yScale.range()[0])
+            .attr('width', state.xScale.range()[1])
+            .attr('height', state.yScale.range()[1]);
+
+        state.svg.select('rect.chart-zoom-selection')
+            .attr('x', state.xScale(state.selection.x[0]))
+            .attr('y', state.yScale(state.selection.y[0]))
+            .attr('width', state.xScale(state.selection.x[1] - state.selection.x[0]))
+            .attr('height', state.yScale(state.selection.y[1] - state.selection.y[0]));
     }
-
-    area.transitionDuration = function(_) {
-        if (!arguments.length) { return env.transDuration; }
-        env.transDuration = _;
-        return area;
-    };
-
-    area.xDomain = function(_) {
-        if (!arguments.length) { return env.xScale.domain(); }
-        env.xScale.domain(_);
-        return area;
-    };
-
-    area.yDomain = function(_) {
-        if (!arguments.length) { return env.yScale.domain(); }
-        env.yScale.domain(_);
-        return area;
-    };
-
-    area.selectArea = function (startX, endX, startY, endY) {
-        env.selection//.transition().duration(env.transDuration)
-            .attr('x', env.xScale(startX))
-            .attr('y', env.yScale(startY))
-            .attr('width', env.xScale(endX)-env.xScale(startX))
-            .attr('height', env.yScale(endY)-env.yScale(startY));
-        return area;
-    };
-
-    return area;
-};
+});

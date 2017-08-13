@@ -14,7 +14,6 @@ export default Kapsule({
         }},
         onChange: { default: (selectionStart, selectionEnd) => {}}
     },
-    methods: {},
     stateInit: {
         timeScale: d3.scaleUtc(),
         brush: d3.brushX()

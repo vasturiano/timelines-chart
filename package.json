@@ -32,7 +32,7 @@
   "dependencies": {
     "d3": "^4.2",
     "d3-tip": "^0.7",
-    "kapsule": "^1.1.0",
+    "kapsule": "^1.2.0",
     "tinycolor2": "^1.4"
   },
   "devDependencies": {

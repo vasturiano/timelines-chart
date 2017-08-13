@@ -4,9 +4,9 @@ import Kapsule from 'kapsule';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 
-import './d3-utils.js';
+import { MoveToFront, TextFitToBox, Gradient } from './svg-utils.js';
+import ColorLegend from './color-legend.js';
 import TimeOverview from './time-overview.js';
-import XYOverviewArea from './xy-overview-area.js';
 import { alphaNumCmp } from './comparison.js';
 
 export default Kapsule({
@@ -318,12 +318,13 @@ export default Kapsule({
             state.yScale.invert = invertOrdinal;
             state.grpScale.invert = invertOrdinal;
 
-            state.groupGradId = state.svg.addGradient(
-                d3.scaleLinear()
+            state.groupGradId = Gradient()
+                .colorScale(d3.scaleLinear()
                     .domain([0, 1])
-                    .range(state.groupBkgGradient),
-                -90
-            );
+                    .range(state.groupBkgGradient))
+                .angle(-90)
+                (state.svg.node())
+                .id();
 
             state.graphW = state.width-state.leftMargin-state.rightMargin;
             state.xScale.range([0, state.graphW])
@@ -365,15 +366,15 @@ export default Kapsule({
             state.grpAxis.scale(state.grpScale)
                 .tickSize(0);
 
-            state.svg.appendColorLegend(
-                (state.leftMargin + state.graphW*0.05),
-                2,
-                state.graphW/3,
-                state.topMargin*.6,
-                state.valScale,
-                state.zScaleLabel
-            );
-
+            ColorLegend()
+                .width(state.graphW/3)
+                .height(state.topMargin*.6)
+                .scale(state.valScale)
+                .label(state.zScaleLabel)
+                (state.svg.append('g')
+                    .attr('transform', `translate(${state.leftMargin + state.graphW*0.05},2)`)
+                    .node()
+                );
 
             if (state.enableOverview) {
                 addOverviewArea();
@@ -562,13 +563,12 @@ export default Kapsule({
                 d3.event.stopPropagation();
             });
 
-            state.svg.append('text')
+            const resetBtn = state.svg.append('text')
                 .attr('class', 'reset-zoom-btn')
                 .text('Reset Zoom')
                 .attr('x', state.leftMargin + state.graphW*.99)
                 .attr('y', state.topMargin *.8)
                 .style('text-anchor', 'end')
-                .textFitToBox(state.graphW *.4, Math.min(13,state.topMargin *.8))
                 .on('mouseup' , function() {
                     state.svg.dispatch('resetZoom');
                 })
@@ -578,6 +578,13 @@ export default Kapsule({
                 .on('mouseout', function() {
                     d3.select(this).style('opacity', .6);
                 });
+
+            TextFitToBox()
+                .bbox({
+                    width: state.graphW *.4,
+                    height: Math.min(13,state.topMargin *.8)
+                })
+                (resetBtn.node());
         }
 
         function setEvents() {
@@ -929,10 +936,11 @@ export default Kapsule({
                     if ('disableHover' in state && state.disableHover)
                         return;
 
+                    MoveToFront()(this);
+
                     var hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
 
                     d3.select(this)
-                        .moveToFront()
                         .transition().duration(70)
                         .attr('x', function (d) {
                             return state.xScale(d.timeRange[0])-hoverEnlarge/2;

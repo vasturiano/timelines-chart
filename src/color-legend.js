@@ -12,23 +12,9 @@ const OrdinalColorLegend = Kapsule({
     },
     init(el, state) {
         state.el = d3.select(el);
-
-        state.outerBox = state.el.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('rx', 3)
-            .attr('ry', 3)
-            .attr('stroke', 'black')
-            .attr('stroke-width', 0.5)
-            .attr('fill-opacity', 0)
-            .style('pointer-events', 'none');
     },
     update(state) {
         const colorBinWidth = state.width / state.scale.domain().length;
-
-        state.outerBox
-            .attr('width', state.width)
-            .attr('height', state.height);
 
         let slot = state.el.selectAll('.color-slot')
             .data(state.scale.domain());
@@ -68,7 +54,7 @@ const OrdinalColorLegend = Kapsule({
             .each(function(d) {
                 TextFitToBox()
                     .bbox({
-                        width: colorBinWidth,
+                        width: colorBinWidth*0.9,
                         height: state.height*0.8
                     })
                     (this);

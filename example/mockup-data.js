@@ -6,7 +6,8 @@ function getMockupData(ordinal = false) {
         MAXCATEGORIES = 20,
         MINTIME = new Date(2013,2,21);
 
-    const nCategories = Math.ceil(Math.random()*MAXCATEGORIES);
+    const nCategories = Math.ceil(Math.random()*MAXCATEGORIES),
+        categoryLabels = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 
     return [...Array(NGROUPS).keys()].map(i => ({
         group: 'group' + (i+1),
@@ -38,7 +39,7 @@ function getMockupData(ordinal = false) {
 
                 return {
                     timeRange: [start, end],
-                    val: ordinal ? Math.ceil(Math.random()*nCategories) : Math.random()
+                    val: ordinal ? categoryLabels[Math.ceil(Math.random()*nCategories)] : Math.random()
                     //labelVal: is optional - only displayed in the labels
                 };
             });

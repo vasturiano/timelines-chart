@@ -3,6 +3,7 @@ import './timelines.css';
 import Kapsule from 'kapsule';
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
+import * as d3chroma from 'd3-scale-chromatic';
 
 import { MoveToFront, TextFitToBox, Gradient } from './svg-utils.js';
 import ColorLegend from './color-legend.js';
@@ -94,7 +95,12 @@ export default Kapsule({
             }
         },
         minSegmentDuration: {},
-        zColorScale: { default: d3.scaleOrdinal(d3.schemeCategory20) }, // Linear: d3.scaleLinear().domain([0, 0.5, 1]).range(['red', 'yellow', 'green'])
+        zColorScale: { default: d3.scaleSequential(d3chroma.interpolateRdYlBu) },
+        zQualitative: { default: false, onChange(discrete, state) {
+            state.zColorScale = discrete
+                ? d3.scaleOrdinal([...d3.schemeCategory10, ...d3.schemeCategory20b])
+                : d3.scaleSequential(d3chroma.interpolateRdYlBu) // alt: d3.interpolateInferno
+        }},
         zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
         zScaleLabel: { default: '', triggerUpdate: false }, // Units of colorScale. Used in the legend label
         enableOverview: { default: true }, // True/False
@@ -645,12 +651,12 @@ export default Kapsule({
         adjustXScale();
         adjustYScale();
         adjustGrpScale();
-        adjustLegend();
 
         renderAxises();
         renderGroups();
 
         renderTimelines();
+        adjustLegend();
 
         //
 
@@ -766,7 +772,7 @@ export default Kapsule({
 
         function adjustLegend() {
             state.colorLegend
-                .width(state.graphW/3)
+                .width(Math.max(120, state.graphW/3 * (state.zQualitative?2:1)))
                 .height(state.topMargin*.6)
                 .scale(state.zColorScale)
                 .label(state.zScaleLabel);

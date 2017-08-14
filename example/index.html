@@ -7,19 +7,8 @@
 			myPlot = TimelinesChart()
 				.width(window.innerWidth)
 				.zScaleLabel('My Scale Units')
+				.zQualitative(true)
 				.data(myData);
-
-		// Extract categories in ordinal data
-		let categories = {};
-		myData.forEach(g => {
-			g.data.forEach(l => {
-				l.data.forEach(s => {
-					categories[s.val] = null;
-				})
-			})
-		});
-
-		myPlot.zColorScale().domain(Object.keys(categories));
 
 		document.addEventListener('DOMContentLoaded', function() {
 			myPlot(document.getElementById('myPlot'));

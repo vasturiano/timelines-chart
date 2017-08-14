@@ -56,7 +56,7 @@ const TextAbbreviateToFit = Kapsule({
 const Gradient = Kapsule({
     props: {
         id: {}, // Use with: .attr('fill', 'url(#<gradId>)');
-        colorScale: { default: d3.scaleLinear().domain([0, 1, 2]).range(['red', 'yellow', 'green']) },
+        colorScale: { default: d3.scaleLinear().range(['black', 'white']) },
         angle: { default: 0 } // 0 (left-right), 90 (down-up))
     },
     init(el, state) {
@@ -76,13 +76,17 @@ const Gradient = Kapsule({
         var threshVal = state.colorScale.domain()[0];
         var normVal = state.colorScale.domain()[state.colorScale.domain().length-1] - threshVal;
 
+        const stopsScale = d3.scaleLinear()
+            .domain([0,100])
+            .range(state.colorScale.domain());
+
         let colorStops = state.gradient.selectAll('stop')
-            .data(state.colorScale.domain());
+            .data(d3.range(0, 100.01, 20)); // 11 stops is sufficient to cover all noticeable color nuances
 
         colorStops.exit().remove();
         colorStops.merge(colorStops.enter().append('stop'))
-            .attr('offset', d => (100*(d-threshVal)/normVal) + '%')
-            .attr('stop-color', d => state.colorScale(d));
+            .attr('offset', d => `${d}%`)
+            .attr('stop-color', d => state.colorScale(stopsScale(d)));
     }
 });
 

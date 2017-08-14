@@ -144,7 +144,7 @@ const LinearColorLegend = Kapsule({
             .text(state.scale.domain()[0])
             .attr('x', state.width*0.02)
             .attr('y', state.height*0.5)
-            .style('fill', tinycolor(state.scale.range()[0]).isLight()?'#444':'#CCC' );
+            .style('fill', tinycolor(state.scale(state.scale.domain()[0])).isLight()?'#444':'#CCC' );
 
         state.startLabelFitText.bbox({
             width: state.width * 0.3,
@@ -155,7 +155,7 @@ const LinearColorLegend = Kapsule({
             .text(state.scale.domain()[state.scale.domain().length-1])
             .attr('x', state.width*0.98)
             .attr('y', state.height*0.5)
-            .style('fill', tinycolor(state.scale.range()[state.scale.range().length-1]).isLight()?'#444':'#CCC' );
+            .style('fill', tinycolor(state.scale(state.scale.domain()[state.scale.domain().length-1])).isLight()?'#444':'#CCC' );
 
         state.endLabelFitText.bbox({
             width: state.width * 0.3,
@@ -178,8 +178,8 @@ const ColorLegend = Kapsule({
     update(state) {
         if (!state.scale) return;
 
-        // Check if ordinal or linear scale
-        const ordinal = (state.scale.copy().domain([1, 2]).range([1, 2])(1.5) === 1);
+        // Check if ordinal or continuous scale
+        const ordinal = state.scale.hasOwnProperty('unknown'); // Only ordinal scales have the unknown method (for auto-assigning new categories)
 
         state.legend.html(''); // Wipe it
 

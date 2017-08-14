@@ -99,7 +99,7 @@ export default Kapsule({
         zQualitative: { default: false, onChange(discrete, state) {
             state.zColorScale = discrete
                 ? d3.scaleOrdinal([...d3.schemeCategory10, ...d3.schemeCategory20b])
-                : d3.scaleSequential(d3chroma.interpolateRdYlBu) // alt: d3.interpolateInferno
+                : d3.scaleSequential(d3chroma.interpolateRdYlBu); // alt: d3.interpolateInferno
         }},
         zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
         zScaleLabel: { default: '', triggerUpdate: false }, // Units of colorScale. Used in the legend label

@@ -73,9 +73,6 @@ const Gradient = Kapsule({
             .attr('x2', Math.round(100*Math.max(0, Math.cos(rad))) + '%')
             .attr('id', state.id);
 
-        var threshVal = state.colorScale.domain()[0];
-        var normVal = state.colorScale.domain()[state.colorScale.domain().length-1] - threshVal;
-
         const stopsScale = d3.scaleLinear()
             .domain([0,100])
             .range(state.colorScale.domain());

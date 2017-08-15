@@ -5,8 +5,9 @@ import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 import * as d3chroma from 'd3-scale-chromatic';
 
-import { MoveToFront, TextFitToBox, Gradient } from './svg-utils.js';
-import ColorLegend from './color-legend.js';
+import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
+import { fitToBox as TextFitToBox } from 'svg-text-fit';
+import ColorLegend from 'd3-color-legend';
 import TimeOverview from './time-overview.js';
 import { alphaNumCmp } from './comparison.js';
 

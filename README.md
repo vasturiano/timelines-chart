@@ -50,8 +50,10 @@ myChart
 | <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be rendered. | 0 |
 | <b>zQualitative</b>([<i>boolean</i>]) | Getter/setter for whether the segment data color values are categorical (false) or quantitative (true). This will affect how the color legend is presented, and changing it will automatically toggle the `zColorScale` between defaults. | false |
 | <b>zColorScale</b>([<i>d3 scale object</i>]) | Getter/setter for the color scale to be used for coloring the segments according to their data values. This object should be a D3 color scale object. | qualitative: `d3.scaleOrdinal([...d3.schemeCategory10, ...d3.schemeCategory20b])`, quantitative: `d3.scaleSequential(d3chroma.interpolateRdYlBu)` |
-| <b>zDataLabel</b>([<i>string</i>]) | Getter/setter for the units of z data. Used in the legend and tooltip descriptions (true). Only applicable to quantitative z scales. | |
-
+| <b>zDataLabel</b>([<i>string</i>]) | Getter/setter for the units of z data. Used in the tooltip descriptions. | |
+| <b>zScaleLabel</b>([<i>string</i>]) | Getter/setter for the color scale label. Only applicable to quantitative z scales. | |
+| <b>enableOverview</b>([<i>boolean</i>]) | Getter/setter for whether to show an interactive timeline overview below the chart. | true |
+| <b>enableAnimations</b>([<i>boolean</i>]) | Getter/setter for whether to animate transitions. | true |
 
 
 ```

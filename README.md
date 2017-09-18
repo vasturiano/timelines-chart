@@ -54,7 +54,18 @@ myChart
 | <b>zScaleLabel</b>([<i>string</i>]) | Getter/setter for the color scale label. Only applicable to quantitative z scales. | |
 | <b>enableOverview</b>([<i>boolean</i>]) | Getter/setter for whether to show an interactive timeline overview below the chart. | true |
 | <b>enableAnimations</b>([<i>boolean</i>]) | Getter/setter for whether to animate transitions. | true |
-
+| <b>axisClickURL</b>([<i>string</i>]) | Getter/setter for the URL to follow when clicking on the axis labels. Resulting target will have the syntax: `axisClickURL + axisLabel`. | |
+| <b>onZoom</b>([<i>function</i>]) | Getter/setter for the callback to call whenever user zooms in / resets zoom. Callback will have two parameters: `onZoom([startDate, endDate], [startY, endY])`. | `null` |
+| <b>getNLines</b>() | Returns number of timelines currently visible in the chart. | - |
+| <b>getTotalNLines</b>() | Returns total number of timelines in the chart. | - |
+| <b>getVisibleStructure</b>() | Returns data representation of timelines currently visible in the chart. | - |
+| <b>getSvg</b>() | Returns visual (SVG) representation of currently visible chart. | - |
+| <b>zoomYLabels</b>([<i>[number, number]</i>]) | Getter/setter for the chart's vertical zoom in terms of timeline labels. The parameter should follow the syntax `[<start label>, <end label>]`. A null value indicates a zoom reset to full extent.  | `null` |
+| <b>sort</b>([<i>[function, function]</i>]) | Sorts the timelines and groups according to two name comparison functions: `function(labelCmpFn, groupCompFn)`. Each comparison function should follow the signature `function(nameA, nameB)`. | `(<alpha-numeric-cmp>, <alpha-numeric-cmp>)` |
+| <b>sortAlpha</b>([<i>[boolean]</i>]) | Sorts the timelines and groups in alpha-numeric order. The boolean parameter indicates whether the order should be ascending (`true`) or descending (`false`). | true |
+| <b>sortChrono/b>([<i>[boolean]</i>]) | Sorts the timelines and groups in chronological order of their most recent data point. The boolean parameter indicates whether the order should be ascending (`true`) or descending (`false`). | true |
+| <b>overviewDomain</b>([<i>[startDate, endDate]</i>]) | Getter/setter for the time extent shown in the overview section below the chart. | *&lt;derived from data: `[minTs, maxTs]`&gt;* |
+| <b>refresh</b>() | Rerenders chart. | - |
 
 ```
 TimelinesChart()

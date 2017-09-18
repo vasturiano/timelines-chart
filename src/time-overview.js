@@ -8,10 +8,7 @@ import * as d3 from 'd3';
 export default Kapsule({
     props: {
         domainRange: {},
-        currentSelection: { onChange(_, state) {
-            // Track external requests to prevent infinite event loops
-            state.externalMoveEvent = true;
-        }},
+        currentSelection: {},
         onChange: { default: (selectionStart, selectionEnd) => {}}
     },
     stateInit: {
@@ -44,13 +41,8 @@ export default Kapsule({
             .on('end', function() {
                 if (!d3.event.sourceEvent) return;
 
-                if (state.externalMoveEvent) {
-                    // Don't callback for events not initiated by the brusher
-                    state.externalMoveEvent = false;
-                } else {
-                    const selection = d3.event.selection.map(state.timeScale.invert);
-                    state.onChange(selection[0], selection[1]);
-                }
+                const selection = (d3.event.selection || [0, brushWidth]).map(state.timeScale.invert);
+                state.onChange(selection[0], selection[1]);
             });
 
         // Build dom

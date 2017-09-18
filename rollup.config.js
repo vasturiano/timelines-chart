@@ -1,5 +1,5 @@
-import commonJs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
+import commonJs from 'rollup-plugin-commonjs';
 import postCss from 'rollup-plugin-postcss';
 import postCssSimpleVars from 'postcss-simple-vars';
 import postCssNested from 'postcss-nested';
@@ -12,7 +12,7 @@ export default {
     moduleName: 'TimelinesChart',
     plugins: [
         resolve({
-            jsnext: false,
+            jsnext: true,
             main: true
         }),
         commonJs(),
@@ -22,7 +22,16 @@ export default {
                 postCssNested()
             ]
         }),
-        babel({ exclude: 'node_modules/**' })
-        //babel({ ...babelOptions, babelrc: false })
+        babel({
+            presets: [
+                ["es2015", { "modules": false }]
+            ],
+            plugins: [
+                "external-helpers",
+                "transform-object-rest-spread",
+                "transform-class-properties"
+            ],
+            babelrc: false
+        })
     ]
 };

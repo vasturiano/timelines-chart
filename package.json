@@ -34,7 +34,7 @@
     "d3-color-legend": "^1.2.0",
     "d3-scale-chromatic": "^1.1.1",
     "d3-tip": "^0.7.1",
-    "kapsule": "^1.6.0",
+    "kapsule": "^1.7.0",
     "svg-text-fit": "^1.1.0",
     "svg-utils": "^1.2.0"
   },

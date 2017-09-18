@@ -67,7 +67,7 @@ export default Kapsule({
                 }
             }
         },
-        width: { default: 720, triggerUpdate: false },
+        width: { default: window.innerWidth, triggerUpdate: false },
         leftMargin: { default: 90, triggerUpdate: false },
         rightMargin: { default: 100, triggerUpdate: false },
         topMargin: {default: 26, triggerUpdate: false },

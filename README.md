@@ -16,33 +16,43 @@ Live example: http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0
 ## Quick start
 
 ```
-npm install
-npm run build
-```
-open ```local/index.html``` in the browser.
-
-### How to instantiate
-
-```
-import { default as TimelinesChart } from 'timelines-chart';
+import TimelinesChart from 'timelines-chart';
 ```
 or
 ```
-var TimelinesChart = require('timelines-chart');
+TimelinesChart = require('timelines-chart');
 ```
 or even
 ```
-<script src="/path/to/dist/timelines-chart.js"></script>
+<script src="//unpkg.com/timelines-chart"></script>
 ```
 then
 ```
-var myChart = TimelinesChart();
+const myChart = TimelinesChart();
 myChart
     .data(<myData>)
     (<myDOMElement>);
 ```
 
 ## API reference
+
+| Method | Description | Default |
+| --- | --- | --- |
+| <b>data</b>([<i>array</i>]) | Getter/setter for chart data (see below for syntax details). | `[]` |
+| <b>width</b>([<i>number</i>]) | Getter/setter for the chart width in px. | *&lt;window width&gt;* |
+| <b>maxHeight</b>([<i>number</i>]) | Getter/setter for the chart's maximum height in px. | 640 |
+| <b>leftMargin</b>([<i>number</i>]) | Getter/setter for the chart's left margin, which contains the left-side group axis labels. | 90 |
+| <b>rightMargin</b>([<i>number</i>]) | Getter/setter for the chart's right margin, which contains the right-side series axis labels. | 100 |
+| <b>topMargin</b>([<i>number</i>]) | Getter/setter for the chart's top margin, which contains the color legend. | 26 |
+| <b>bottomMargin</b>([<i>number</i>]) | Getter/setter for the chart's bottom margin, which contains the time axis labels. | 30 |
+| <b>zoomX</b>([<i>[startDate, endDate]</i>]) | Getter/setter for the chart's time (horizontal) zoom. A null value indicates a zoom reset to full extent.  | `null` |
+| <b>zoomY</b>([<i>[number, number]</i>]) | Getter/setter for the chart's vertical zoom in px. The parameter should follow the syntax `[<start row index>, <end row index>]`. A null value indicates a zoom reset to full extent.  | `null` |
+| <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be rendered. | 0 |
+| <b>zQualitative</b>([<i>boolean</i>]) | Getter/setter for whether the segment data color values are categorical (false) or quantitative (true). This will affect how the color legend is presented, and changing it will automatically toggle the `zColorScale` between defaults. | false |
+| <b>zColorScale</b>([<i>d3 scale object</i>]) | Getter/setter for the color scale to be used for coloring the segments according to their data values. This object should be a D3 color scale object. | qualitative: `d3.scaleOrdinal([...d3.schemeCategory10, ...d3.schemeCategory20b])`, quantitative: `d3.scaleSequential(d3chroma.interpolateRdYlBu)` |
+| <b>zDataLabel</b>([<i>string</i>]) | Getter/setter for the units of z data. Used in the legend and tooltip descriptions (true). Only applicable to quantitative z scales. | |
+
+
 
 ```
 TimelinesChart()

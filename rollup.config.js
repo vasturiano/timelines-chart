@@ -1,8 +1,9 @@
 import commonJs from 'rollup-plugin-commonjs';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import resolve from 'rollup-plugin-node-resolve';
 import postCss from 'rollup-plugin-postcss';
 import postCssSimpleVars from 'postcss-simple-vars';
 import postCssNested from 'postcss-nested';
+import babel from 'rollup-plugin-babel';
 
 export default {
     entry: 'src/index.js',
@@ -10,16 +11,18 @@ export default {
     format: 'umd',
     moduleName: 'TimelinesChart',
     plugins: [
-        commonJs(),
-        nodeResolve({
-            jsnext: true,
+        resolve({
+            jsnext: false,
             main: true
         }),
+        commonJs(),
         postCss({
             plugins: [
                 postCssSimpleVars(),
                 postCssNested()
             ]
-        })
+        }),
+        babel({ exclude: 'node_modules/**' })
+        //babel({ ...babelOptions, babelrc: false })
     ]
 };

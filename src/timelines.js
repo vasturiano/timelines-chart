@@ -824,7 +824,7 @@ export default Kapsule({
             });
             state.svg.select('g.y-axis')
                 .transition().duration(state.transDuration)
-                .style('font', fontSize + 'px sans-serif')
+                .style('font-size', fontSize + 'px')
                 .call(state.yAxis);
 
             // Grp
@@ -839,7 +839,7 @@ export default Kapsule({
             });
             state.svg.select('g.grp-axis')
                 .transition().duration(state.transDuration)
-                .style('font', fontSize + 'px sans-serif')
+                .style('font-size', fontSize + 'px')
                 .call(state.grpAxis);
 
             // Make Axises clickable

@@ -1,4 +1,4 @@
-function getMockupData(ordinal = false) {
+function getRandomData(ordinal = false) {
 
     const NGROUPS = 6,
         MAXLINES = 15,

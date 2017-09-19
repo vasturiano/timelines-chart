@@ -15,7 +15,7 @@
     "name": "Vasco Asturiano",
     "url": "http://bl.ocks.org/vasturiano"
   },
-  "license": "GPL-3.0",
+  "license": "MIT",
   "main": "dist/timelines-chart.js",
   "jsnext:main": "src/index",
   "homepage": "https://github.com/vasturiano/timelines-chart",

@@ -6,10 +6,19 @@ import postCssNested from 'postcss-nested';
 import babel from 'rollup-plugin-babel';
 
 export default {
-    entry: 'src/index.js',
-    dest: 'dist/timelines-chart.js',
-    format: 'umd',
-    moduleName: 'TimelinesChart',
+    input: 'src/index.js',
+    output: [
+        {
+            format: 'umd',
+            name: 'TimelinesChart',
+            file: 'dist/timelines-chart.js',
+            sourcemap: true
+        },
+        {
+            format: 'es',
+            file: 'dist/timelines-chart.mjs'
+        }
+    ],
     plugins: [
         resolve({
             jsnext: true,

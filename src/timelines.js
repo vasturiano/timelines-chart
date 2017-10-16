@@ -111,10 +111,10 @@ export default Kapsule({
                 state.transDuration = val?700:0;
             }
         },
-        axisClickURL: { triggerUpdate: false },
 
         // Callbacks
-        onZoom: {} // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
+        onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
+        onLabelClick: {} // When user clicks on a group or y label. Returns (label)
     },
 
     methods: {
@@ -843,19 +843,13 @@ export default Kapsule({
                 .call(state.grpAxis);
 
             // Make Axises clickable
-            if (state.axisClickURL) {
+            if (state.onLabelClick) {
                 state.svg.selectAll('g.y-axis,g.grp-axis').selectAll('text')
                     .style('cursor', 'pointer')
-                    .on('click', function(d){
+                    .on('click', function(d) {
                         var segms = d.split('+&+');
                         var lbl = segms[segms.length-1];
-                        window.open(state.axisClickURL + lbl, '_blank');
-                    })
-                    .append('title')
-                    .text(function(d) {
-                        var segms = d.split('+&+');
-                        var lbl = segms[segms.length-1];
-                        return 'Open ' + lbl + ' on ' + state.axisClickURL;
+                        state.onLabelClick(lbl);
                     });
             }
         }

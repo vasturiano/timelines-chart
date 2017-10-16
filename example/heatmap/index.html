@@ -1,5 +1,5 @@
 <head>
-	<script src='../../dist/timelines-chart.js'></script>
+	<script src='//unpkg.com/timelines-chart'></script>
 	<script src='../random-data.js'></script>
 </head>
 
@@ -10,7 +10,6 @@
 	TimelinesChart()(document.body)
 			.zScaleLabel('My Scale Units')
 			.zQualitative(false)
-			.data(myData)
-			.onLabelClick(lbl => console.log(lbl))
+			.data(myData);
 </script>
 </body>

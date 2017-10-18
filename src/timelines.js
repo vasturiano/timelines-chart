@@ -68,11 +68,12 @@ export default Kapsule({
             }
         },
         width: { default: window.innerWidth, triggerUpdate: false },
+        maxHeight: { default: 640 },
+        maxLineHeight: { default: 12 },
         leftMargin: { default: 90, triggerUpdate: false },
         rightMargin: { default: 100, triggerUpdate: false },
         topMargin: {default: 26, triggerUpdate: false },
         bottomMargin: {default: 30, triggerUpdate: false },
-        maxHeight: { default: 640 },
         zoomX: {    // Which time-range to show (null = min/max)
             default: [null, null],
             onChange(zoomX, state) {
@@ -267,7 +268,6 @@ export default Kapsule({
     stateInit: {
         height: null,
         overviewHeight: 20, // Height of overview section in bottom
-        lineMaxHeight: 12,
         minLabelFont: 2,
         groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
 
@@ -734,7 +734,7 @@ export default Kapsule({
         }
 
         function setupHeights() {
-            state.graphH = d3.min([state.nLines*state.lineMaxHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
+            state.graphH = d3.min([state.nLines*state.maxLineHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
             state.height = state.graphH + state.topMargin + state.bottomMargin;
             state.svg.transition().duration(state.transDuration)
                 .attr('height', state.height);

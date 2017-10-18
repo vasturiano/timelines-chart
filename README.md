@@ -40,6 +40,7 @@ myChart
 | <b>data</b>([<i>array</i>]) | Getter/setter for chart data (see below for syntax details). | `[]` |
 | <b>width</b>([<i>number</i>]) | Getter/setter for the chart width in px. | *&lt;window width&gt;* |
 | <b>maxHeight</b>([<i>number</i>]) | Getter/setter for the chart's maximum height in px. | 640 |
+| <b>maxLineHeight</b>([<i>number</i>]) | Getter/setter for the maximum height of each line, in px. | 12 |
 | <b>leftMargin</b>([<i>number</i>]) | Getter/setter for the chart's left margin, which contains the left-side group axis labels. | 90 |
 | <b>rightMargin</b>([<i>number</i>]) | Getter/setter for the chart's right margin, which contains the right-side series axis labels. | 100 |
 | <b>topMargin</b>([<i>number</i>]) | Getter/setter for the chart's top margin, which contains the color legend. | 26 |

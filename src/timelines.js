@@ -386,18 +386,18 @@ export default Kapsule({
                         return (a >= b);
                     };
 
-                var domain = this.domain(),
-                    range = this.range();
+                var scDomain = this.domain(),
+                    scRange = this.range();
 
-                if (range.length === 2 && domain.length !== 2) {
+                if (scRange.length === 2 && scDomain.length !== 2) {
                     // Special case, interpolate range vals
-                    range = d3.range(range[0], range[1], (range[1] - range[0]) / domain.length);
+                    scRange = d3.range(scRange[0], scRange[1], (scRange[1] - scRange[0]) / scDomain.length);
                 }
 
-                var bias = range[0];
-                for (var i = 0, len = range.length; i < len; i++) {
-                    if (cmpFunc(range[i] + bias, val)) {
-                        return domain[Math.round(i * domain.length / range.length)];
+                var bias = scRange[0];
+                for (var i = 0, len = scRange.length; i < len; i++) {
+                    if (cmpFunc(scRange[i] + bias, val)) {
+                        return scDomain[Math.round(i * scDomain.length / scRange.length)];
                     }
                 }
 

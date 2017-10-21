@@ -67,13 +67,13 @@ export default Kapsule({
                 }
             }
         },
-        width: { default: window.innerWidth, triggerUpdate: false },
+        width: { default: window.innerWidth },
         maxHeight: { default: 640 },
         maxLineHeight: { default: 12 },
-        leftMargin: { default: 90, triggerUpdate: false },
-        rightMargin: { default: 100, triggerUpdate: false },
-        topMargin: {default: 26, triggerUpdate: false },
-        bottomMargin: {default: 30, triggerUpdate: false },
+        leftMargin: { default: 90 },
+        rightMargin: { default: 100 },
+        topMargin: {default: 26 },
+        bottomMargin: {default: 30 },
         zoomX: {    // Which time-range to show (null = min/max)
             default: [null, null],
             onChange(zoomX, state) {
@@ -271,7 +271,7 @@ export default Kapsule({
         minLabelFont: 2,
         groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
 
-        xScale: d3.scaleTime(),
+        xScale: d3.scaleTime().clamp(true),
         yScale: d3.scalePoint(),
         grpScale: d3.scaleOrdinal(),
 
@@ -330,39 +330,16 @@ export default Kapsule({
                 (state.svg.node())
                 .id();
 
-            state.graphW = state.width-state.leftMargin-state.rightMargin;
-            state.xScale.range([0, state.graphW])
-                .clamp(true);
+            var axises = state.svg.append('g').attr('class', 'axises');
+            axises.append('g').attr('class', 'x-axis');
+            axises.append('g').attr('class', 'x-grid');
+            axises.append('g').attr('class', 'y-axis');
+            axises.append('g').attr('class', 'grp-axis');
 
-            state.svg.attr('width', state.width);
-
-            var axises = state.svg.append('g');
-
-            state.graph = state.svg.append('g')
-                .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
-
-            axises.attr('class', 'axises')
-                .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
-
-            axises.append('g')
-                .attr('class', 'x-axis');
-
-            axises.append('g')
-                .attr('class', 'x-grid');
-
-            axises.append('g')
-                .attr('class', 'y-axis')
-                .attr('transform', 'translate(' + state.graphW + ', 0)');
-
-            axises.append('g')
-                .attr('class', 'grp-axis');
-
-            state.xAxis.scale(state.xScale)
-                .ticks(Math.round(state.graphW*0.011));
+            state.xAxis.scale(state.xScale);
 
             state.xGrid.scale(state.xScale)
-                .tickFormat('')
-                .ticks(state.xAxis.ticks()[0]);
+                .tickFormat('');
 
             state.yAxis.scale(state.yScale)
                 .tickSize(0);
@@ -372,9 +349,11 @@ export default Kapsule({
 
             state.colorLegend = ColorLegend()
                 (state.svg.append('g')
-                    .attr('transform', `translate(${state.leftMargin + state.graphW*0.05},2)`)
+                    .attr('class', 'legendG')
                     .node()
                 );
+
+            state.graph = state.svg.append('g');
 
             if (state.enableOverview) {
                 addOverviewArea();
@@ -563,11 +542,9 @@ export default Kapsule({
                 d3.event.stopPropagation();
             });
 
-            const resetBtn = state.svg.append('text')
+            state.resetBtn = state.svg.append('text')
                 .attr('class', 'reset-zoom-btn')
                 .text('Reset Zoom')
-                .attr('x', state.leftMargin + state.graphW*.99)
-                .attr('y', state.topMargin *.8)
                 .style('text-anchor', 'end')
                 .on('mouseup' , function() {
                     state.svg.dispatch('resetZoom');
@@ -578,13 +555,6 @@ export default Kapsule({
                 .on('mouseout', function() {
                     d3.select(this).style('opacity', .6);
                 });
-
-            TextFitToBox()
-                .bbox({
-                    width: state.graphW *.4,
-                    height: Math.min(13,state.topMargin *.8)
-                })
-                (resetBtn.node());
         }
 
         function setEvents() {
@@ -647,7 +617,7 @@ export default Kapsule({
     update(state) {
 
         applyFilters();
-        setupHeights();
+        setupDimensions();
 
         adjustXScale();
         adjustYScale();
@@ -733,11 +703,16 @@ export default Kapsule({
             state.nLines-=cntDwn[1];
         }
 
-        function setupHeights() {
+        function setupDimensions() {
+            state.graphW = state.width-state.leftMargin-state.rightMargin;
             state.graphH = d3.min([state.nLines*state.maxLineHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
             state.height = state.graphH + state.topMargin + state.bottomMargin;
+
             state.svg.transition().duration(state.transDuration)
+                .attr('width', state.width)
                 .attr('height', state.height);
+
+            state.graph.attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
         }
 
         function adjustXScale() {
@@ -746,6 +721,7 @@ export default Kapsule({
             state.zoomX[1] = state.zoomX[1] || d3.max(state.flatData, function(d) { return d.timeRange[1]; });
 
             state.xScale.domain(state.zoomX);
+            state.xScale.range([0, state.graphW]);
         }
 
         function adjustYScale() {
@@ -772,32 +748,46 @@ export default Kapsule({
         }
 
         function adjustLegend() {
+            state.svg.select('.legendG')
+                .transition().duration(state.transDuration)
+                    .attr('transform', `translate(${state.leftMargin + state.graphW*0.05},2)`);
+
             state.colorLegend
                 .width(Math.max(120, state.graphW/3 * (state.zQualitative?2:1)))
                 .height(state.topMargin*.6)
                 .scale(state.zColorScale)
                 .label(state.zScaleLabel);
+
+            state.resetBtn
+                .transition().duration(state.transDuration)
+                    .attr('x', state.leftMargin + state.graphW*.99)
+                    .attr('y', state.topMargin *.8);
+
+            TextFitToBox()
+                .bbox({
+                    width: state.graphW *.4,
+                    height: Math.min(13,state.topMargin *.8)
+                })
+                (state.resetBtn.node());
         }
 
         function renderAxises() {
 
-            function reduceLabel(label, maxChars) {
-                return label.length<=maxChars?label:(
-                label.substring(0, maxChars*2/3)
-                + '...'
-                + label.substring(label.length - maxChars/3, label.length
-                ));
-            }
+            state.svg.select('.axises')
+                .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
 
             // X
+            state.xAxis.ticks(Math.round(state.graphW*0.0011));
+            state.xGrid.ticks(state.xAxis.ticks()[0]);
+
             state.svg.select('g.x-axis')
                 .style('stroke-opacity', 0)
                 .style('fill-opacity', 0)
                 .attr('transform', 'translate(0,' + state.graphH + ')')
                 .transition().duration(state.transDuration)
-                .call(state.xAxis)
-                .style('stroke-opacity', 1)
-                .style('fill-opacity', 1);
+                    .call(state.xAxis)
+                    .style('stroke-opacity', 1)
+                    .style('fill-opacity', 1);
 
             /* Angled x axis labels
              state.svg.select('g.x-axis').selectAll('text')
@@ -824,8 +814,9 @@ export default Kapsule({
             });
             state.svg.select('g.y-axis')
                 .transition().duration(state.transDuration)
-                .style('font-size', fontSize + 'px')
-                .call(state.yAxis);
+                    .attr('transform', 'translate(' + state.graphW + ', 0)')
+                    .style('font-size', fontSize + 'px')
+                    .call(state.yAxis);
 
             // Grp
             var minHeight = d3.min(state.grpScale.range(), function (d,i) {
@@ -852,6 +843,16 @@ export default Kapsule({
                         state.onLabelClick(lbl);
                     });
             }
+
+            //
+
+            function reduceLabel(label, maxChars) {
+                return label.length<=maxChars?label:(
+                    label.substring(0, maxChars*2/3)
+                    + '...'
+                    + label.substring(label.length - maxChars/3, label.length
+                ));
+            }
         }
 
         function renderGroups() {
@@ -866,7 +867,6 @@ export default Kapsule({
 
             var newGroups = groups.enter().append('rect')
                 .attr('class', 'series-group')
-                .attr('width', state.graphW)
                 .attr('x', 0)
                 .attr('y', 0)
                 .attr('height', 0)
@@ -880,6 +880,7 @@ export default Kapsule({
             groups = groups.merge(newGroups);
 
             groups.transition().duration(state.transDuration)
+                .attr('width', state.graphW)
                 .attr('height', function (d) {
                     return state.graphH*d.lines.length/state.nLines;
                 })
@@ -914,8 +915,7 @@ export default Kapsule({
                 .style('fill-opacity', 0)
                 .remove();
 
-            var newSegments = timelines.enter()
-                .append('rect')
+            var newSegments = timelines.enter().append('rect')
                 .attr('class', 'series-segment')
                 .attr('rx', 1)
                 .attr('ry', 1)

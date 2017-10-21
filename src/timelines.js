@@ -19,8 +19,8 @@ export default Kapsule({
                 parseData(data);
 
                 state.zoomX = [
-                    d3.min(state.completeFlatData, function(d) { return d.timeRange[0]; }),
-                    d3.max(state.completeFlatData, function(d) { return d.timeRange[1]; })
+                    d3.min(state.completeFlatData, d => d.timeRange[0]),
+                    d3.max(state.completeFlatData, d => d.timeRange[1])
                 ];
 
                 state.zoomY = [null, null];
@@ -39,17 +39,17 @@ export default Kapsule({
                     state.completeFlatData = [];
                     state.totalNLines = 0;
 
-                    var dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
+                    const dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
 
-                    for (var i= 0, ilen=rawData.length; i<ilen; i++) {
-                        var group = rawData[i].group;
+                    for (let i=0, ilen=rawData.length; i<ilen; i++) {
+                        const group = rawData[i].group;
                         state.completeStructData.push({
                             group: group,
-                            lines: rawData[i].data.map(function(d) { return d.label; })
+                            lines: rawData[i].data.map(d => d.label)
                         });
 
-                        for (var j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
-                            for (var k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
+                        for (let j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
+                            for (let k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
                                 state.completeFlatData.push({
                                     group: group,
                                     label: rawData[i].data[j].label,
@@ -133,8 +133,8 @@ export default Kapsule({
 
                 if (y==null) return y;
 
-                var cntDwn = y;
-                for (var i=0, len=state.completeStructData.length; i<len; i++) {
+                let cntDwn = y;
+                for (let i=0, len=state.completeStructData.length; i<len; i++) {
                     if (state.completeStructData[i].lines.length>cntDwn)
                         return getIdxLine(state.completeStructData[i], cntDwn);
                     cntDwn-=state.completeStructData[i].lines.length;
@@ -156,17 +156,17 @@ export default Kapsule({
             function label2Y(label, useIdxAfterIfNotFound) {
 
                 useIdxAfterIfNotFound = useIdxAfterIfNotFound || false;
-                var subIdxNotFound = useIdxAfterIfNotFound?0:1;
+                const subIdxNotFound = useIdxAfterIfNotFound?0:1;
 
                 if (label==null) return label;
 
-                var idx=0;
-                for (var i=0, lenI=state.completeStructData.length; i<lenI; i++) {
-                    var grpCmp = state.grpCmpFunction(label.group, state.completeStructData[i].group);
+                let idx=0;
+                for (let i=0, lenI=state.completeStructData.length; i<lenI; i++) {
+                    const grpCmp = state.grpCmpFunction(label.group, state.completeStructData[i].group);
                     if (grpCmp<0) break;
                     if (grpCmp==0 && label.group==state.completeStructData[i].group) {
-                        for (var j=0, lenJ=state.completeStructData[i].lines.length; j<lenJ; j++) {
-                            var cmpRes = state.labelCmpFunction(label.label, state.completeStructData[i].lines[j]);
+                        for (let j=0, lenJ=state.completeStructData[i].lines.length; j<lenJ; j++) {
+                            const cmpRes = state.labelCmpFunction(label.label, state.completeStructData[i].lines[j]);
                             if (cmpRes<0) {
                                 return idx+j-subIdxNotFound;
                             }
@@ -188,11 +188,9 @@ export default Kapsule({
             state.labelCmpFunction = labelCmpFunction;
             state.grpCmpFunction = grpCmpFunction;
 
-            state.completeStructData.sort(function(a, b) {
-                return grpCmpFunction(a.group, b.group);
-            });
+            state.completeStructData.sort((a, b) => grpCmpFunction(a.group, b.group));
 
-            for (var i=0, len=state.completeStructData.length;i<len;i++) {
+            for (let i=0, len=state.completeStructData.length;i<len;i++) {
                 state.completeStructData[i].lines.sort(labelCmpFunction);
             }
 
@@ -202,30 +200,30 @@ export default Kapsule({
         },
         sortAlpha(state, asc) {
             if (asc==null) { asc=true }
-            var alphaCmp = function (a, b) { return alphaNumCmp(asc?a:b, asc?b:a); };
+            const alphaCmp = function (a, b) { return alphaNumCmp(asc?a:b, asc?b:a); };
             return this.sort(alphaCmp, alphaCmp);
         },
         sortChrono(state, asc) {
             if (asc==null) { asc=true }
 
             function buildIdx(accessFunction) {
-                var idx = {};
-                for (var i= 0, len=state.completeFlatData.length; i<len; i++ ) {
-                    var key = accessFunction(state.completeFlatData[i]);
+                const idx = {};
+                for (let i= 0, len=state.completeFlatData.length; i<len; i++ ) {
+                    const key = accessFunction(state.completeFlatData[i]);
                     if (idx.hasOwnProperty(key)) { continue; }
 
-                    var itmList = state.completeFlatData.filter(function(d) { return key == accessFunction(d); });
+                    const itmList = state.completeFlatData.filter(d => key == accessFunction(d));
                     idx[key] = [
-                        d3.min(itmList, function(d) { return d.timeRange[0]}),
-                        d3.max(itmList, function(d) { return d.timeRange[1]})
+                        d3.min(itmList, d => d.timeRange[0]),
+                        d3.max(itmList, d => d.timeRange[1])
                     ];
                 }
                 return idx;
             }
 
-            var timeCmp = function (a, b) {
+            const timeCmp = function (a, b) {
 
-                var aT = a[1], bT=b[1];
+                const aT = a[1], bT=b[1];
 
                 if (!aT || !bT) return null; // One of the two vals is null
 
@@ -239,16 +237,14 @@ export default Kapsule({
             };
 
             function getCmpFunction(accessFunction, asc) {
-                return function(a, b) {
-                    return timeCmp(accessFunction(asc?a:b), accessFunction(asc?b:a));
-                }
+                return (a, b) => timeCmp(accessFunction(asc?a:b), accessFunction(asc?b:a));
             }
 
-            var grpIdx = buildIdx(function(d) { return d.group; });
-            var lblIdx = buildIdx(function(d) { return d.label; });
+            const grpIdx = buildIdx(d => d.group);
+            const lblIdx = buildIdx(d => d.label);
 
-            var grpCmp = getCmpFunction(function(d) { return [d, grpIdx[d] || null]; }, asc);
-            var lblCmp = getCmpFunction(function(d) { return [d, lblIdx[d] || null]; }, asc);
+            const grpCmp = getCmpFunction(d => [d, grpIdx[d] || null], asc);
+            const lblCmp = getCmpFunction(d => [d, lblIdx[d] || null], asc);
 
             return this.sort(lblCmp, grpCmp);
         },
@@ -330,7 +326,7 @@ export default Kapsule({
                 (state.svg.node())
                 .id();
 
-            var axises = state.svg.append('g').attr('class', 'axises');
+            const axises = state.svg.append('g').attr('class', 'axises');
             axises.append('g').attr('class', 'x-axis');
             axises.append('g').attr('class', 'x-grid');
             axises.append('g').attr('class', 'y-axis');
@@ -365,16 +361,16 @@ export default Kapsule({
                         return (a >= b);
                     };
 
-                var scDomain = this.domain(),
-                    scRange = this.range();
+                const scDomain = this.domain();
+                let scRange = this.range();
 
                 if (scRange.length === 2 && scDomain.length !== 2) {
                     // Special case, interpolate range vals
                     scRange = d3.range(scRange[0], scRange[1], (scRange[1] - scRange[0]) / scDomain.length);
                 }
 
-                var bias = scRange[0];
-                for (var i = 0, len = scRange.length; i < len; i++) {
+                const bias = scRange[0];
+                for (let i = 0, len = scRange.length; i < len; i++) {
                     if (cmpFunc(scRange[i] + bias, val)) {
                         return scDomain[Math.round(i * scDomain.length / scRange.length)];
                     }
@@ -397,7 +393,7 @@ export default Kapsule({
                     (state.overviewAreaElem.node());
 
                 state.svg.on('zoomScent', function() {
-                    var zoomX = d3.event.detail.zoomX;
+                    const zoomX = d3.event.detail.zoomX;
 
                     if (!state.overviewArea || !zoomX) return;
 
@@ -422,12 +418,12 @@ export default Kapsule({
                 .attr('class', 'chart-tooltip group-tooltip')
                 .direction('w')
                 .offset([0, 0])
-                .html(function(d) {
-                    var leftPush = (d.hasOwnProperty('timeRange')
+                .html(d => {
+                    const leftPush = (d.hasOwnProperty('timeRange')
                             ?state.xScale(d.timeRange[0])
                             :0
                     );
-                    var topPush = (d.hasOwnProperty('label')
+                    const topPush = (d.hasOwnProperty('label')
                             ?state.grpScale(d.group)-state.yScale(d.group+'+&+'+d.label)
                             :0
                     );
@@ -441,8 +437,8 @@ export default Kapsule({
                 .attr('class', 'chart-tooltip line-tooltip')
                 .direction('e')
                 .offset([0, 0])
-                .html(function(d) {
-                    var rightPush = (d.hasOwnProperty('timeRange')?state.xScale.range()[1]-state.xScale(d.timeRange[1]):0);
+                .html(d => {
+                    const rightPush = (d.hasOwnProperty('timeRange')?state.xScale.range()[1]-state.xScale(d.timeRange[1]):0);
                     state.lineTooltip.offset([0, rightPush]);
                     return d.label;
                 });
@@ -453,9 +449,9 @@ export default Kapsule({
                 .attr('class', 'chart-tooltip segment-tooltip')
                 .direction('s')
                 .offset([5, 0])
-                .html(function(d) {
-                    var normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
-                    var dateFormat = d3.timeFormat('%Y-%m-%d %H:%M:%S');
+                .html(d => {
+                    const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
+                    const dateFormat = d3.timeFormat('%Y-%m-%d %H:%M:%S');
                     return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
                         + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
                         + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
@@ -470,22 +466,22 @@ export default Kapsule({
                 if (d3.select(window).on('mousemove.zoomRect')!=null) // Selection already active
                     return;
 
-                var e = this;
+                const e = this;
 
                 if (d3.mouse(e)[0]<0 || d3.mouse(e)[0]>state.graphW || d3.mouse(e)[1]<0 || d3.mouse(e)[1]>state.graphH)
                     return;
 
                 state.disableHover=true;
 
-                var rect = state.graph.append('rect')
+                const rect = state.graph.append('rect')
                     .attr('class', 'chart-zoom-selection');
 
-                var startCoords = d3.mouse(e);
+                const startCoords = d3.mouse(e);
 
                 d3.select(window)
                     .on('mousemove.zoomRect', function() {
                         d3.event.stopPropagation();
-                        var newCoords = [
+                        const newCoords = [
                             Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
                             Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
                         ];
@@ -496,10 +492,10 @@ export default Kapsule({
 
                         state.svg.dispatch('zoomScent', { detail: {
                             zoomX: [startCoords[0], newCoords[0]].sort(d3.ascending).map(state.xScale.invert),
-                            zoomY: [startCoords[1], newCoords[1]].sort(d3.ascending).map(function(d) {
-                                return state.yScale.domain().indexOf(state.yScale.invert(d))
-                                    + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0);
-                            })
+                            zoomY: [startCoords[1], newCoords[1]].sort(d3.ascending).map(d =>
+                                state.yScale.domain().indexOf(state.yScale.invert(d))
+                                + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0)
+                            )
                         }});
                     })
                     .on('mouseup.zoomRect', function() {
@@ -508,7 +504,7 @@ export default Kapsule({
                         rect.remove();
                         state.disableHover=false;
 
-                        var endCoords = [
+                        const endCoords = [
                             Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
                             Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
                         ];
@@ -516,15 +512,15 @@ export default Kapsule({
                         if (startCoords[0]==endCoords[0] && startCoords[1]==endCoords[1])
                             return;
 
-                        var newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(state.xScale.invert);
+                        const newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(state.xScale.invert);
 
-                        var newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(function(d) {
-                            return state.yScale.domain().indexOf(state.yScale.invert(d))
-                                + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0);
-                        });
+                        const newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(d =>
+                            state.yScale.domain().indexOf(state.yScale.invert(d))
+                            + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0)
+                        );
 
-                        var changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper
-                        var changeY=(newDomainY[0]!=state.zoomY[0] || newDomainY[1]!=state.zoomY[1]);
+                        const changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper
+                        const changeY=(newDomainY[0]!=state.zoomY[0] || newDomainY[1]!=state.zoomY[1]);
 
                         if (changeX || changeY) {
                             state.svg.dispatch('zoom', { detail: {
@@ -555,7 +551,7 @@ export default Kapsule({
         function setEvents() {
 
             state.svg.on('zoom', function() {
-                var evData = d3.event.detail,
+                const evData = d3.event.detail,
                     zoomX = evData.zoomX,
                     zoomY = evData.zoomY,
                     redraw = (evData.redraw==null)?true:evData.redraw;
@@ -577,14 +573,14 @@ export default Kapsule({
             });
 
             state.svg.on('resetZoom', function() {
-                var prevZoomX = state.zoomX;
-                var prevZoomY = state.zoomY || [null, null];
+                const prevZoomX = state.zoomX;
+                const prevZoomY = state.zoomY || [null, null];
 
-                var newZoomX = state.enableOverview
+                const newZoomX = state.enableOverview
                         ?state.overviewArea.domainRange()
                         :[
-                        d3.min(state.flatData, function(d) { return d.timeRange[0]; }),
-                        d3.max(state.flatData, function(d) { return d.timeRange[1]; })
+                        d3.min(state.flatData, d => d.timeRange[0]),
+                        d3.max(state.flatData, d => d.timeRange[1])
                     ],
                     newZoomY = [null, null];
 
@@ -629,42 +625,38 @@ export default Kapsule({
         function applyFilters() {
             // Flat data based on segment length
             state.flatData = (state.minSegmentDuration>0
-                    ?state.completeFlatData.filter(function(d) {
-                    return (d.timeRange[1]-d.timeRange[0])>=state.minSegmentDuration;
-                })
-                    :state.completeFlatData
+                ? state.completeFlatData.filter(d => (d.timeRange[1]-d.timeRange[0]) >= state.minSegmentDuration)
+                : state.completeFlatData
             );
 
             // zoomY
             if (state.zoomY==null || state.zoomY==[null, null]) {
                 state.structData = state.completeStructData;
                 state.nLines=0;
-                for (var i=0, len=state.structData.length; i<len; i++) {
+                for (let i=0, len=state.structData.length; i<len; i++) {
                     state.nLines += state.structData[i].lines.length;
                 }
                 return;
             }
 
             state.structData = [];
-            var cntDwn = [state.zoomY[0]==null?0:state.zoomY[0]]; // Initial threshold
+            const cntDwn = [state.zoomY[0]==null?0:state.zoomY[0]]; // Initial threshold
             cntDwn.push(Math.max(0, (state.zoomY[1]==null?state.totalNLines:state.zoomY[1]+1)-cntDwn[0])); // Number of lines
             state.nLines = cntDwn[1];
-            for (var i=0, len=state.completeStructData.length; i<len; i++) {
+            for (let i=0, len=state.completeStructData.length; i<len; i++) {
 
-                var validLines = state.completeStructData[i].lines;
+                let validLines = state.completeStructData[i].lines;
 
                 if(state.minSegmentDuration>0) {  // Use only non-filtered (due to segment length) groups/labels
-                    if (!state.flatData.some(function(d){
-                            return d.group == state.completeStructData[i].group;
-                        })) {
+                    if (!state.flatData.some(d => d.group == state.completeStructData[i].group)) {
                         continue; // No data for this group
                     }
 
-                    validLines = state.completeStructData[i].lines.filter( function(d) {
-                        return state.flatData.some( function (dd) {
-                            return (dd.group == state.completeStructData[i].group && dd.label == d);
-                        })
-                    });
+                    validLines = state.completeStructData[i].lines
+                        .filter(d => state.flatData.some(dd =>
+                            dd.group == state.completeStructData[i].group && dd.label == d
+                        )
+                    );
                 }
 
                 if (cntDwn[0]>=validLines.length) { // Ignore whole group (before start)
@@ -672,7 +664,7 @@ export default Kapsule({
                     continue;
                 }
 
-                var groupData = {
+                const groupData = {
                     group: state.completeStructData[i].group,
                     lines: null
                 };
@@ -718,16 +710,16 @@ export default Kapsule({
 
         function adjustXScale() {
 
-            state.zoomX[0] = state.zoomX[0] || d3.min(state.flatData, function(d) { return d.timeRange[0]; });
-            state.zoomX[1] = state.zoomX[1] || d3.max(state.flatData, function(d) { return d.timeRange[1]; });
+            state.zoomX[0] = state.zoomX[0] || d3.min(state.flatData, d => d.timeRange[0]);
+            state.zoomX[1] = state.zoomX[1] || d3.max(state.flatData, d => d.timeRange[1]);
 
             state.xScale.domain(state.zoomX);
             state.xScale.range([0, state.graphW]);
         }
 
         function adjustYScale() {
-            var labels = [];
-            for (var i= 0, len=state.structData.length; i<len; i++) {
+            let labels = [];
+            for (let i= 0, len=state.structData.length; i<len; i++) {
                 labels = labels.concat(state.structData[i].lines.map(function (d) {
                     return state.structData[i].group + '+&+' + d
                 }));
@@ -738,11 +730,11 @@ export default Kapsule({
         }
 
         function adjustGrpScale() {
-            state.grpScale.domain(state.structData.map(function(d) { return d.group; }));
+            state.grpScale.domain(state.structData.map(d => d.group));
 
-            var cntLines=0;
-            state.grpScale.range(state.structData.map(function(d) {
-                var pos = (cntLines+d.lines.length/2)/state.nLines*state.graphH;
+            let cntLines=0;
+            state.grpScale.range(state.structData.map(d => {
+                const pos = (cntLines+d.lines.length/2)/state.nLines*state.graphH;
                 cntLines+=d.lines.length;
                 return pos;
             }));
@@ -803,16 +795,14 @@ export default Kapsule({
                 .call(state.xGrid);
 
             // Y
-            var fontVerticalMargin = 0.6;
-            var labelDisplayRatio = Math.ceil(state.nLines*state.minLabelFont/Math.sqrt(2)/state.graphH/fontVerticalMargin);
-            var tickVals = state.yScale.domain().filter(function(d, i) { return !(i % labelDisplayRatio); });
-            var fontSize = Math.min(12, state.graphH/tickVals.length*fontVerticalMargin*Math.sqrt(2));
-            var maxChars = Math.ceil(state.rightMargin/(fontSize/Math.sqrt(2)));
+            const fontVerticalMargin = 0.6;
+            const labelDisplayRatio = Math.ceil(state.nLines*state.minLabelFont/Math.sqrt(2)/state.graphH/fontVerticalMargin);
+            const tickVals = state.yScale.domain().filter((d, i) => !(i % labelDisplayRatio));
+            let fontSize = Math.min(12, state.graphH/tickVals.length*fontVerticalMargin*Math.sqrt(2));
+            let maxChars = Math.ceil(state.rightMargin/(fontSize/Math.sqrt(2)));
 
             state.yAxis.tickValues(tickVals);
-            state.yAxis.tickFormat(function(d) {
-                return reduceLabel(d.split('+&+')[1], maxChars);
-            });
+            state.yAxis.tickFormat(d => reduceLabel(d.split('+&+')[1], maxChars));
             state.svg.select('g.y-axis')
                 .transition().duration(state.transDuration)
                     .attr('transform', 'translate(' + state.graphW + ', 0)')
@@ -820,15 +810,13 @@ export default Kapsule({
                     .call(state.yAxis);
 
             // Grp
-            var minHeight = d3.min(state.grpScale.range(), function (d,i) {
+            const minHeight = d3.min(state.grpScale.range(), function (d,i) {
                 return i>0?d-state.grpScale.range()[i-1]:d*2;
             });
             fontSize = Math.min(14, minHeight*fontVerticalMargin*Math.sqrt(2));
             maxChars = Math.floor(state.leftMargin/(fontSize/Math.sqrt(2)));
 
-            state.grpAxis.tickFormat(function(d) {
-                return reduceLabel(d, maxChars);
-            });
+            state.grpAxis.tickFormat(d => reduceLabel(d, maxChars));
             state.svg.select('g.grp-axis')
                 .transition().duration(state.transDuration)
                 .style('font-size', fontSize + 'px')
@@ -839,8 +827,8 @@ export default Kapsule({
                 state.svg.selectAll('g.y-axis,g.grp-axis').selectAll('text')
                     .style('cursor', 'pointer')
                     .on('click', function(d) {
-                        var segms = d.split('+&+');
-                        var lbl = segms[segms.length-1];
+                        const segms = d.split('+&+');
+                        const lbl = segms[segms.length-1];
                         state.onLabelClick(lbl);
                     });
             }
@@ -858,7 +846,7 @@ export default Kapsule({
 
         function renderGroups() {
 
-            var groups = state.graph.selectAll('rect.series-group').data(state.structData, function(d) { return d.group});
+            let groups = state.graph.selectAll('rect.series-group').data(state.structData, d => d.group);
 
             groups.exit()
                 .transition().duration(state.transDuration)
@@ -866,7 +854,7 @@ export default Kapsule({
                 .style('fill-opacity', 0)
                 .remove();
 
-            var newGroups = groups.enter().append('rect')
+            const newGroups = groups.enter().append('rect')
                 .attr('class', 'series-group')
                 .attr('x', 0)
                 .attr('y', 0)
@@ -894,21 +882,20 @@ export default Kapsule({
 
             if (maxElems<0) maxElems=null;
 
-            var hoverEnlargeRatio = .4;
+            const hoverEnlargeRatio = .4;
 
-            var dataFilter = function(d, i) {
-                return (maxElems==null || i<maxElems) &&
-                    (state.grpScale.domain().indexOf(d.group)+1 &&
-                    d.timeRange[1]>=state.xScale.domain()[0] &&
-                    d.timeRange[0]<=state.xScale.domain()[1] &&
-                    state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
-            };
+            const dataFilter = (d, i) =>
+                (maxElems==null || i<maxElems) &&
+                (state.grpScale.domain().indexOf(d.group)+1 &&
+                d.timeRange[1]>=state.xScale.domain()[0] &&
+                d.timeRange[0]<=state.xScale.domain()[1] &&
+                state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
 
             state.lineHeight = state.graphH/state.nLines*0.8;
 
-            var timelines = state.graph.selectAll('rect.series-segment').data(
+            let timelines = state.graph.selectAll('rect.series-segment').data(
                 state.flatData.filter(dataFilter),
-                function(d) { return d.group + d.label + d.timeRange[0];}
+                d => d.group + d.label + d.timeRange[0]
             );
 
             timelines.exit()
@@ -916,7 +903,7 @@ export default Kapsule({
                 .style('fill-opacity', 0)
                 .remove();
 
-            var newSegments = timelines.enter().append('rect')
+            const newSegments = timelines.enter().append('rect')
                 .attr('class', 'series-segment')
                 .attr('rx', 1)
                 .attr('ry', 1)
@@ -924,9 +911,7 @@ export default Kapsule({
                 .attr('y', state.graphH/2)
                 .attr('width', 0)
                 .attr('height', 0)
-                .style('fill', function(d) {
-                    return state.zColorScale(d.val);
-                })
+                .style('fill', d => state.zColorScale(d.val))
                 .style('fill-opacity', 0)
                 .on('mouseover.groupTooltip', state.groupTooltip.show)
                 .on('mouseout.groupTooltip', state.groupTooltip.hide)
@@ -942,7 +927,7 @@ export default Kapsule({
 
                     MoveToFront()(this);
 
-                    var hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
+                    const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
 
                     d3.select(this)
                         .transition().duration(70)

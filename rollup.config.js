@@ -17,25 +17,15 @@ export default {
         }
     ],
     plugins: [
-        resolve(),
-        commonJs(),
         postCss({
             plugins: [
                 postCssSimpleVars(),
                 postCssNested()
             ]
         }),
-        babel({
-            presets: [
-                ["es2015", { "modules": false }]
-            ],
-            plugins: [
-                "external-helpers",
-                "transform-object-rest-spread",
-                "transform-class-properties"
-            ],
-            babelrc: false
-        })
+        resolve(),
+        commonJs(),
+        babel({ exclude: 'node_modules/**' })
     ],
     banner: `// Version ${version} ${name} - ${homepage}`
 };

@@ -384,13 +384,8 @@ export default Kapsule({
             }
 
             function addOverviewArea() {
-                var overviewMargins = { top: 1, right: 20, bottom: 20, left: 20 };
-                state.overviewArea = TimeOverview({
-                        // Options
-                        margins: overviewMargins,
-                        width: state.width*0.8,
-                        height: state.overviewHeight + overviewMargins.top + overviewMargins.bottom
-                    })
+                state.overviewArea = TimeOverview()
+                    .margins({ top: 1, right: 20, bottom: 20, left: 20 })
                     .onChange((startTime, endTime) => {
                         state.svg.dispatch('zoom', { detail: {
                             zoomX: [startTime, endTime],
@@ -713,6 +708,12 @@ export default Kapsule({
                 .attr('height', state.height);
 
             state.graph.attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
+
+            if (state.overviewArea) {
+                state.overviewArea
+                    .width(state.width * 0.8)
+                    .height(state.overviewHeight + state.overviewArea.margins().top + state.overviewArea.margins().bottom);
+            }
         }
 
         function adjustXScale() {

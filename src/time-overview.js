@@ -3,7 +3,10 @@
  */
 
 import Kapsule from 'kapsule';
-import * as d3 from 'd3';
+import { brushX as d3BrushX } from 'd3-brush';
+import { axisBottom as d3AxisBottom } from 'd3-axis';
+import { scaleUtc as d3ScaleUtc } from 'd3-scale';
+import { event as d3Event, select as d3Select } from 'd3-selection';
 
 export default Kapsule({
     props: {
@@ -16,28 +19,28 @@ export default Kapsule({
         onChange: { default: (selectionStart, selectionEnd) => {}}
     },
     stateInit: {
-        timeScale: d3.scaleUtc(),
-        brush: d3.brushX()
+        timeScale: d3ScaleUtc(),
+        brush: d3BrushX()
     },
     init(el, state) {
-        state.xGrid = d3.axisBottom()
+        state.xGrid = d3AxisBottom()
             .scale(state.timeScale)
             .tickFormat("");
 
-        state.xAxis = d3.axisBottom()
+        state.xAxis = d3AxisBottom()
             .scale(state.timeScale)
             .tickPadding(0);
 
         state.brush
             .on('end', function() {
-                if (!d3.event.sourceEvent) return;
+                if (!d3Event.sourceEvent) return;
 
-                const selection = d3.event.selection ? d3.event.selection.map(state.timeScale.invert) : state.timeScale.domain();
+                const selection = d3Event.selection ? d3Event.selection.map(state.timeScale.invert) : state.timeScale.domain();
                 state.onChange(...selection);
             });
 
         // Build dom
-        state.svg = d3.select(el).append('svg').attr('class', 'brusher');
+        state.svg = d3Select(el).append('svg').attr('class', 'brusher');
         const brusher = state.svg.append('g').attr('class', 'brusher-margins');
         brusher.append('rect').attr('class', 'grid-background');
         brusher.append('g').attr('class', 'x grid');

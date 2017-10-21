@@ -1,9 +1,36 @@
 import './timelines.css';
 
 import Kapsule from 'kapsule';
-import * as d3 from 'd3';
+
+import {
+    ascending as d3Ascending,
+    max as d3Max,
+    min as d3Min,
+    range as d3Range
+} from 'd3-array';
+import {
+    axisBottom as d3AxisBottom,
+    axisLeft as d3AxisLeft,
+    axisRight as d3AxisRight,
+    axisTop as d3AxisTop
+} from 'd3-axis';
+import {
+    scaleLinear as d3ScaleLinear,
+    scaleOrdinal as d3ScaleOrdinal,
+    scaleSequential as d3ScaleSequential,
+    scalePoint as d3ScalePoint,
+    scaleTime as d3ScaleTime,
+    schemeCategory10 as d3SchemeCategory10,
+    schemeCategory20b as d3SchemeCategory20b
+} from 'd3-scale';
+import {
+    event as d3Event,
+    mouse as d3Mouse,
+    select as d3Select
+} from 'd3-selection';
+import { timeFormat as d3TimeFormat } from 'd3-time-format';
 import d3Tip from 'd3-tip';
-import * as d3chroma from 'd3-scale-chromatic';
+import { interpolateRdYlBu } from 'd3-scale-chromatic';
 
 import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
 import { fitToBox as TextFitToBox } from 'svg-text-fit';
@@ -19,8 +46,8 @@ export default Kapsule({
                 parseData(data);
 
                 state.zoomX = [
-                    d3.min(state.completeFlatData, d => d.timeRange[0]),
-                    d3.max(state.completeFlatData, d => d.timeRange[1])
+                    d3Min(state.completeFlatData, d => d.timeRange[0]),
+                    d3Max(state.completeFlatData, d => d.timeRange[1])
                 ];
 
                 state.zoomY = [null, null];
@@ -97,11 +124,11 @@ export default Kapsule({
             }
         },
         minSegmentDuration: {},
-        zColorScale: { default: d3.scaleSequential(d3chroma.interpolateRdYlBu) },
+        zColorScale: { default: d3ScaleSequential(interpolateRdYlBu) },
         zQualitative: { default: false, onChange(discrete, state) {
             state.zColorScale = discrete
-                ? d3.scaleOrdinal([...d3.schemeCategory10, ...d3.schemeCategory20b])
-                : d3.scaleSequential(d3chroma.interpolateRdYlBu); // alt: d3.interpolateInferno
+                ? d3ScaleOrdinal([...d3SchemeCategory10, ...d3SchemeCategory20b])
+                : d3ScaleSequential(interpolateRdYlBu); // alt: d3.interpolateInferno
         }},
         zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions
         zScaleLabel: { default: '', triggerUpdate: false }, // Units of colorScale. Used in the legend label
@@ -122,7 +149,7 @@ export default Kapsule({
         getNLines: s => s.nLines,
         getTotalNLines: s => s.totalNLines,
         getVisibleStructure: s => s.structData,
-        getSvg: s => d3.select(s.svg.node().parentNode).html(),
+        getSvg: s => d3Select(s.svg.node().parentNode).html(),
         zoomYLabels(state, _) {
             if (!_) { return [y2Label(state.zoomY[0]), y2Label(state.zoomY[1])]; }
             return this.zoomY([label2Y(_[0], true), label2Y(_[1], false)]);
@@ -214,8 +241,8 @@ export default Kapsule({
 
                     const itmList = state.completeFlatData.filter(d => key == accessFunction(d));
                     idx[key] = [
-                        d3.min(itmList, d => d.timeRange[0]),
-                        d3.max(itmList, d => d.timeRange[1])
+                        d3Min(itmList, d => d.timeRange[0]),
+                        d3Max(itmList, d => d.timeRange[1])
                     ];
                 }
                 return idx;
@@ -267,14 +294,14 @@ export default Kapsule({
         minLabelFont: 2,
         groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
 
-        xScale: d3.scaleTime().clamp(true),
-        yScale: d3.scalePoint(),
-        grpScale: d3.scaleOrdinal(),
+        xScale: d3ScaleTime().clamp(true),
+        yScale: d3ScalePoint(),
+        grpScale: d3ScaleOrdinal(),
 
-        xAxis: d3.axisBottom(),
-        xGrid: d3.axisTop(),
-        yAxis: d3.axisRight(),
-        grpAxis: d3.axisLeft(),
+        xAxis: d3AxisBottom(),
+        xGrid: d3AxisTop(),
+        yAxis: d3AxisRight(),
+        grpAxis: d3AxisLeft(),
 
         svg: null,
         graph: null,
@@ -300,7 +327,7 @@ export default Kapsule({
     },
 
     init(el, state) {
-        const elem = d3.select(el)
+        const elem = d3Select(el)
             .attr('class', 'timelines-chart');
 
         state.svg = elem.append('svg');
@@ -319,7 +346,7 @@ export default Kapsule({
             state.grpScale.invert = invertOrdinal;
 
             state.groupGradId = Gradient()
-                .colorScale(d3.scaleLinear()
+                .colorScale(d3ScaleLinear()
                     .domain([0, 1])
                     .range(state.groupBkgGradient))
                 .angle(-90)
@@ -366,7 +393,7 @@ export default Kapsule({
 
                 if (scRange.length === 2 && scDomain.length !== 2) {
                     // Special case, interpolate range vals
-                    scRange = d3.range(scRange[0], scRange[1], (scRange[1] - scRange[0]) / scDomain.length);
+                    scRange = d3Range(scRange[0], scRange[1], (scRange[1] - scRange[0]) / scDomain.length);
                 }
 
                 const bias = scRange[0];
@@ -393,7 +420,7 @@ export default Kapsule({
                     (state.overviewAreaElem.node());
 
                 state.svg.on('zoomScent', function() {
-                    const zoomX = d3.event.detail.zoomX;
+                    const zoomX = d3Event.detail.zoomX;
 
                     if (!state.overviewArea || !zoomX) return;
 
@@ -451,7 +478,7 @@ export default Kapsule({
                 .offset([5, 0])
                 .html(d => {
                     const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
-                    const dateFormat = d3.timeFormat('%Y-%m-%d %H:%M:%S');
+                    const dateFormat = d3TimeFormat('%Y-%m-%d %H:%M:%S');
                     return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
                         + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
                         + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
@@ -463,12 +490,12 @@ export default Kapsule({
 
         function addZoomSelection() {
             state.graph.on('mousedown', function() {
-                if (d3.select(window).on('mousemove.zoomRect')!=null) // Selection already active
+                if (d3Select(window).on('mousemove.zoomRect')!=null) // Selection already active
                     return;
 
                 const e = this;
 
-                if (d3.mouse(e)[0]<0 || d3.mouse(e)[0]>state.graphW || d3.mouse(e)[1]<0 || d3.mouse(e)[1]>state.graphH)
+                if (d3Mouse(e)[0]<0 || d3Mouse(e)[0]>state.graphW || d3Mouse(e)[1]<0 || d3Mouse(e)[1]>state.graphH)
                     return;
 
                 state.disableHover=true;
@@ -476,14 +503,14 @@ export default Kapsule({
                 const rect = state.graph.append('rect')
                     .attr('class', 'chart-zoom-selection');
 
-                const startCoords = d3.mouse(e);
+                const startCoords = d3Mouse(e);
 
-                d3.select(window)
+                d3Select(window)
                     .on('mousemove.zoomRect', function() {
-                        d3.event.stopPropagation();
+                        d3Event.stopPropagation();
                         const newCoords = [
-                            Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
-                            Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
+                            Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),
+                            Math.max(0, Math.min(state.graphH, d3Mouse(e)[1]))
                         ];
                         rect.attr('x', Math.min(startCoords[0], newCoords[0]))
                             .attr('y', Math.min(startCoords[1], newCoords[1]))
@@ -491,30 +518,30 @@ export default Kapsule({
                             .attr('height', Math.abs(newCoords[1] - startCoords[1]));
 
                         state.svg.dispatch('zoomScent', { detail: {
-                            zoomX: [startCoords[0], newCoords[0]].sort(d3.ascending).map(state.xScale.invert),
-                            zoomY: [startCoords[1], newCoords[1]].sort(d3.ascending).map(d =>
+                            zoomX: [startCoords[0], newCoords[0]].sort(d3Ascending).map(state.xScale.invert),
+                            zoomY: [startCoords[1], newCoords[1]].sort(d3Ascending).map(d =>
                                 state.yScale.domain().indexOf(state.yScale.invert(d))
                                 + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0)
                             )
                         }});
                     })
                     .on('mouseup.zoomRect', function() {
-                        d3.select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
-                        d3.select('body').classed('stat-noselect', false);
+                        d3Select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
+                        d3Select('body').classed('stat-noselect', false);
                         rect.remove();
                         state.disableHover=false;
 
                         const endCoords = [
-                            Math.max(0, Math.min(state.graphW, d3.mouse(e)[0])),
-                            Math.max(0, Math.min(state.graphH, d3.mouse(e)[1]))
+                            Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),
+                            Math.max(0, Math.min(state.graphH, d3Mouse(e)[1]))
                         ];
 
                         if (startCoords[0]==endCoords[0] && startCoords[1]==endCoords[1])
                             return;
 
-                        const newDomainX = [startCoords[0], endCoords[0]].sort(d3.ascending).map(state.xScale.invert);
+                        const newDomainX = [startCoords[0], endCoords[0]].sort(d3Ascending).map(state.xScale.invert);
 
-                        const newDomainY = [startCoords[1], endCoords[1]].sort(d3.ascending).map(d =>
+                        const newDomainY = [startCoords[1], endCoords[1]].sort(d3Ascending).map(d =>
                             state.yScale.domain().indexOf(state.yScale.invert(d))
                             + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0)
                         );
@@ -530,7 +557,7 @@ export default Kapsule({
                         }
                     }, true);
 
-                d3.event.stopPropagation();
+                d3Event.stopPropagation();
             });
 
             state.resetBtn = state.svg.append('text')
@@ -541,17 +568,17 @@ export default Kapsule({
                     state.svg.dispatch('resetZoom');
                 })
                 .on('mouseover', function(){
-                    d3.select(this).style('opacity', 1);
+                    d3Select(this).style('opacity', 1);
                 })
                 .on('mouseout', function() {
-                    d3.select(this).style('opacity', .6);
+                    d3Select(this).style('opacity', .6);
                 });
         }
 
         function setEvents() {
 
             state.svg.on('zoom', function() {
-                const evData = d3.event.detail,
+                const evData = d3Event.detail,
                     zoomX = evData.zoomX,
                     zoomY = evData.zoomY,
                     redraw = (evData.redraw==null)?true:evData.redraw;
@@ -579,8 +606,8 @@ export default Kapsule({
                 const newZoomX = state.enableOverview
                         ?state.overviewArea.domainRange()
                         :[
-                        d3.min(state.flatData, d => d.timeRange[0]),
-                        d3.max(state.flatData, d => d.timeRange[1])
+                        d3Min(state.flatData, d => d.timeRange[0]),
+                        d3Max(state.flatData, d => d.timeRange[1])
                     ],
                     newZoomY = [null, null];
 
@@ -692,7 +719,7 @@ export default Kapsule({
 
         function setupDimensions() {
             state.graphW = state.width-state.leftMargin-state.rightMargin;
-            state.graphH = d3.min([state.nLines*state.maxLineHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
+            state.graphH = d3Min([state.nLines*state.maxLineHeight, state.maxHeight-state.topMargin-state.bottomMargin]);
             state.height = state.graphH + state.topMargin + state.bottomMargin;
 
             state.svg.transition().duration(state.transDuration)
@@ -710,8 +737,8 @@ export default Kapsule({
 
         function adjustXScale() {
 
-            state.zoomX[0] = state.zoomX[0] || d3.min(state.flatData, d => d.timeRange[0]);
-            state.zoomX[1] = state.zoomX[1] || d3.max(state.flatData, d => d.timeRange[1]);
+            state.zoomX[0] = state.zoomX[0] || d3Min(state.flatData, d => d.timeRange[0]);
+            state.zoomX[1] = state.zoomX[1] || d3Max(state.flatData, d => d.timeRange[1]);
 
             state.xScale.domain(state.zoomX);
             state.xScale.range([0, state.graphW]);
@@ -810,7 +837,7 @@ export default Kapsule({
                     .call(state.yAxis);
 
             // Grp
-            const minHeight = d3.min(state.grpScale.range(), function (d,i) {
+            const minHeight = d3Min(state.grpScale.range(), function (d,i) {
                 return i>0?d-state.grpScale.range()[i-1]:d*2;
             });
             fontSize = Math.min(14, minHeight*fontVerticalMargin*Math.sqrt(2));
@@ -929,13 +956,13 @@ export default Kapsule({
 
                     const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
 
-                    d3.select(this)
+                    d3Select(this)
                         .transition().duration(70)
                         .attr('x', function (d) {
                             return state.xScale(d.timeRange[0])-hoverEnlarge/2;
                         })
                         .attr('width', function (d) {
-                            return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
+                            return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
                         })
                         .attr('y', function (d) {
                             return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
@@ -944,13 +971,13 @@ export default Kapsule({
                         .style('fill-opacity', 1);
                 })
                 .on('mouseout', function() {
-                    d3.select(this)
+                    d3Select(this)
                         .transition().duration(250)
                         .attr('x', function (d) {
                             return state.xScale(d.timeRange[0]);
                         })
                         .attr('width', function (d) {
-                            return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+                            return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
                         })
                         .attr('y', function (d) {
                             return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
@@ -966,7 +993,7 @@ export default Kapsule({
                     return state.xScale(d.timeRange[0]);
                 })
                 .attr('width', function (d) {
-                    return d3.max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+                    return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
                 })
                 .attr('y', function (d) {
                     return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;

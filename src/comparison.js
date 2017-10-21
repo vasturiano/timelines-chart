@@ -1,11 +1,11 @@
 function alphaNumCmp(a,b){
-    var alist = a.split(/(\d+)/),
+    const alist = a.split(/(\d+)/),
         blist = b.split(/(\d+)/);
 
     (alist.length && alist[alist.length-1] == '') ? alist.pop() : null; // remove the last element if empty
     (blist.length && blist[blist.length-1] == '') ? blist.pop() : null; // remove the last element if empty
 
-    for (var i = 0, len = Math.max(alist.length, blist.length); i < len;i++){
+    for (let i = 0, len = Math.max(alist.length, blist.length); i < len;i++){
         if (alist.length==i || blist.length==i) { // Out of bounds for one of the sides
             return alist.length - blist.length;
         }

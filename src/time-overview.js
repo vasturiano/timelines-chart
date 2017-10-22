@@ -5,7 +5,7 @@
 import Kapsule from 'kapsule';
 import { brushX as d3BrushX } from 'd3-brush';
 import { axisBottom as d3AxisBottom } from 'd3-axis';
-import { scaleUtc as d3ScaleUtc } from 'd3-scale';
+import { scaleTime as d3ScaleTime, scaleUtc as d3ScaleUtc } from 'd3-scale';
 import { event as d3Event, select as d3Select } from 'd3-selection';
 
 export default Kapsule({
@@ -16,19 +16,17 @@ export default Kapsule({
         domainRange: {},
         currentSelection: {},
         tickFormat: {},
+        useUtc: { default: false },
         onChange: { default: (selectionStart, selectionEnd) => {}}
     },
     stateInit: {
-        timeScale: d3ScaleUtc(),
         brush: d3BrushX()
     },
     init(el, state) {
         state.xGrid = d3AxisBottom()
-            .scale(state.timeScale)
-            .tickFormat("");
+            .tickFormat('');
 
         state.xAxis = d3AxisBottom()
-            .scale(state.timeScale)
             .tickPadding(0);
 
         state.brush
@@ -53,15 +51,16 @@ export default Kapsule({
         const brushWidth = state.width - state.margins.left - state.margins.right,
             brushHeight = state.height - state.margins.top - state.margins.bottom;
 
-        state.timeScale
+        state.timeScale = (state.useUtc ? d3ScaleUtc : d3ScaleTime)()
             .domain(state.domainRange)
             .range([0, brushWidth]);
 
-        state.xAxis.tickFormat(state.tickFormat);
-        state.xGrid.tickSize(-brushHeight);
-
-        state.xGrid.scale(state.timeScale);
-        state.xAxis.scale(state.timeScale);
+        state.xAxis
+            .scale(state.timeScale)
+            .tickFormat(state.tickFormat);
+        state.xGrid
+            .scale(state.timeScale)
+            .tickSize(-brushHeight);
 
         state.svg
             .attr('width', state.width)

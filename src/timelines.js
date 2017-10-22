@@ -20,6 +20,7 @@ import {
     scaleSequential as d3ScaleSequential,
     scalePoint as d3ScalePoint,
     scaleTime as d3ScaleTime,
+    scaleUtc as d3ScaleUtc,
     schemeCategory10 as d3SchemeCategory10,
     schemeCategory20b as d3SchemeCategory20b
 } from 'd3-scale';
@@ -28,7 +29,10 @@ import {
     mouse as d3Mouse,
     select as d3Select
 } from 'd3-selection';
-import { timeFormat as d3TimeFormat } from 'd3-time-format';
+import {
+    timeFormat as d3TimeFormat,
+    utcFormat as d3UtcFormat
+} from 'd3-time-format';
 import d3Tip from 'd3-tip';
 import { interpolateRdYlBu } from 'd3-scale-chromatic';
 
@@ -101,6 +105,7 @@ export default Kapsule({
         rightMargin: { default: 100 },
         topMargin: {default: 26 },
         bottomMargin: {default: 30 },
+        useUtc: { default: false },
         zoomX: {    // Which time-range to show (null = min/max)
             default: [null, null],
             onChange(zoomX, state) {
@@ -294,7 +299,6 @@ export default Kapsule({
         minLabelFont: 2,
         groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
 
-        xScale: d3ScaleTime().clamp(true),
         yScale: d3ScalePoint(),
         grpScale: d3ScaleOrdinal(),
 
@@ -358,11 +362,6 @@ export default Kapsule({
             axises.append('g').attr('class', 'x-grid');
             axises.append('g').attr('class', 'y-axis');
             axises.append('g').attr('class', 'grp-axis');
-
-            state.xAxis.scale(state.xScale);
-
-            state.xGrid.scale(state.xScale)
-                .tickFormat('');
 
             state.yAxis.scale(state.yScale)
                 .tickSize(0);
@@ -447,12 +446,12 @@ export default Kapsule({
                 .offset([0, 0])
                 .html(d => {
                     const leftPush = (d.hasOwnProperty('timeRange')
-                            ?state.xScale(d.timeRange[0])
-                            :0
+                        ?state.xScale(d.timeRange[0])
+                        :0
                     );
                     const topPush = (d.hasOwnProperty('label')
-                            ?state.grpScale(d.group)-state.yScale(d.group+'+&+'+d.label)
-                            :0
+                        ?state.grpScale(d.group)-state.yScale(d.group+'+&+'+d.label)
+                        :0
                     );
                     state.groupTooltip.offset([topPush, -leftPush]);
                     return d.group;
@@ -478,7 +477,7 @@ export default Kapsule({
                 .offset([5, 0])
                 .html(d => {
                     const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
-                    const dateFormat = d3TimeFormat('%Y-%m-%d %H:%M:%S');
+                    const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`%Y-%m-%d %-I:%M:%S %p${state.useUtc?' (UTC)':''}`);
                     return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
                         + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
                         + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
@@ -604,8 +603,8 @@ export default Kapsule({
                 const prevZoomY = state.zoomY || [null, null];
 
                 const newZoomX = state.enableOverview
-                        ?state.overviewArea.domainRange()
-                        :[
+                    ?state.overviewArea.domainRange()
+                    :[
                         d3Min(state.flatData, d => d.timeRange[0]),
                         d3Max(state.flatData, d => d.timeRange[1])
                     ],
@@ -730,18 +729,20 @@ export default Kapsule({
 
             if (state.overviewArea) {
                 state.overviewArea
+                    .useUtc(state.useUtc)
                     .width(state.width * 0.8)
                     .height(state.overviewHeight + state.overviewArea.margins().top + state.overviewArea.margins().bottom);
             }
         }
 
         function adjustXScale() {
-
             state.zoomX[0] = state.zoomX[0] || d3Min(state.flatData, d => d.timeRange[0]);
             state.zoomX[1] = state.zoomX[1] || d3Max(state.flatData, d => d.timeRange[1]);
 
-            state.xScale.domain(state.zoomX);
-            state.xScale.range([0, state.graphW]);
+            state.xScale = (state.useUtc ? d3ScaleUtc : d3ScaleTime)()
+                .domain(state.zoomX)
+                .range([0, state.graphW])
+                .clamp(true);
         }
 
         function adjustYScale() {
@@ -797,8 +798,13 @@ export default Kapsule({
                 .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
 
             // X
-            state.xAxis.ticks(Math.round(state.graphW*0.0011));
-            state.xGrid.ticks(state.xAxis.ticks()[0]);
+            state.xAxis
+                .scale(state.xScale)
+                .ticks(Math.round(state.graphW*0.0011));
+            state.xGrid
+                .scale(state.xScale)
+                .ticks(state.xAxis.ticks()[0])
+                .tickFormat('');
 
             state.svg.select('g.x-axis')
                 .style('stroke-opacity', 0)

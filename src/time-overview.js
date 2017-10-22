@@ -53,8 +53,6 @@ export default Kapsule({
         const brushWidth = state.width - state.margins.left - state.margins.right,
             brushHeight = state.height - state.margins.top - state.margins.bottom;
 
-        state.brush.extent([[0, 0], [brushWidth, brushHeight]]);
-
         state.timeScale
             .domain(state.domainRange)
             .range([0, brushWidth]);
@@ -65,7 +63,7 @@ export default Kapsule({
         state.xGrid.scale(state.timeScale);
         state.xAxis.scale(state.timeScale);
 
-        state.svg.transition()
+        state.svg
             .attr('width', state.width)
             .attr('height', state.height);
 
@@ -88,7 +86,7 @@ export default Kapsule({
             .selectAll('text').attr('y', 8);
 
         state.svg.select('.brush')
-            .call(state.brush)
+            .call(state.brush.extent([[0, 0], [brushWidth, brushHeight]]))
             .call(state.brush.move, state.currentSelection.map(state.timeScale))
             .selectAll('rect')
                 .attr('height', brushHeight);

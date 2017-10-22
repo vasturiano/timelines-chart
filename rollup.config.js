@@ -12,7 +12,7 @@ export default {
         {
             format: 'umd',
             name: 'TimelinesChart',
-            file: 'dist/timelines-chart.js',
+            file: `dist/${name}.js`,
             sourcemap: true
         }
     ],

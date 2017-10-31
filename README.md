@@ -65,7 +65,7 @@ myChart
 | <b>getVisibleStructure</b>() | Returns data representation of timelines currently visible in the chart. | - |
 | <b>getSvg</b>() | Returns graphic (SVG) representation of currently visible chart. | - |
 | <b>enableAnimations</b>([<i>boolean</i>]) | Getter/setter for whether to animate transitions. | true |
-| <b>onLabelClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on the Y axis labels. Callback will include the clicked label as sole parameter: `onLabelClick(<string>)`. | `null` |
+| <b>onLabelClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on the Y axis labels. Callback will include the clicked label (if applicable) and group parameter: `onLabelClick(<string>, <string>)`. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 
 ## Data syntax

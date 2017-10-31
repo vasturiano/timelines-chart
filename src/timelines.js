@@ -147,7 +147,7 @@ export default Kapsule({
 
         // Callbacks
         onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
-        onLabelClick: {} // When user clicks on a group or y label. Returns (label)
+        onLabelClick: {} // When user clicks on a group or y label. Returns (group) or (label, group) respectively
     },
 
     methods: {
@@ -861,8 +861,7 @@ export default Kapsule({
                     .style('cursor', 'pointer')
                     .on('click', function(d) {
                         const segms = d.split('+&+');
-                        const lbl = segms[segms.length-1];
-                        state.onLabelClick(lbl);
+                        state.onLabelClick(...segms.reverse());
                     });
             }
 

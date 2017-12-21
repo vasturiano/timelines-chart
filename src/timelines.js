@@ -299,13 +299,13 @@ export default Kapsule({
         minLabelFont: 2,
         groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
 
-        yScale: d3ScalePoint(),
-        grpScale: d3ScaleOrdinal(),
+        yScale: null,
+        grpScale: null,
 
-        xAxis: d3AxisBottom(),
-        xGrid: d3AxisTop(),
-        yAxis: d3AxisRight(),
-        grpAxis: d3AxisLeft(),
+        xAxis: null,
+        xGrid: null,
+        yAxis: null,
+        grpAxis: null,
 
         svg: null,
         graph: null,
@@ -336,6 +336,14 @@ export default Kapsule({
 
         state.svg = elem.append('svg');
         state.overviewAreaElem = elem.append('div');
+
+        // Initialize scales and axes
+        state.yScale = d3ScalePoint();
+        state.grpScale = d3ScaleOrdinal();
+        state.xAxis = d3AxisBottom();
+        state.xGrid = d3AxisTop();
+        state.yAxis = d3AxisRight();
+        state.grpAxis = d3AxisLeft();
 
         buildDomStructure();
         addTooltips();

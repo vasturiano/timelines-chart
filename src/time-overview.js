@@ -19,9 +19,6 @@ export default Kapsule({
         useUtc: { default: false },
         onChange: { default: (selectionStart, selectionEnd) => {}}
     },
-    stateInit: {
-        brush: d3BrushX()
-    },
     init(el, state) {
         state.xGrid = d3AxisBottom()
             .tickFormat('');
@@ -29,7 +26,7 @@ export default Kapsule({
         state.xAxis = d3AxisBottom()
             .tickPadding(0);
 
-        state.brush
+        state.brush = d3BrushX()
             .on('end', function() {
                 if (!d3Event.sourceEvent) return;
 

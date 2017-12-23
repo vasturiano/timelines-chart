@@ -18,7 +18,7 @@
   "license": "MIT",
   "unpkg": "dist/timelines-chart.min.js",
   "main": "dist/timelines-chart.common.js",
-  "module": "dist/timelines-chart.mjs",
+  "module": "dist/timelines-chart.module.js",
   "homepage": "https://github.com/vasturiano/timelines-chart",
   "repository": {
     "type": "git",

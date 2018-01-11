@@ -35,15 +35,15 @@
     "d3-array": "^1.2.1",
     "d3-axis": "^1.0.8",
     "d3-brush": "^1.0.4",
-    "d3-color-legend": "^1.2.3",
-    "d3-scale": "^1.0.6",
+    "d3-color-legend": "^1.2.4",
+    "d3-scale": "^1.0.7",
     "d3-scale-chromatic": "^1.1.1",
-    "d3-selection": "^1.1.0",
-    "d3-time-format": "^2.1.0",
+    "d3-selection": "^1.2.0",
+    "d3-time-format": "^2.1.1",
     "d3-tip": "^0.7.1",
-    "kapsule": "^1.7.8",
-    "svg-text-fit": "^1.1.4",
-    "svg-utils": "^1.2.5"
+    "kapsule": "^1.9.0",
+    "svg-text-fit": "^1.1.5",
+    "svg-utils": "^1.2.6"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -54,11 +54,11 @@
     "postcss-nested": "^3.0.0",
     "postcss-simple-vars": "^4.1.0",
     "rollup": "^0.53.4",
-    "rollup-plugin-babel": "^3.0.2",
-    "rollup-plugin-commonjs": "^8.2.4",
-    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-node-resolve": "^3.0.2",
     "rollup-plugin-postcss": "^1.0.4",
     "rollup-watch": "^4.3.1",
-    "uglify-js": "^3.1.5"
+    "uglify-js": "^3.3.5"
   }
 }

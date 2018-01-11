@@ -9,82 +9,82 @@ import { scaleTime as d3ScaleTime, scaleUtc as d3ScaleUtc } from 'd3-scale';
 import { event as d3Event, select as d3Select } from 'd3-selection';
 
 export default Kapsule({
-    props: {
-        width: { default: 300 },
-        height: { default: 20 },
-        margins: { default: { top: 0, right: 0, bottom: 20, left: 0 }},
-        domainRange: {},
-        currentSelection: {},
-        tickFormat: {},
-        useUtc: { default: false },
-        onChange: { default: (selectionStart, selectionEnd) => {}}
-    },
-    init(el, state) {
-        state.xGrid = d3AxisBottom()
-            .tickFormat('');
+  props: {
+    width: { default: 300 },
+    height: { default: 20 },
+    margins: { default: { top: 0, right: 0, bottom: 20, left: 0 }},
+    domainRange: {},
+    currentSelection: {},
+    tickFormat: {},
+    useUtc: { default: false },
+    onChange: { default: (selectionStart, selectionEnd) => {}}
+  },
+  init(el, state) {
+    state.xGrid = d3AxisBottom()
+      .tickFormat('');
 
-        state.xAxis = d3AxisBottom()
-            .tickPadding(0);
+    state.xAxis = d3AxisBottom()
+      .tickPadding(0);
 
-        state.brush = d3BrushX()
-            .on('end', function() {
-                if (!d3Event.sourceEvent) return;
+    state.brush = d3BrushX()
+      .on('end', function() {
+        if (!d3Event.sourceEvent) return;
 
-                const selection = d3Event.selection ? d3Event.selection.map(state.timeScale.invert) : state.timeScale.domain();
-                state.onChange(...selection);
-            });
+        const selection = d3Event.selection ? d3Event.selection.map(state.timeScale.invert) : state.timeScale.domain();
+        state.onChange(...selection);
+      });
 
-        // Build dom
-        state.svg = d3Select(el).append('svg').attr('class', 'brusher');
-        const brusher = state.svg.append('g').attr('class', 'brusher-margins');
-        brusher.append('rect').attr('class', 'grid-background');
-        brusher.append('g').attr('class', 'x grid');
-        brusher.append('g').attr('class', 'x axis');
-        brusher.append('g').attr('class', 'brush');
-    },
-    update(state) {
-        if (state.domainRange[1] <= state.domainRange[0]) return;
+    // Build dom
+    state.svg = d3Select(el).append('svg').attr('class', 'brusher');
+    const brusher = state.svg.append('g').attr('class', 'brusher-margins');
+    brusher.append('rect').attr('class', 'grid-background');
+    brusher.append('g').attr('class', 'x grid');
+    brusher.append('g').attr('class', 'x axis');
+    brusher.append('g').attr('class', 'brush');
+  },
+  update(state) {
+    if (state.domainRange[1] <= state.domainRange[0]) return;
 
-        const brushWidth = state.width - state.margins.left - state.margins.right,
-            brushHeight = state.height - state.margins.top - state.margins.bottom;
+    const brushWidth = state.width - state.margins.left - state.margins.right,
+      brushHeight = state.height - state.margins.top - state.margins.bottom;
 
-        state.timeScale = (state.useUtc ? d3ScaleUtc : d3ScaleTime)()
-            .domain(state.domainRange)
-            .range([0, brushWidth]);
+    state.timeScale = (state.useUtc ? d3ScaleUtc : d3ScaleTime)()
+      .domain(state.domainRange)
+      .range([0, brushWidth]);
 
-        state.xAxis
-            .scale(state.timeScale)
-            .tickFormat(state.tickFormat);
-        state.xGrid
-            .scale(state.timeScale)
-            .tickSize(-brushHeight);
+    state.xAxis
+      .scale(state.timeScale)
+      .tickFormat(state.tickFormat);
+    state.xGrid
+      .scale(state.timeScale)
+      .tickSize(-brushHeight);
 
-        state.svg
-            .attr('width', state.width)
-            .attr('height', state.height);
+    state.svg
+      .attr('width', state.width)
+      .attr('height', state.height);
 
-        state.svg.select('.brusher-margins')
-            .attr('transform', `translate(${state.margins.left},${state.margins.top})`);
+    state.svg.select('.brusher-margins')
+      .attr('transform', `translate(${state.margins.left},${state.margins.top})`);
 
-        state.svg.select('.grid-background')
-            .attr('width', brushWidth)
-            .attr('height', brushHeight);
+    state.svg.select('.grid-background')
+      .attr('width', brushWidth)
+      .attr('height', brushHeight);
 
-        state.svg.select('.x.grid')
-            .attr('transform', 'translate(0,' + brushHeight + ')')
-            .call(state.xGrid)
-            .selectAll('.tick')
-                .classed("minor", d => d.getHours());
+    state.svg.select('.x.grid')
+      .attr('transform', 'translate(0,' + brushHeight + ')')
+      .call(state.xGrid)
+      .selectAll('.tick')
+        .classed("minor", d => d.getHours());
 
-        state.svg.select('.x.axis')
-            .attr("transform", "translate(0," + brushHeight + ")")
-            .call(state.xAxis)
-            .selectAll('text').attr('y', 8);
+    state.svg.select('.x.axis')
+      .attr("transform", "translate(0," + brushHeight + ")")
+      .call(state.xAxis)
+      .selectAll('text').attr('y', 8);
 
-        state.svg.select('.brush')
-            .call(state.brush.extent([[0, 0], [brushWidth, brushHeight]]))
-            .call(state.brush.move, state.currentSelection.map(state.timeScale))
-            .selectAll('rect')
-                .attr('height', brushHeight);
-    }
+    state.svg.select('.brush')
+      .call(state.brush.extent([[0, 0], [brushWidth, brushHeight]]))
+      .call(state.brush.move, state.currentSelection.map(state.timeScale))
+      .selectAll('rect')
+        .attr('height', brushHeight);
+  }
 });

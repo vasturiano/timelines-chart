@@ -7,25 +7,25 @@ import babel from 'rollup-plugin-babel';
 import { name, homepage, version } from './package.json';
 
 export default {
-    input: 'src/index.js',
-    output: [
-        {
-            format: 'umd',
-            name: 'TimelinesChart',
-            file: `dist/${name}.js`,
-            sourcemap: true
-        }
-    ],
-    plugins: [
-        postCss({
-            plugins: [
-                postCssSimpleVars(),
-                postCssNested()
-            ]
-        }),
-        resolve(),
-        commonJs(),
-        babel({ exclude: 'node_modules/**' })
-    ],
-    banner: `// Version ${version} ${name} - ${homepage}`
+  input: 'src/index.js',
+  output: [
+    {
+      format: 'umd',
+      name: 'TimelinesChart',
+      file: `dist/${name}.js`,
+      sourcemap: true
+    }
+  ],
+  plugins: [
+    postCss({
+      plugins: [
+        postCssSimpleVars(),
+        postCssNested()
+      ]
+    }),
+    resolve(),
+    commonJs(),
+    babel({ exclude: 'node_modules/**' })
+  ],
+  banner: `// Version ${version} ${name} - ${homepage}`
 };

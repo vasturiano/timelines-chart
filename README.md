@@ -46,6 +46,7 @@ myChart
 | <b>topMargin</b>([<i>number</i>]) | Getter/setter for the chart's top margin, which contains the color legend. | 26 |
 | <b>bottomMargin</b>([<i>number</i>]) | Getter/setter for the chart's bottom margin, which contains the time axis labels. | 30 |
 | <b>useUtc</b>([<i>boolean</i>]) | Getter/setter for whether to display time in the local time zone (`false`) or in UTC (`true`). | false |
+| <b>timeFormat</b>([<i>string</i>]) | Getter/setter for the time format to use in tooltips. See [d3-time-format](https://github.com/d3/d3-time-format#locale_format) for available options. | `%Y-%m-%d %-I:%M:%S %p` |
 | <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be shown. | 0 |
 | <b>getNLines</b>() | Returns number of timelines currently visible in the chart. | - |
 | <b>getTotalNLines</b>() | Returns total number of timelines in the chart. | - |

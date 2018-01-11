@@ -106,6 +106,7 @@ export default Kapsule({
         topMargin: {default: 26 },
         bottomMargin: {default: 30 },
         useUtc: { default: false },
+        timeFormat: { default: '%Y-%m-%d %-I:%M:%S %p', triggerUpdate: false },
         zoomX: {    // Which time-range to show (null = min/max)
             default: [null, null],
             onChange(zoomX, state) {
@@ -485,7 +486,7 @@ export default Kapsule({
                 .offset([5, 0])
                 .html(d => {
                     const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
-                    const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`%Y-%m-%d %-I:%M:%S %p${state.useUtc?' (UTC)':''}`);
+                    const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`${state.timeFormat}${state.useUtc?' (UTC)':''}`);
                     return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
                         + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
                         + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'

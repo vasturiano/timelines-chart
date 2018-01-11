@@ -13,7 +13,8 @@ export default {
       format: 'umd',
       name: 'TimelinesChart',
       file: `dist/${name}.js`,
-      sourcemap: true
+      sourcemap: true,
+      banner: `// Version ${version} ${name} - ${homepage}`
     }
   ],
   plugins: [
@@ -26,6 +27,5 @@ export default {
     resolve(),
     commonJs(),
     babel({ exclude: 'node_modules/**' })
-  ],
-  banner: `// Version ${version} ${name} - ${homepage}`
+  ]
 };

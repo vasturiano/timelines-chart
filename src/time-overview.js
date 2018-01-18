@@ -5,7 +5,6 @@
 import Kapsule from 'kapsule';
 import { brushX as d3BrushX } from 'd3-brush';
 import { axisBottom as d3AxisBottom } from 'd3-axis';
-import { scaleTime as d3ScaleTime, scaleUtc as d3ScaleUtc } from 'd3-scale';
 import { event as d3Event, select as d3Select } from 'd3-selection';
 
 export default Kapsule({
@@ -13,10 +12,10 @@ export default Kapsule({
     width: { default: 300 },
     height: { default: 20 },
     margins: { default: { top: 0, right: 0, bottom: 20, left: 0 }},
+    scale: {},
     domainRange: {},
     currentSelection: {},
     tickFormat: {},
-    useUtc: { default: false },
     onChange: { default: (selectionStart, selectionEnd) => {}}
   },
   init(el, state) {
@@ -30,7 +29,7 @@ export default Kapsule({
       .on('end', function() {
         if (!d3Event.sourceEvent) return;
 
-        const selection = d3Event.selection ? d3Event.selection.map(state.timeScale.invert) : state.timeScale.domain();
+        const selection = d3Event.selection ? d3Event.selection.map(state.scale.invert) : state.scale.domain();
         state.onChange(...selection);
       });
 
@@ -48,15 +47,15 @@ export default Kapsule({
     const brushWidth = state.width - state.margins.left - state.margins.right,
       brushHeight = state.height - state.margins.top - state.margins.bottom;
 
-    state.timeScale = (state.useUtc ? d3ScaleUtc : d3ScaleTime)()
+    state.scale
       .domain(state.domainRange)
       .range([0, brushWidth]);
 
     state.xAxis
-      .scale(state.timeScale)
+      .scale(state.scale)
       .tickFormat(state.tickFormat);
     state.xGrid
-      .scale(state.timeScale)
+      .scale(state.scale)
       .tickSize(-brushHeight);
 
     state.svg
@@ -72,9 +71,7 @@ export default Kapsule({
 
     state.svg.select('.x.grid')
       .attr('transform', 'translate(0,' + brushHeight + ')')
-      .call(state.xGrid)
-      .selectAll('.tick')
-        .classed("minor", d => d.getHours());
+      .call(state.xGrid);
 
     state.svg.select('.x.axis')
       .attr("transform", "translate(0," + brushHeight + ")")
@@ -83,7 +80,7 @@ export default Kapsule({
 
     state.svg.select('.brush')
       .call(state.brush.extent([[0, 0], [brushWidth, brushHeight]]))
-      .call(state.brush.move, state.currentSelection.map(state.timeScale))
+      .call(state.brush.move, state.currentSelection.map(state.scale))
       .selectAll('rect')
         .attr('height', brushHeight);
   }

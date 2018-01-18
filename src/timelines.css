@@ -80,10 +80,6 @@
     line, path {
       stroke: #fff;
     }
-
-    .minor.tick line {
-      stroke-opacity: .5;
-    }
   }
 }
 

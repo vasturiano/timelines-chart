@@ -106,6 +106,7 @@ export default Kapsule({
     topMargin: {default: 26 },
     bottomMargin: {default: 30 },
     useUtc: { default: false },
+    xTickFormat: {},
     timeFormat: { default: '%Y-%m-%d %-I:%M:%S %p', triggerUpdate: false },
     zoomX: {  // Which time-range to show (null = min/max)
       default: [null, null],
@@ -738,7 +739,6 @@ export default Kapsule({
 
       if (state.overviewArea) {
         state.overviewArea
-          .useUtc(state.useUtc)
           .width(state.width * 0.8)
           .height(state.overviewHeight + state.overviewArea.margins().top + state.overviewArea.margins().bottom);
       }
@@ -752,6 +752,12 @@ export default Kapsule({
         .domain(state.zoomX)
         .range([0, state.graphW])
         .clamp(true);
+
+      if (state.overviewArea) {
+        state.overviewArea
+          .scale(state.xScale.copy())
+          .tickFormat(state.xTickFormat);
+      }
     }
 
     function adjustYScale() {
@@ -809,7 +815,8 @@ export default Kapsule({
       // X
       state.xAxis
         .scale(state.xScale)
-        .ticks(Math.round(state.graphW*0.0011));
+        .ticks(Math.round(state.graphW*0.0011))
+        .tickFormat(state.xTickFormat);
       state.xGrid
         .scale(state.xScale)
         .ticks(state.xAxis.ticks()[0])

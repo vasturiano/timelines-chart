@@ -20,10 +20,9 @@ import {
   scaleSequential as d3ScaleSequential,
   scalePoint as d3ScalePoint,
   scaleTime as d3ScaleTime,
-  scaleUtc as d3ScaleUtc,
-  schemeCategory10 as d3SchemeCategory10,
-  schemeCategory20b as d3SchemeCategory20b
+  scaleUtc as d3ScaleUtc
 } from 'd3-scale';
+
 import {
   event as d3Event,
   mouse as d3Mouse,
@@ -34,7 +33,7 @@ import {
   utcFormat as d3UtcFormat
 } from 'd3-time-format';
 import d3Tip from 'd3-tip';
-import { interpolateRdYlBu } from 'd3-scale-chromatic';
+import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
 import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
 import { fitToBox as TextFitToBox } from 'svg-text-fit';
@@ -134,7 +133,7 @@ export default Kapsule({
     zColorScale: { default: d3ScaleSequential(interpolateRdYlBu) },
     zQualitative: { default: false, onChange(discrete, state) {
       state.zColorScale = discrete
-        ? d3ScaleOrdinal([...d3SchemeCategory10, ...d3SchemeCategory20b])
+        ? d3ScaleOrdinal([...schemeCategory10, ...schemeSet3])
         : d3ScaleSequential(interpolateRdYlBu); // alt: d3.interpolateInferno
     }},
     zDataLabel: { default: '', triggerUpdate: false }, // Units of z data. Used in the tooltip descriptions

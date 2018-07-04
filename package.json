@@ -25,7 +25,7 @@
     "url": "https://github.com/vasturiano/timelines-chart.git"
   },
   "scripts": {
-    "build": "rm -rf dist && mkdir dist && rollup -c",
+    "build": "rimraf dist && mkdir dist && rollup -c",
     "watch": "rollup -c -w",
     "minify": "uglifyjs dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --comments '/Version/'",
     "build-module": "rollup -c rollup.config.module.js",
@@ -53,6 +53,7 @@
     "babel-preset-env": "^1.6.1",
     "postcss-nested": "^3.0.0",
     "postcss-simple-vars": "^4.1.0",
+    "rimraf": "^2.6.2",
     "rollup": "^0.56.3",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^8.3.0",

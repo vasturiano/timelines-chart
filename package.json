@@ -29,7 +29,7 @@
     "watch": "rollup -c -w",
     "minify": "uglifyjs dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --comments '/Version/'",
     "build-module": "rollup -c rollup.config.module.js",
-    "prepublish": "npm run build && npm run minify && npm run build-module"
+    "prepare": "npm run build && npm run minify && npm run build-module"
   },
   "dependencies": {
     "d3-array": "^1.2.4",

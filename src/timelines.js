@@ -2,18 +2,8 @@ import './timelines.css';
 
 import Kapsule from 'kapsule';
 
-import {
-  ascending as d3Ascending,
-  max as d3Max,
-  min as d3Min,
-  range as d3Range
-} from 'd3-array';
-import {
-  axisBottom as d3AxisBottom,
-  axisLeft as d3AxisLeft,
-  axisRight as d3AxisRight,
-  axisTop as d3AxisTop
-} from 'd3-axis';
+import {ascending as d3Ascending, max as d3Max, min as d3Min, range as d3Range} from 'd3-array';
+import {axisBottom as d3AxisBottom,axisLeft as d3AxisLeft,axisRight as d3AxisRight,axisTop as d3AxisTop} from 'd3-axis';
 import {
   scaleLinear as d3ScaleLinear,
   scaleOrdinal as d3ScaleOrdinal,
@@ -29,9 +19,8 @@ import {
   select as d3Select
 } from 'd3-selection';
 import {
-  timeFormat as d3TimeFormat,
-  utcFormat as d3UtcFormat
-} from 'd3-time-format';
+  timeFormat as d3TimeFormat,timeParse as d3TimeParse,utcFormat as d3UtcFormat} from 'd3-time-format';
+
 import d3Tip from 'd3-tip';
 import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
@@ -71,6 +60,8 @@ export default Kapsule({
 
           const dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
 
+          var parseDate = d3TimeParse(state.timeFormat);
+
           for (let i=0, ilen=rawData.length; i<ilen; i++) {
             const group = rawData[i].group;
             state.completeStructData.push({
@@ -85,7 +76,7 @@ export default Kapsule({
                   label: rawData[i].data[j].label,
                   timeRange: (dateObjs
                       ?rawData[i].data[j].data[k].timeRange
-                      :[new Date(rawData[i].data[j].data[k].timeRange[0]), new Date(rawData[i].data[j].data[k].timeRange[1])]
+                      :[parseDate(rawData[i].data[j].data[k].timeRange[0]), parseDate(rawData[i].data[j].data[k].timeRange[1])]
                   ),
                   val: rawData[i].data[j].data[k].val,
                   labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val']

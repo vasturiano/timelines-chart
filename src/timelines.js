@@ -2,7 +2,7 @@ import './timelines.css';
 
 import Kapsule from 'kapsule';
 
-import {ascending as d3Ascending, max as d3Max, min as d3Min, range as d3Range} from 'd3-array';
+import {ascending as d3Ascending, descending as d3Descending, max as d3Max, min as d3Min, range as d3Range} from 'd3-array';
 import {axisBottom as d3AxisBottom,axisLeft as d3AxisLeft,axisRight as d3AxisRight,axisTop as d3AxisTop} from 'd3-axis';
 import {
   scaleLinear as d3ScaleLinear,
@@ -31,7 +31,8 @@ import TimeOverview from './time-overview.js';
 import { alphaNumCmp } from './comparison.js';
 
 export default Kapsule({
-  props: {
+    props: {
+    dateParser: { default: false },
     data: {
       default: [],
       onChange(data, state) {
@@ -61,31 +62,74 @@ export default Kapsule({
           const dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
 
           var parseDate = d3TimeParse(state.timeFormat);
-
-          for (let i=0, ilen=rawData.length; i<ilen; i++) {
-            const group = rawData[i].group;
-            state.completeStructData.push({
-              group: group,
-              lines: rawData[i].data.map(d => d.label)
-            });
-
-            for (let j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
-              for (let k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
-                state.completeFlatData.push({
-                  group: group,
-                  label: rawData[i].data[j].label,
-                  timeRange: (dateObjs
-                      ?rawData[i].data[j].data[k].timeRange
-                      :[parseDate(rawData[i].data[j].data[k].timeRange[0]), parseDate(rawData[i].data[j].data[k].timeRange[1])]
-                  ),
-                  val: rawData[i].data[j].data[k].val,
-                  labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val']
-                });
+          if (state.dateParser) {
+                
+              for (var i = 0, ilen = rawData.length; i < ilen; i++) {
+                  for (var j = 0, jlen = rawData[i].data.length; j < jlen; j++) {
+                      for (var k = 0, klen = rawData[i].data[j].data.length; k < klen; k++) {
+               
+                          rawData[i].data[j].data[k].timeRange[0] = parseDate(rawData[i].data[j].data[k].timeRange[0])
+                          rawData[i].data[j].data[k].timeRange[1] = parseDate(rawData[i].data[j].data[k].timeRange[1])
+                    
+                      };
+                  }
               }
-              state.totalNLines++;
-            }
           }
-        }
+
+          for (var i = 0, ilen = rawData.length; i < ilen; i++) {
+              for (var j = 0, jlen = rawData[i].data.length; j < jlen; j++) {
+                  for (var k = 0, klen = rawData[i].data[j].data.length; k < klen; k++) {                       
+                      state.completeFlatData.push({
+                          group: rawData[i].group,
+                          label: rawData[i].data[j].label,
+                          timeRange: dateObjs ? rawData[i].data[j].data[k].timeRange : [new Date(rawData[i].data[j].data[k].timeRange[0]), new Date(rawData[i].data[j].data[k].timeRange[1])],
+                          val: rawData[i].data[j].data[k].val,
+                          labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal') ? 'labelVal' : 'val'],                             
+                          line: 0
+                      });
+                  }
+              }
+          }
+          var keys = state.completeFlatData.map(function (d) { return d.group; })
+                       .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
+                       .filter(function (d) { return (typeof d !== "undefined") ? d !== null : false });
+
+          state.completeFlatData.sort(function (a, b) {
+              return d3Descending(a.timeRange[0], b.timeRange[0]);
+          });
+
+          keys.forEach(function (key) {
+              var items = state.completeFlatData.filter(function (d) { return d.group === key; });
+                          
+              //function calculateTracks(items) {
+              var i, line, lines = [];
+              var top = d3Max(state.completeFlatData, function (d) { return d.line }) || 0;
+                       
+              items.forEach(function (item) {
+                  for (i = 0, line = 0; i < lines.length; i++, line++) {                                
+                      if (item.timeRange[1] <= lines[i]) { break; }
+                  }
+                  item.line = line + top + 1;
+                  item.label = item.label + " " + item.line;
+                  lines[line] = item.timeRange[0];                             
+              })                    
+          });
+
+          var gps = state.completeFlatData.map(function (d) { return d.group; })
+                                 .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
+                                                                                
+          for (var i = 0, ilen = gps.length; i < ilen; i++) {
+              state.completeStructData.push({
+                  group: gps[i],
+                  lines: state.completeFlatData.map(function (d) {return d.group === gps[i] ? d.label : null}).reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, []).filter(function (d) { return (typeof d !== "undefined") ? d !== null : false })                  
+              });
+          }
+
+          state.totalNLines = d3Max(state.completeFlatData, function (d) { return d.line }) + 1
+          state.completeStructData.sort(function (a, b) {
+              return d3Ascending(a.group, b.group);
+          });          
+      }
       }
     },
     width: { default: window.innerWidth },

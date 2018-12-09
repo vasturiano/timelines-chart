@@ -8,6 +8,7 @@
 <body>
   <script>
       //ensure the timeFormat matches the date format in myData
+      //set dateParser to true to parse start and finish dates using the supplied timeFormat; see below.
 
 
       var myData = [
@@ -45,6 +46,7 @@
       .zScaleLabel('My Scale Units')
       .zQualitative(true)
       .timeFormat("%d-%m-%Y")
+      .dateParser(true)
       .data(myData);
 
   </script>

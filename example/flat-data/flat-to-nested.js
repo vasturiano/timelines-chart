@@ -40,6 +40,7 @@
   
                 var lvl3 = {
                     "timeRange": [],
+                    "description": sublab[j].description,
                     "val": categoryLabels[Math.ceil(Math.random() * nCategories)]
                 }
 

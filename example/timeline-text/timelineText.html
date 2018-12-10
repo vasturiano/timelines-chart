@@ -1,0 +1,116 @@
+﻿<head>
+    <!--<script src='//unpkg.com/timelines-chart'></script>-->
+    <script src='../../dist/timelines-chart.js'></script>
+    <script src="../flat-data/flat-to-nested.js"></script>
+
+</head>
+
+<body>
+    <script>
+      //ensure the timeFormat matches the date format in myData
+      //set dateParser to true to parse start and finish dates using the supplied timeFormat; see below.
+
+
+      var myFlatData = [
+{ group: "group1", label: "label", start: "01/01/2018", finish: "06/03/2018", val: "Function 1", labelVal: "Lorem ipsum dolor", description: "Lorem ipsum dolor sit amet, ex pro tale case,", cost: 1000 },
+{ group: "group1", label: "label", start: "03/02/2018", finish: "08/04/2018", val: "Function 2", labelVal: "Lorem ipsum dolor", description: "Lorem ipsum dolor sit amet, ex pro tale case,", cost: 1000 },
+{ group: "group1", label: "label", start: "08/03/2018", finish: "11/05/2018", val: "Function 1", labelVal: "ALorem ipsum dolor", description: "Lorem ipsum dolor sit amet, ex pro tale case,", cost: 1000 },
+{ group: "group1", label: "label", start: "10/04/2018", finish: "13/06/2018", val: "Function 2", labelVal: "ALorem ipsum dolor", description: "Lorem ipsum dolor sit amet, ex pro tale case,", cost: 1000 },
+{ group: "group1", label: "label", start: "13/05/2018", finish: "16/07/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "15/06/2018", finish: "18/08/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "18/07/2018", finish: "20/09/2018", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "20/08/2018", finish: "23/10/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "22/09/2018", finish: "25/11/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "25/10/2018", finish: "28/12/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "27/11/2018", finish: "30/01/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "30/12/2018", finish: "03/05/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "01/02/2019", finish: "05/06/2019", val: "Function 6", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "05/05/2018", finish: "01/02/2019", val: "Function 6", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "01/01/2018", finish: "06/03/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "03/02/2018", finish: "08/04/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "08/03/2018", finish: "11/05/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "10/04/2018", finish: "13/06/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "13/05/2018", finish: "14/09/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "15/06/2018", finish: "17/10/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "16/09/2018", finish: "19/11/2018", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "19/10/2018", finish: "22/12/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "21/11/2018", finish: "24/01/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "24/12/2018", finish: "26/02/2019", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "26/01/2019", finish: "31/03/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "28/02/2019", finish: "03/05/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "02/04/2019", finish: "05/06/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "05/05/2018", finish: "01/02/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "01/01/2018", finish: "06/03/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "03/02/2018", finish: "08/04/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "08/03/2018", finish: "10/06/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "10/04/2018", finish: "13/07/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "12/06/2018", finish: "15/08/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "15/07/2018", finish: "17/09/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "17/08/2018", finish: "20/10/2018", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "19/09/2018", finish: "22/11/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "22/10/2018", finish: "25/12/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "24/11/2018", finish: "26/02/2019", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "27/12/2018", finish: "31/03/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "28/02/2019", finish: "03/05/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "02/04/2019", finish: "05/06/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "05/05/2018", finish: "01/06/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group1", label: "label", start: "01/05/2018", finish: "04/07/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group1", label: "label", start: "03/06/2018", finish: "06/08/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group1", label: "label", start: "06/07/2018", finish: "08/09/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group1", label: "label", start: "08/08/2018", finish: "11/10/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group1", label: "label", start: "10/09/2018", finish: "13/11/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "13/10/2018", finish: "16/12/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "15/11/2018", finish: "18/01/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "18/12/2018", finish: "20/02/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "20/01/2019", finish: "25/03/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "22/02/2019", finish: "27/04/2019", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "27/03/2019", finish: "29/07/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "29/04/2019", finish: "31/08/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "31/07/2019", finish: "03/10/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group2", label: "label", start: "02/09/2018", finish: "01/02/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "01/01/2018", finish: "06/03/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "03/02/2018", finish: "08/04/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "08/03/2018", finish: "11/05/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "10/04/2018", finish: "13/06/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "13/05/2018", finish: "16/07/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "15/06/2018", finish: "18/08/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "18/07/2018", finish: "20/09/2018", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "20/08/2018", finish: "23/10/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group3", label: "label", start: "22/09/2018", finish: "25/11/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "25/10/2018", finish: "28/12/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "27/11/2018", finish: "30/01/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "30/12/2018", finish: "04/03/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "01/02/2019", finish: "06/04/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "06/03/2018", finish: "01/02/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "01/01/2018", finish: "06/03/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "03/02/2018", finish: "08/04/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "08/03/2018", finish: "11/05/2018", val: "Function 1", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "10/04/2018", finish: "13/06/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group4", label: "label", start: "13/05/2018", finish: "16/07/2018", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "15/06/2018", finish: "18/08/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "18/07/2018", finish: "20/09/2018", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "20/08/2018", finish: "23/10/2018", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "22/09/2018", finish: "25/12/2018", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "25/10/2018", finish: "27/01/2019", val: "Function 3", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "27/12/2018", finish: "01/03/2019", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "29/01/2019", finish: "03/04/2019", val: "Function 4", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "03/03/2019", finish: "06/05/2019", val: "Function 2", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000},
+{ group: "group5", label: "label", start: "05/04/2019", finish: "01/06/2020", val: "Function 5", labelVal: "A", description: "Lorem ipsum dolor sit amet, ex pro tale case," ,cost: 1000}]
+
+
+
+      var myData = flatTOnested(myFlatData);
+
+
+      TimelinesChart()(document.body)
+        .zScaleLabel('My Scale Units')
+        .zQualitative(true)
+        .timeFormat("%d/%m/%Y")
+        .dateParser(true)  //dateParser is needed to parse start and end date in timeFormat('%d-%m-%Y')
+        .groupLayout(true) //groupLayout optimises the layout in each group and resolves overlaps.  Label names are ignored.
+        .rightAxis(false)  //hide right axis when using group layout.
+        .timelineText(true)  //includes description field inside timeline bar/rectangle
+        .data(myData);
+
+    </script>
+</body>

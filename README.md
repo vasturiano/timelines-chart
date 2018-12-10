@@ -75,7 +75,7 @@ myChart
 | <b>dateParser</b>() | Parses start/finish dates in timeFormat  | false | 
 | <b>groupLayout</b>() | Optimises the layout in each group and resolves overlaps.  Label names aren't.  | false | 
 | <b>rightAxis</b>() | Hides right Axis  | false | 
- 
+| <b>timelineText</b>() | Adds description field to timeline | false |
 
 ## Data syntax
 

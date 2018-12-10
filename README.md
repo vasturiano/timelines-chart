@@ -73,6 +73,9 @@ myChart
 | <b>onLabelClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on the Y axis labels. Callback will include the clicked label (if applicable) and group parameter: `onLabelClick(<string>, <string>)`. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 | <b>dateParser</b>() | Parses start/finish dates in timeFormat  | false | 
+| <b>groupLayout</b>() | Optimises the layout in each group and resolves overlaps.  Label names aren't.  | false | 
+| <b>rightAxis</b>() | Hides right Axis  | false | 
+ 
 
 ## Data syntax
 

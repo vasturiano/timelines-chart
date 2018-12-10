@@ -33,6 +33,8 @@ import { alphaNumCmp } from './comparison.js';
 export default Kapsule({
     props: {
     dateParser: { default: false },
+    rightAxis: { default: true },
+    groupLayout: { default: false },
     data: {
       default: [],
       onChange(data, state) {
@@ -90,33 +92,41 @@ export default Kapsule({
                   }
               }
           }
-          var keys = state.completeFlatData.map(function (d) { return d.group; })
-                       .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
-                       .filter(function (d) { return (typeof d !== "undefined") ? d !== null : false });
+          if (state.groupLayout) {
 
-          state.completeFlatData.sort(function (a, b) {
-              return d3Descending(a.timeRange[0], b.timeRange[0]);
-          });
+              var keys = state.completeFlatData.map(function (d) { return d.group; })
+                           .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
+                           .filter(function (d) { return (typeof d !== "undefined") ? d !== null : false });
 
-          keys.forEach(function (key) {
-              var items = state.completeFlatData.filter(function (d) { return d.group === key; });
-                          
-              //function calculateTracks(items) {
-              var i, line, lines = [];
-              var top = d3Max(state.completeFlatData, function (d) { return d.line }) || 0;
-                       
-              items.forEach(function (item) {
-                  for (i = 0, line = 0; i < lines.length; i++, line++) {                                
-                      if (item.timeRange[1] <= lines[i]) { break; }
-                  }
-                  item.line = line + top + 1;
-                  item.label = item.label + " " + item.line;
-                  lines[line] = item.timeRange[0];                             
-              })                    
-          });
+              state.completeFlatData.sort(function (a, b) {
+                  return d3Descending(a.timeRange[0], b.timeRange[0]);
+              });
 
+              keys.forEach(function (key) {
+                  var items = state.completeFlatData.filter(function (d) { return d.group === key; });
+
+                  //function calculateTracks(items) {
+                  var i, line, lines = [];
+                  var top = d3Max(state.completeFlatData, function (d) { return d.line }) || 0;
+
+                  items.forEach(function (item) {
+                      for (i = 0, line = 0; i < lines.length; i++, line++) {
+                          if (item.timeRange[1] <= lines[i]) { break; }
+                      }
+                      item.line = line + top + 1;
+                      item.label = "line" + item.line;
+                      lines[line] = item.timeRange[0];
+                  })
+              });
+
+              state.completeStructData.sort(function (a, b) {
+                  return d3Ascending(a.group, b.group);
+              }); 
+
+          }
+            //restart here all layouts
           var gps = state.completeFlatData.map(function (d) { return d.group; })
-                                 .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
+                                           .reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, [])
                                                                                 
           for (var i = 0, ilen = gps.length; i < ilen; i++) {
               state.completeStructData.push({
@@ -124,13 +134,11 @@ export default Kapsule({
                   lines: state.completeFlatData.map(function (d) {return d.group === gps[i] ? d.label : null}).reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, []).filter(function (d) { return (typeof d !== "undefined") ? d !== null : false })                  
               });
           }
-
-          state.totalNLines = d3Max(state.completeFlatData, function (d) { return d.line }) + 1
-          state.completeStructData.sort(function (a, b) {
-              return d3Ascending(a.group, b.group);
-          });          
+            
+          var totalLines = state.completeFlatData.map(function (d) {return d.label}).reduce(function (p, v) { return p.indexOf(v) == -1 ? p.concat(v) : p; }, []).filter(function (d) { return (typeof d !== "undefined") ? d !== null : false })  
+          state.groupLayout ? state.totalNLines = d3Max(state.completeFlatData, function (d) { return d.line }) + 1 : state.totalNLines =  totalLines.length                                           
       }
-      }
+     }
     },
     width: { default: window.innerWidth },
     maxHeight: { default: 640 },
@@ -880,17 +888,16 @@ export default Kapsule({
       // Y
       const fontVerticalMargin = 0.6;
       const labelDisplayRatio = Math.ceil(state.nLines*state.minLabelFont/Math.sqrt(2)/state.graphH/fontVerticalMargin);
-      const tickVals = state.yScale.domain().filter((d, i) => !(i % labelDisplayRatio));
-      let fontSize = Math.min(12, state.graphH/tickVals.length*fontVerticalMargin*Math.sqrt(2));
-      let maxChars = Math.ceil(state.rightMargin/(fontSize/Math.sqrt(2)));
-
-      state.yAxis.tickValues(tickVals);
-      state.yAxis.tickFormat(d => reduceLabel(d.split('+&+')[1], maxChars));
-      state.svg.select('g.y-axis')
-        .transition().duration(state.transDuration)
-          .attr('transform', 'translate(' + state.graphW + ', 0)')
-          .style('font-size', fontSize + 'px')
-          .call(state.yAxis);
+      const tickVals = state.yScale.domain().filter((d, i) => !(i % labelDisplayRatio));      
+      let fontSize = Math.min(12, state.graphH/tickVals.length*fontVerticalMargin*Math.sqrt(2));     
+      let maxChars = Math.ceil(state.rightMargin/(fontSize/Math.sqrt(2)));    
+      state.yAxis.tickValues(tickVals);      
+      state.yAxis.tickFormat(function (d) {return state.rightAxis ? reduceLabel(d.split('+&+')[1], maxChars) : ""});    
+      state.svg.select('g.y-axis')       
+      .transition().duration(state.transDuration)        
+      .attr('transform', 'translate(' + state.graphW + ', 0)')         
+      .style('font-size', fontSize + 'px')       
+      .call(state.yAxis);
 
       // Grp
       const minHeight = d3Min(state.grpScale.range(), function (d,i) {

@@ -1,6 +1,6 @@
 {
-  "name": "timelines-chart",
-  "version": "2.6.8",
+  "name": "timelines-chartvl",
+  "version": "1.0",
   "description": "A parallel (swimlanes) timelines D3 chart for representing state of time-series over time.",
   "keywords": [
     "timelines",
@@ -16,9 +16,9 @@
     "url": "http://bl.ocks.org/vasturiano"
   },
   "license": "MIT",
-  "unpkg": "dist/timelines-chart.min.js",
-  "main": "dist/timelines-chart.common.js",
-  "module": "dist/timelines-chart.module.js",
+  "unpkg": "dist/timelines-chart-withText.min.js",
+  "main": "dist/timelines-chart-withText.common.js",
+  "module": "dist/timelines-chart-withText.module.js",
   "homepage": "https://github.com/vasturiano/timelines-chart",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
   "scripts": {
     "build": "rimraf dist && mkdir dist && rollup -c",
     "watch": "rollup -c -w",
-    "minify": "uglifyjs dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --comments '/Version/'",
+    "minify": "uglifyjs dist/timelines-chart-withText.js -o dist/timelines-chart-withText.min.js -c -m --comments '/Version/'",
     "build-module": "rollup -c rollup.config.module.js",
     "prepare": "npm run build && npm run minify && npm run build-module"
   },

@@ -1,13 +1,26 @@
 <head>
   <script src='//unpkg.com/timelines-chart'></script>
   <!--<script src='../../dist/timelines-chart.js'></script>-->
-
-  <script src='../random-data.js'></script>
+   <script src='../random-data.js'></script>
 </head>
 
 <body>
   <script>
-    const myData = getRandomData(true);
+
+      const myData = getRandomData(true);
+
+      ////uncomment below to add text on timeline   
+
+          //for (let i = 0, ilen = myData.length; i < ilen; i++) {
+          //    for (let j = 0, jlen = myData[i].data.length; j < jlen; j++) {
+          //        myData[i].data[j]['description'] = "Lorem ipsum";              
+          //    }             
+          //}
+     
+      ////uncomment above to add text on timeline
+
+
+    
 
     TimelinesChart()(document.body)
       .zScaleLabel('My Scale Units')

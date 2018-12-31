@@ -83,6 +83,7 @@ export default Kapsule({
                 state.completeFlatData.push({
                   group: group,
                   label: rawData[i].data[j].label,
+                  description: rawData[i].data[j].description,
                   timeRange: (dateObjs
                       ?rawData[i].data[j].data[k].timeRange
                       :[new Date(rawData[i].data[j].data[k].timeRange[0]), new Date(rawData[i].data[j].data[k].timeRange[1])]
@@ -926,100 +927,59 @@ export default Kapsule({
     }
 
     function renderTimelines(maxElems) {
+        if (maxElems < 0) maxElems = null;
+        var hoverEnlargeRatio = .4;
 
-      if (maxElems<0) maxElems=null;
+        var dataFilter = function dataFilter(d, i) {
+            return (maxElems == null || i < maxElems) && state.grpScale.domain().indexOf(d.group) + 1 && d.timeRange[1] >= state.xScale.domain()[0] && d.timeRange[0] <= state.xScale.domain()[1] && state.yScale.domain().indexOf(d.group + '+&+' + d.label) + 1;
+        };
 
-      const hoverEnlargeRatio = .4;
-
-      const dataFilter = (d, i) =>
-        (maxElems==null || i<maxElems) &&
-        (state.grpScale.domain().indexOf(d.group)+1 &&
-        d.timeRange[1]>=state.xScale.domain()[0] &&
-        d.timeRange[0]<=state.xScale.domain()[1] &&
-        state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
-
-      state.lineHeight = state.graphH/state.nLines*0.8;
-
-      let timelines = state.graph.selectAll('rect.series-segment').data(
-        state.flatData.filter(dataFilter),
-        d => d.group + d.label + d.timeRange[0]
-      );
-
-      timelines.exit()
-        .transition().duration(state.transDuration)
-        .style('fill-opacity', 0)
-        .remove();
-
-      const newSegments = timelines.enter().append('rect')
-        .attr('class', 'series-segment')
-        .attr('rx', 1)
-        .attr('ry', 1)
-        .attr('x', state.graphW/2)
-        .attr('y', state.graphH/2)
-        .attr('width', 0)
-        .attr('height', 0)
-        .style('fill', d => state.zColorScale(d.val))
-        .style('fill-opacity', 0)
-        .on('mouseover.groupTooltip', state.groupTooltip.show)
-        .on('mouseout.groupTooltip', state.groupTooltip.hide)
-        .on('mouseover.lineTooltip', state.lineTooltip.show)
-        .on('mouseout.lineTooltip', state.lineTooltip.hide)
-        .on('mouseover.segmentTooltip', state.segmentTooltip.show)
-        .on('mouseout.segmentTooltip', state.segmentTooltip.hide);
-
-      newSegments
-        .on('mouseover', function() {
-          if ('disableHover' in state && state.disableHover)
-            return;
-
-          MoveToFront()(this);
-
-          const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
-
-          d3Select(this)
-            .transition().duration(70)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0])-hoverEnlarge/2;
-            })
-            .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
-            })
-            .attr('height', state.lineHeight+hoverEnlarge)
-            .style('fill-opacity', 1);
-        })
-        .on('mouseout', function() {
-          d3Select(this)
-            .transition().duration(250)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0]);
-            })
-            .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-            })
-            .attr('height', state.lineHeight)
-            .style('fill-opacity', .8);
+        state.lineHeight = state.graphH / state.nLines * 0.8;
+        var timelines = state.graph.selectAll('g').data(state.flatData.filter(dataFilter), function (d) {
+            return d.group + d.label + d.description + d.timeRange[0] + d.timeRange[1];
         });
-
-      timelines = timelines.merge(newSegments);
-
-      timelines.transition().duration(state.transDuration)
-        .attr('x', function (d) {
-          return state.xScale(d.timeRange[0]);
-        })
-        .attr('width', function (d) {
-          return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-        })
-        .attr('y', function (d) {
-          return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-        })
-        .attr('height', state.lineHeight)
-        .style('fill-opacity', .8);
+        timelines.exit().transition().duration(state.transDuration).style('fill-opacity', 0).remove();
+        var tmp;
+        var newSegments = timelines.enter().append('g').attr('class', 'series-segment').attr("transform", function (d) {          
+            return "translate(" + state.xScale(d.timeRange[0]) + "," + (state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2) + ")";
+        }).style('fill', function (d) {
+            return state.zColorScale(d.val);
+        }).style('fill-opacity', 1).on('mouseover.groupTooltip', state.groupTooltip.show).on('mouseout.groupTooltip', state.groupTooltip.hide).on('mouseover.lineTooltip', state.lineTooltip.show).on('mouseout.lineTooltip', state.lineTooltip.hide).on('mouseover.segmentTooltip', state.segmentTooltip.show).on('mouseout.segmentTooltip', state.segmentTooltip.hide);
+        var segment = newSegments.append("svg").attr('class', 'svgband').attr('width', function (d) {
+            return d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]);
+        }).attr('height', state.lineHeight).style('fill-opacity', .8).attr('x', 0).attr('y', 0);
+        segment.append("rect").attr('class', 'rectband').attr('rx', 1).attr('ry', 1).attr('x', 0).attr('y', 0);
+        segment.append("text").text(function (d) {
+            return d.description
+        }).style("fill", "black").style("font-size", "11px").style("font-weight", "bold").style("font-family", "sans-serif").attr('x', 0).attr('y', 9);
+        newSegments.on('mouseover', function () {
+            if ('disableHover' in state && state.disableHover) return;
+            moveToFront()(this);
+            var hoverEnlarge = state.lineHeight * hoverEnlargeRatio;
+            select(this).transition().duration(70).attr('x', function (d) {
+                return state.xScale(d.timeRange[0]) - hoverEnlarge / 2;
+            }).attr('width', function (d) {
+                return d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]) + hoverEnlarge;
+            }).attr('y', function (d) {
+                return state.yScale(d.group + '+&+' + d.label) - (state.lineHeight + hoverEnlarge) / 2;
+            }).attr('height', state.lineHeight + hoverEnlarge).style('fill-opacity', 1);
+        }).on('mouseout', function () {
+            select(this).transition().duration(250).attr('x', function (d) {
+                return state.xScale(d.timeRange[0]);
+            }).attr('width', function (d) {
+                return d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]);
+            }).attr('y', function (d) {
+                return state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2;
+            }).attr('height', state.lineHeight).style('fill-opacity', .8);
+        });
+        timelines = timelines.merge(newSegments);
+        timelines.transition().duration(state.transDuration).attr('height', state.lineHeight).style('fill-opacity', .8).attr("transform", function (d) {         
+            return "translate(" + state.xScale(d.timeRange[0]) + "," + (state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2) + ")";
+        });
+        timelines.selectAll('.rectband, .svgband').attr('width', function (d) {
+            return d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]);
+        }).attr('height', state.lineHeight).style('fill-opacity', .8);
+    
     }
   }
 });

@@ -148,7 +148,8 @@ export default Kapsule({
 
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
-    onLabelClick: {} // When user clicks on a group or y label. Returns (group) or (label, group) respectively
+    onLabelClick: {}, // When user clicks on a group or y label. Returns (group) or (label, group) respectively
+    onSegmentClick: {} // When user clicks on a segment. Returns (segment object) respectively
   },
 
   methods: {
@@ -1004,6 +1005,10 @@ export default Kapsule({
             })
             .attr('height', state.lineHeight)
             .style('fill-opacity', .8);
+        })
+        .on('click', function (s) {
+          if (state.onSegmentClick)
+            state.onSegmentClick(s);
         });
 
       timelines = timelines.merge(newSegments);

@@ -34,7 +34,7 @@ function getRandomData(ordinal = false) {
         const tDivide = [Math.random(), Math.random()].sort(),
           start = new Date(runLength.getTime() + tDivide[0]*segMaxLength),
           end = new Date(runLength.getTime() + tDivide[1]*segMaxLength);
-
+          end.setDate(end.getDate() + 42);// to get dates greater than now
         runLength = new Date(runLength.getTime() + segMaxLength);
 
         return {

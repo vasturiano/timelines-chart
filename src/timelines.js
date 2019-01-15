@@ -105,6 +105,7 @@ export default Kapsule({
     topMargin: {default: 26 },
     bottomMargin: {default: 30 },
     useUtc: { default: false },
+    showToday: { default: false },
     xTickFormat: {},
     timeFormat: { default: '%Y-%m-%d %-I:%M:%S %p', triggerUpdate: false },
     zoomX: {  // Which time-range to show (null = min/max)
@@ -386,6 +387,8 @@ export default Kapsule({
         );
 
       state.graph = state.svg.append('g');
+
+      state.svg.append('line').attr('class', 'x-axis-line-today');
 
       if (state.enableOverview) {
         addOverviewArea();
@@ -842,6 +845,31 @@ export default Kapsule({
         .attr('transform', 'translate(0,' + state.graphH + ')')
         .transition().duration(state.transDuration)
         .call(state.xGrid);
+
+      if (
+        state.showToday
+      ) {
+        const today = new Date();
+        if (
+          today >= state.xScale.domain()[0] &&
+          today <= state.xScale.domain()[1]
+        ) {
+          state.svg.select('line.x-axis-line-today')
+            .style("display", "block")
+            .transition().duration(state.transDuration)
+            .attr("x1", state.xScale(today) + state.leftMargin)
+            .attr("x2", state.xScale(today) + state.leftMargin)
+            .attr("y1", state.topMargin + 1)
+            .attr("y2", state.graphH + state.topMargin)
+            .style("stroke-width", 1)
+            .style("stroke", "blue")
+            .style("fill", "none");
+        } else {
+          state.svg.select('line.x-axis-line-today')
+            .transition().duration(state.transDuration)
+            .style("display", "none");
+        }
+      }
 
       // Y
       const fontVerticalMargin = 0.6;

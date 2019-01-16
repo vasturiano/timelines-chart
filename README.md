@@ -49,7 +49,7 @@ myChart
 | <b>topMargin</b>([<i>number</i>]) | Getter/setter for the chart's top margin, which contains the color legend. | 26 |
 | <b>bottomMargin</b>([<i>number</i>]) | Getter/setter for the chart's bottom margin, which contains the time axis labels. | 30 |
 | <b>useUtc</b>([<i>boolean</i>]) | Getter/setter for whether to display time in the local time zone (`false`) or in UTC (`true`). | false |
-| <b>showToday</b>([<i>boolean</i>]) | Getter/setter for whether to display today as a vertical line | false |
+| <b>showTimeMarker</b>([<i>date object</i>]) | Getter/setter for whether to display the date as a vertical line. If false or not a date object, nothing is marked | false |
 | <b>timeFormat</b>([<i>string</i>]) | Getter/setter for the time format to use in tooltips. See [d3-time-format](https://github.com/d3/d3-time-format#locale_format) for available options. | `%Y-%m-%d %-I:%M:%S %p` |
 | <b>xTickFormat</b>([<i>function</i>]) | X axis tick label formatter function, as pass-through to [d3-axis](https://github.com/d3/d3-axis#axis_tickFormat). By default, it uses a [multi-scale time format](https://bl.ocks.org/mbostock/4149176). | |
 | <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be shown. | 0 |

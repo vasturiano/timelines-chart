@@ -63,6 +63,12 @@
   }
 }
 
+line.x-axis-date-marker {
+  stroke-width: 1;
+  stroke: #293cb7;
+  fill: "none";
+}
+
 .brusher {
   .grid-background {
     fill: lightgrey;

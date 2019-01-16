@@ -1,0 +1,18 @@
+<head>
+<!--<script src='//unpkg.com/timelines-chart'></script>-->
+  <script src='../../dist/timelines-chart.js'></script>
+
+  <script src='../random-data.js'></script>
+</head>
+
+<body>
+  <script>
+    const myData = getRandomData(true);
+
+    TimelinesChart()(document.body)
+      .zScaleLabel('My Scale Units')
+      .zQualitative(true)
+      .showTimeMarker(true)
+      .data(myData);
+  </script>
+</body>

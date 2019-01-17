@@ -106,6 +106,7 @@ export default Kapsule({
     bottomMargin: {default: 30 },
     useUtc: { default: false },
     xTickFormat: {},
+    dateMarker: {},
     timeFormat: { default: '%Y-%m-%d %-I:%M:%S %p', triggerUpdate: false },
     zoomX: {  // Which time-range to show (null = min/max)
       default: [null, null],
@@ -309,6 +310,8 @@ export default Kapsule({
     yAxis: null,
     grpAxis: null,
 
+    dateMarkerLine: null,
+
     svg: null,
     graph: null,
     overviewAreaElem: null,
@@ -386,6 +389,8 @@ export default Kapsule({
         );
 
       state.graph = state.svg.append('g');
+      
+      state.dateMarkerLine = state.svg.append('line').attr('class', 'x-axis-date-marker');
 
       if (state.enableOverview) {
         addOverviewArea();
@@ -842,6 +847,22 @@ export default Kapsule({
         .attr('transform', 'translate(0,' + state.graphH + ')')
         .transition().duration(state.transDuration)
         .call(state.xGrid);
+
+      if (
+        state.dateMarker &&
+        state.dateMarker >= state.xScale.domain()[0] &&
+        state.dateMarker <= state.xScale.domain()[1]
+      ) {
+        state.dateMarkerLine
+          .style('display', 'block')
+          .transition().duration(state.transDuration)
+            .attr('x1', state.xScale(state.dateMarker) + state.leftMargin)
+            .attr('x2', state.xScale(state.dateMarker) + state.leftMargin)
+            .attr('y1', state.topMargin + 1)
+            .attr('y2', state.graphH + state.topMargin)
+      } else {
+        state.dateMarkerLine.style('display', 'none');
+      }
 
       // Y
       const fontVerticalMargin = 0.6;

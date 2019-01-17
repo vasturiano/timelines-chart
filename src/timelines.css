@@ -33,6 +33,12 @@
     }
   }
 
+  line.x-axis-date-marker {
+    stroke-width: 1;
+    stroke: #293cb7;
+    fill: "none";
+  }
+
   .series-group {
     fill-opacity: 0.6;
     stroke: #808080;

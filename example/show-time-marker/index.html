@@ -1,0 +1,18 @@
+<head>
+  <script src='//unpkg.com/timelines-chart'></script>
+  <!--<script src='../../dist/timelines-chart.js'></script>-->
+
+  <script src='../random-data.js'></script>
+</head>
+
+<body>
+  <script>
+    const myData = getRandomData(true);
+
+    TimelinesChart()(document.body)
+      .zScaleLabel('My Scale Units')
+      .zQualitative(true)
+      .dateMarker(new Date() - 365 * 24 * 60 * 60 * 1000) // Add a marker 1y ago
+      .data(myData);
+  </script>
+</body>

@@ -25,14 +25,14 @@
     "url": "https://github.com/vasturiano/timelines-chart.git"
   },
   "scripts": {
+    "dev": "rollup -c -w",
     "build": "rimraf dist && mkdir dist && rollup -c",
-    "watch": "rollup -c -w",
-    "minify": "uglifyjs dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --comments '/Version/'",
+    "minify": "terser dist/timelines-chart.js -o dist/timelines-chart.min.js -c -m --comments '/Version/'",
     "build-module": "rollup -c rollup.config.module.js",
     "prepare": "npm run build && npm run minify && npm run build-module"
   },
   "dependencies": {
-    "d3-array": "^1.2.4",
+    "d3-array": "^2.0.3",
     "d3-axis": "^1.0.12",
     "d3-brush": "^1.0.6",
     "d3-color-legend": "^1.2.4",
@@ -46,19 +46,19 @@
     "svg-utils": "^1.2.6"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.6",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.1.6",
-    "postcss-nested": "^4.1.0",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
+    "postcss-nested": "^4.1.1",
     "postcss-simple-vars": "^5.0.1",
-    "rimraf": "^2.6.2",
-    "rollup": "^0.67.3",
-    "rollup-plugin-babel": "^4.0.3",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.1.0",
+    "rollup-plugin-babel": "^4.3.0",
     "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-postcss": "^1.6.3",
     "rollup-watch": "^4.3.1",
-    "uglify-js": "^3.4.9"
+    "terser": "^3.14.1"
   }
 }

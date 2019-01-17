@@ -105,8 +105,8 @@ export default Kapsule({
     topMargin: {default: 26 },
     bottomMargin: {default: 30 },
     useUtc: { default: false },
-    showTimeMarker: { default: false },
     xTickFormat: {},
+    dateMarker: {},
     timeFormat: { default: '%Y-%m-%d %-I:%M:%S %p', triggerUpdate: false },
     zoomX: {  // Which time-range to show (null = min/max)
       default: [null, null],
@@ -301,7 +301,6 @@ export default Kapsule({
     overviewHeight: 20, // Height of overview section in bottom
     minLabelFont: 2,
     groupBkgGradient: ['#FAFAFA', '#E0E0E0'],
-    timeMarker: null,
 
     yScale: null,
     grpScale: null,
@@ -310,6 +309,8 @@ export default Kapsule({
     xGrid: null,
     yAxis: null,
     grpAxis: null,
+
+    dateMarkerLine: null,
 
     svg: null,
     graph: null,
@@ -389,7 +390,7 @@ export default Kapsule({
 
       state.graph = state.svg.append('g');
       
-      state.svg.append('line').attr('class', 'x-axis-date-marker');
+      state.dateMarkerLine = state.svg.append('line').attr('class', 'x-axis-date-marker');
 
       if (state.enableOverview) {
         addOverviewArea();
@@ -762,10 +763,6 @@ export default Kapsule({
           .scale(state.xScale.copy())
           .tickFormat(state.xTickFormat);
       }
-
-      if (state.showTimeMarker) {
-        state.timeMarker = (state.showTimeMarker instanceof Date) ? state.showTimeMarker : new Date();
-      }
     }
 
     function adjustYScale() {
@@ -852,21 +849,19 @@ export default Kapsule({
         .call(state.xGrid);
 
       if (
-        state.showTimeMarker &&
-        state.timeMarker >= state.xScale.domain()[0] &&
-        state.timeMarker <= state.xScale.domain()[1]
+        state.dateMarker &&
+        state.dateMarker >= state.xScale.domain()[0] &&
+        state.dateMarker <= state.xScale.domain()[1]
       ) {
-        state.svg.select('line.x-axis-date-marker')
-          .style("display", "block")
+        state.dateMarkerLine
+          .style('display', 'block')
           .transition().duration(state.transDuration)
-          .attr("x1", state.xScale(state.timeMarker) + state.leftMargin)
-          .attr("x2", state.xScale(state.timeMarker) + state.leftMargin)
-          .attr("y1", state.topMargin + 1)
-          .attr("y2", state.graphH + state.topMargin)
+            .attr('x1', state.xScale(state.dateMarker) + state.leftMargin)
+            .attr('x2', state.xScale(state.dateMarker) + state.leftMargin)
+            .attr('y1', state.topMargin + 1)
+            .attr('y2', state.graphH + state.topMargin)
       } else {
-        state.svg.select('line.x-axis-date-marker')
-          .transition().duration(state.transDuration)
-          .style("display", "none");
+        state.dateMarkerLine.style('display', 'none');
       }
 
       // Y

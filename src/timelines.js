@@ -438,18 +438,15 @@ export default Kapsule({
 
           if (!state.overviewArea || !zoomX) return;
 
-          // Out of overview bounds
+          // Out of overview bounds > extend it
           if (zoomX[0]<state.overviewArea.domainRange()[0] || zoomX[1]>state.overviewArea.domainRange()[1]) {
-            state.overviewArea.update(
-              [
-                new Date(Math.min(zoomX[0], state.overviewArea.domainRange()[0])),
-                new Date(Math.max(zoomX[1], state.overviewArea.domainRange()[1]))
-              ],
-              state.zoomX
-            );
-          } else { // Normal case
-            state.overviewArea.currentSelection(zoomX);
+            state.overviewArea.domainRange([
+              new Date(Math.min(zoomX[0], state.overviewArea.domainRange()[0])),
+              new Date(Math.max(zoomX[1], state.overviewArea.domainRange()[1]))
+            ]);
           }
+
+          state.overviewArea.currentSelection(zoomX);
         });
       }
     }

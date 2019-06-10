@@ -26,6 +26,7 @@ export default Kapsule({
       .tickPadding(0);
 
     state.brush = d3BrushX()
+      .handleSize(24)
       .on('end', function() {
         if (!d3Event.sourceEvent) return;
 
@@ -80,8 +81,6 @@ export default Kapsule({
 
     state.svg.select('.brush')
       .call(state.brush.extent([[0, 0], [brushWidth, brushHeight]]))
-      .call(state.brush.move, state.currentSelection.map(state.scale))
-      .selectAll('rect')
-        .attr('height', brushHeight);
+      .call(state.brush.move, state.currentSelection.map(state.scale));
   }
 });

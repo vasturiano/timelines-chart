@@ -40,6 +40,7 @@ import { fitToBox as TextFitToBox } from 'svg-text-fit';
 import ColorLegend from 'd3-color-legend';
 import TimeOverview from './time-overview.js';
 import { alphaNumCmp } from './comparison.js';
+import { checkFirstTimelineHasEvents } from './validation.js';
 
 export default Kapsule({
   props: {
@@ -69,7 +70,7 @@ export default Kapsule({
           state.completeFlatData = [];
           state.totalNLines = 0;
 
-          const dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
+          const dateObjs = checkFirstTimelineHasEvents(rawData)?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
 
           for (let i=0, ilen=rawData.length; i<ilen; i++) {
             const group = rawData[i].group;

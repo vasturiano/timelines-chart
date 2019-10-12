@@ -69,8 +69,6 @@ export default Kapsule({
           state.completeFlatData = [];
           state.totalNLines = 0;
 
-          const dateObjs = rawData.length?rawData[0].data[0].data[0].timeRange[0] instanceof Date:false;
-
           for (let i=0, ilen=rawData.length; i<ilen; i++) {
             const group = rawData[i].group;
             state.completeStructData.push({
@@ -83,10 +81,7 @@ export default Kapsule({
                 state.completeFlatData.push({
                   group: group,
                   label: rawData[i].data[j].label,
-                  timeRange: (dateObjs
-                      ?rawData[i].data[j].data[k].timeRange
-                      :[new Date(rawData[i].data[j].data[k].timeRange[0]), new Date(rawData[i].data[j].data[k].timeRange[1])]
-                  ),
+                  timeRange: rawData[i].data[j].data[k].timeRange.map(d => new Date(d)),
                   val: rawData[i].data[j].data[k].val,
                   labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val']
                 });

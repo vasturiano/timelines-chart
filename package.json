@@ -36,32 +36,32 @@
     "example/**/*"
   ],
   "dependencies": {
-    "d3-array": "^2.2.0",
+    "d3-array": "^2.3.2",
     "d3-axis": "^1.0.12",
-    "d3-brush": "^1.0.6",
+    "d3-brush": "^1.1.3",
     "d3-color-legend": "^1.2.4",
-    "d3-scale": "^3.0.0",
-    "d3-scale-chromatic": "^1.3.3",
+    "d3-scale": "^3.1.0",
+    "d3-scale-chromatic": "^1.5.0",
     "d3-selection": "^1.4.0",
     "d3-time-format": "^2.1.3",
     "d3-tip": "^0.9.1",
-    "kapsule": "^1.10.0",
+    "kapsule": "^1.12.1",
     "svg-text-fit": "^1.1.5",
     "svg-utils": "^1.2.6"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
     "postcss-nested": "^4.1.2",
     "postcss-simple-vars": "^5.0.2",
-    "rimraf": "^2.6.3",
-    "rollup": "^1.14.6",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-node-resolve": "^5.0.1",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.23.1",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-postcss": "^2.0.3",
-    "terser": "^4.0.0"
+    "terser": "^4.3.8"
   }
 }

@@ -58,7 +58,7 @@ myChart
 | <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be shown. | 0 |
 | <b>getNLines</b>() | Returns number of timelines currently visible in the chart. | - |
 | <b>getTotalNLines</b>() | Returns total number of timelines in the chart. | - |
-| <b>zQualitative</b>([<i>boolean</i>]) | Getter/setter for whether the segment data color values are categorical (false) or quantitative (true). This will affect how the color legend is presented, and changing it will automatically toggle the `zColorScale` between defaults. | false |
+| <b>zQualitative</b>([<i>boolean</i>]) | Getter/setter for whether the segment data color values are categorical (true) or quantitative (false). This will affect how the color legend is presented, and changing it will automatically toggle the `zColorScale` between defaults. | false |
 | <b>zColorScale</b>([<i>d3 scale object</i>]) | Getter/setter for the color scale to be used for coloring the segments according to their data values. This object should be a D3 color scale object. | qualitative: `d3.scaleOrdinal(<color-list>)` <br> quantitative: `d3.scaleSequential(<color-interpolator>)` |
 | <b>zDataLabel</b>([<i>string</i>]) | Getter/setter for the units of z data. Used in the tooltip descriptions. | |
 | <b>zScaleLabel</b>([<i>string</i>]) | Getter/setter for the color scale label. Only applicable to quantitative z scales. | |

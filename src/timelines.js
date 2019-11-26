@@ -141,6 +141,14 @@ export default Kapsule({
         state.transDuration = val?700:0;
       }
     },
+    enableHoverAnimations: {
+      default: true,
+      onChange(val, state) {
+        console.log('enableHoverAnimations',val, state)
+        state.disableAllHovers = !val;
+        state.disableHover = !val;
+      }
+    },
 
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
@@ -384,7 +392,7 @@ export default Kapsule({
         );
 
       state.graph = state.svg.append('g');
-      
+
       state.dateMarkerLine = state.svg.append('line').attr('class', 'x-axis-date-marker');
 
       if (state.enableOverview) {
@@ -504,7 +512,7 @@ export default Kapsule({
         if (d3Mouse(e)[0]<0 || d3Mouse(e)[0]>state.graphW || d3Mouse(e)[1]<0 || d3Mouse(e)[1]>state.graphH)
           return;
 
-        state.disableHover=true;
+          if(!disableAllHovers) state.disableHover=true;
 
         const rect = state.graph.append('rect')
           .attr('class', 'chart-zoom-selection');
@@ -535,7 +543,7 @@ export default Kapsule({
             d3Select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
             d3Select('body').classed('stat-noselect', false);
             rect.remove();
-            state.disableHover=false;
+            if(!disableAllHovers) state.disableHover=false;
 
             const endCoords = [
               Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),

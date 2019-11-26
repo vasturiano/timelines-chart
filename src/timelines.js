@@ -145,6 +145,7 @@ export default Kapsule({
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
     onLabelClick: {}, // When user clicks on a group or y label. Returns (group) or (label, group) respectively
+    onGroupClick: {}, // When user clicks on a group row. Returns (group)respectively
     onSegmentClick: {} // When user clicks on a segment. Returns (segment object) respectively
   },
 
@@ -384,7 +385,7 @@ export default Kapsule({
         );
 
       state.graph = state.svg.append('g');
-      
+
       state.dateMarkerLine = state.svg.append('line').attr('class', 'x-axis-date-marker');
 
       if (state.enableOverview) {
@@ -928,6 +929,13 @@ export default Kapsule({
         .text('click-drag to zoom in');
 
       groups = groups.merge(newGroups);
+
+      // Make Groups clickable
+      if (state.onGroupClick) {
+        state.svg.selectAll('.series-group').on('click', function(d) {
+          state.onGroupClick(d)
+        })
+      }
 
       groups.transition().duration(state.transDuration)
         .attr('width', state.graphW)

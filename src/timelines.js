@@ -146,7 +146,6 @@ export default Kapsule({
       onChange(val, state) {
         console.log('enableHoverAnimations',val, state)
         state.disableAllHovers = !val;
-        state.disableHover = !val;
       }
     },
 
@@ -512,7 +511,7 @@ export default Kapsule({
         if (d3Mouse(e)[0]<0 || d3Mouse(e)[0]>state.graphW || d3Mouse(e)[1]<0 || d3Mouse(e)[1]>state.graphH)
           return;
 
-          if(!disableAllHovers) state.disableHover=true;
+        state.disableHover=true;
 
         const rect = state.graph.append('rect')
           .attr('class', 'chart-zoom-selection');
@@ -543,7 +542,7 @@ export default Kapsule({
             d3Select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
             d3Select('body').classed('stat-noselect', false);
             rect.remove();
-            if(!disableAllHovers) state.disableHover=false;
+            state.disableHover=false;
 
             const endCoords = [
               Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),
@@ -991,7 +990,7 @@ export default Kapsule({
 
       newSegments
         .on('mouseover', function() {
-          if ('disableHover' in state && state.disableHover)
+          if ('disableHover' in state && state.disableHover && !state.disableAllHovers)
             return;
 
           MoveToFront()(this);

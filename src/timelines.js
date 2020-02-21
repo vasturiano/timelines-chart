@@ -810,13 +810,15 @@ export default Kapsule({
         .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
 
       // X
+      const nXTicks = Math.round(state.graphW * 0.012);
+
       state.xAxis
         .scale(state.xScale)
-        .ticks(Math.round(state.graphW*0.0011))
+        .ticks(nXTicks)
         .tickFormat(state.xTickFormat);
       state.xGrid
         .scale(state.xScale)
-        .ticks(state.xAxis.ticks()[0])
+        .ticks(nXTicks)
         .tickFormat('');
 
       state.svg.select('g.x-axis')

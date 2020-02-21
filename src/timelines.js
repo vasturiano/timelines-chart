@@ -810,7 +810,7 @@ export default Kapsule({
         .attr('transform', 'translate(' + state.leftMargin + ',' + state.topMargin + ')');
 
       // X
-      const nXTicks = Math.round(state.graphW * 0.012);
+      const nXTicks = Math.max(2, Math.min(12, Math.round(state.graphW * 0.012)));
 
       state.xAxis
         .scale(state.xScale)

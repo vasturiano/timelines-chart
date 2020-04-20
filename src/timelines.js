@@ -83,7 +83,8 @@ export default Kapsule({
                   label: rawData[i].data[j].label,
                   timeRange: rawData[i].data[j].data[k].timeRange.map(d => new Date(d)),
                   val: rawData[i].data[j].data[k].val,
-                  labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val']
+                  labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val'],
+                  data: rawData[i].data[j].data[k].data
                 });
               }
               state.totalNLines++;
@@ -384,7 +385,7 @@ export default Kapsule({
         );
 
       state.graph = state.svg.append('g');
-      
+
       state.dateMarkerLine = state.svg.append('line').attr('class', 'x-axis-date-marker');
 
       if (state.enableOverview) {

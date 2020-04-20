@@ -9,7 +9,7 @@ Timelines Chart
      <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="http://gist.github.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/preview.png"></a>
 </p>
 
-A parallel timelines layout (swimlanes) for representing state of time-series over time. 
+A parallel timelines layout (swimlanes) for representing state of time-series over time.
 Each timeline segment can be assigned a value on a color scale, either continuous (heatmap mode) or ordinal (for categorical representation).
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
 
@@ -90,11 +90,13 @@ myChart
         data: [
           {
             timeRange: [<date>, <date>],
-            val: <val: number (continuous dataScale) or string (ordinal dataScale)> 
+            val: <val: number (continuous dataScale) or string (ordinal dataScale)>,
+            data: {<any additional arbitrary data>}
           },
           {
             timeRange: [<date>, <date>],
-            val: <val>
+            val: <val>,
+            data: {<any additional arbitrary data>}
           },
           (...)
         ]

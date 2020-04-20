@@ -141,7 +141,7 @@ export default Kapsule({
         state.transDuration = val?700:0;
       }
     },
-    segmentTooltipHtml: { default: false },
+    segmentTooltipHtml: {},
 
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])

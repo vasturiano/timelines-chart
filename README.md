@@ -9,7 +9,7 @@ Timelines Chart
      <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="http://gist.github.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/preview.png"></a>
 </p>
 
-A parallel timelines layout (swimlanes) for representing state of time-series over time. 
+A parallel timelines layout (swimlanes) for representing state of time-series over time.
 Each timeline segment can be assigned a value on a color scale, either continuous (heatmap mode) or ordinal (for categorical representation).
 Time-series can be grouped into logical groups, represented as distinct sections. Allows for exploration using drag-to-zoom or a timeline brush.
 
@@ -76,6 +76,7 @@ myChart
 | <b>enableAnimations</b>([<i>boolean</i>]) | Getter/setter for whether to animate transitions. | true |
 | <b>onLabelClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on the Y axis labels. Callback will include the clicked label (if applicable) and group parameter: `onLabelClick(<string>, <string>)`. | `null` |
 | <b>onSegmentClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on a segment. Callback will return a segment object: `onSegmentClick(segment)`. | `null` |
+| <b>segmentTooltipHtml</b>([<i>function</i>]) | Function to render segment tooltip. Function will be passed state and data point: `segmentTooltipHtml(state, d)`. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 
 ## Data syntax
@@ -90,7 +91,7 @@ myChart
         data: [
           {
             timeRange: [<date>, <date>],
-            val: <val: number (continuous dataScale) or string (ordinal dataScale)> 
+            val: <val: number (continuous dataScale) or string (ordinal dataScale)>
           },
           {
             timeRange: [<date>, <date>],

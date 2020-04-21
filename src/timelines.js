@@ -78,13 +78,14 @@ export default Kapsule({
 
             for (let j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
               for (let k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
+                const { timeRange, val, labelVal, ...props } = rawData[i].data[j].data[k];
                 state.completeFlatData.push({
+                  ...props,
                   group: group,
                   label: rawData[i].data[j].label,
-                  timeRange: rawData[i].data[j].data[k].timeRange.map(d => new Date(d)),
-                  val: rawData[i].data[j].data[k].val,
-                  labelVal: rawData[i].data[j].data[k][rawData[i].data[j].data[k].hasOwnProperty('labelVal')?'labelVal':'val'],
-                  data: rawData[i].data[j].data[k].data
+                  timeRange: timeRange.map(d => new Date(d)),
+                  val,
+                  labelVal: labelVal !== undefined ? labelVal : val
                 });
               }
               state.totalNLines++;

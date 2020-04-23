@@ -143,6 +143,7 @@ export default Kapsule({
         state.transDuration = val?700:0;
       }
     },
+    segmentTooltipHtml: { triggerUpdate: false },
 
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
@@ -485,6 +486,10 @@ export default Kapsule({
         .direction('s')
         .offset([5, 0])
         .html(d => {
+          if (state.segmentTooltipHtml) {
+            return state.segmentTooltipHtml(d);
+          }
+
           const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
           const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`${state.timeFormat}${state.useUtc?' (UTC)':''}`);
           return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel

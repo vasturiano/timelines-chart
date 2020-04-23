@@ -76,7 +76,7 @@ myChart
 | <b>enableAnimations</b>([<i>boolean</i>]) | Getter/setter for whether to animate transitions. | true |
 | <b>onLabelClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on the Y axis labels. Callback will include the clicked label (if applicable) and group parameter: `onLabelClick(<string>, <string>)`. | `null` |
 | <b>onSegmentClick</b>([<i>function</i>]) | Getter/setter for the callback function for clicking on a segment. Callback will return a segment object: `onSegmentClick(segment)`. | `null` |
-| <b>segmentTooltipHtml</b>([<i>function</i>]) | Override function to render segment tooltip. Function will be passed the data point: `segmentTooltipHtml(d)`. | `null` |
+| <b>segmentTooltipContent</b>([<i>function</i>]) | Getter/setter for the callback function to populate a custom tooltip for segments. The segment data point is provided as sole argument: `segmentTooltipContent(d)`. Supports plain text or HTML content. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 
 ## Data syntax

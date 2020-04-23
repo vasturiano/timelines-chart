@@ -144,6 +144,8 @@ export default Kapsule({
       }
     },
 
+    segmentTooltipContent: { triggerUpdate: false },
+
     // Callbacks
     onZoom: {}, // When user zooms in / resets zoom. Returns ([startX, endX], [startY, endY])
     onLabelClick: {}, // When user clicks on a group or y label. Returns (group) or (label, group) respectively
@@ -485,6 +487,10 @@ export default Kapsule({
         .direction('s')
         .offset([5, 0])
         .html(d => {
+          if (state.segmentTooltipContent) {
+            return state.segmentTooltipContent(d);
+          }
+
           const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
           const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`${state.timeFormat}${state.useUtc?' (UTC)':''}`);
           return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel

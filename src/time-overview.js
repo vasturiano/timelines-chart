@@ -5,14 +5,15 @@
 import Kapsule from 'kapsule';
 import { brushX as d3BrushX } from 'd3-brush';
 import { axisBottom as d3AxisBottom } from 'd3-axis';
-import { event as d3Event, select as d3Select } from 'd3-selection';
+import { select as d3Select } from 'd3-selection';
+import { scaleTime as d3ScaleTime } from 'd3-scale';
 
 export default Kapsule({
   props: {
     width: { default: 300 },
     height: { default: 20 },
     margins: { default: { top: 0, right: 0, bottom: 20, left: 0 }},
-    scale: {},
+    scale: d3ScaleTime(),
     domainRange: {},
     currentSelection: {},
     tickFormat: {},
@@ -27,10 +28,10 @@ export default Kapsule({
 
     state.brush = d3BrushX()
       .handleSize(24)
-      .on('end', function() {
-        if (!d3Event.sourceEvent) return;
+      .on('end', function(event) {
+        if (!event.sourceEvent) return;
 
-        const selection = d3Event.selection ? d3Event.selection.map(state.scale.invert) : state.scale.domain();
+        const selection = event.selection ? event.selection.map(state.scale.invert) : state.scale.domain();
         state.onChange(...selection);
       });
 

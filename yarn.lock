@@ -1300,7 +1300,7 @@ csso@^4.0.2:
   dependencies:
     css-tree "^1.0.0"
 
-d3-array@^2.3.0, d3-array@^2.4.0, d3-array@^2.8.0:
+d3-array@^2.3.0, d3-array@^2.8.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-2.8.0.tgz#f76e10ad47f1f4f75f33db5fc322eb9ffde5ef23"
   integrity sha512-6V272gsOeg7+9pTW1jSYOR1QE37g95I3my1hBmY+vOUNHRrk9yt4OTz/gK7PMkVAVDrYYq4mq3grTiZ8iJdNIw==
@@ -1326,16 +1326,16 @@ d3-collection@^1.0.4:
   resolved "https://registry.yarnpkg.com/d3-collection/-/d3-collection-1.0.7.tgz#349bd2aa9977db071091c13144d5e4f16b5b310e"
   integrity sha512-ii0/r5f4sjKNTfh84Di+DpztYwqKhEyUlKoPrzUFfeSkWxjW49xU2QzO9qrPrNkpdI0XJkfzvmTu8V2Zylln6A==
 
-d3-color-legend@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/d3-color-legend/-/d3-color-legend-1.2.5.tgz#7eedf5d41335bf301f7b99cfe19ed88674c6a191"
-  integrity sha512-XP6Ps7yeZZGWDEIvA8YMSODf2DgU3L5x/MBw5w6FAKbNC/r1VQCv1oxX1JaN1qRxfIFFgiXtdxjIXyfqlWJO4g==
+d3-color-legend@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/d3-color-legend/-/d3-color-legend-1.3.1.tgz#00b5541f1806102b9c9a697e572497bd8a59ebfb"
+  integrity sha512-cpLbz+ly6FJoJwFmM/CoiHhY/DQ5Jzc4wHHz+tnPq30cnNjYLhHqfz3hDmSpbsjfm3uVxjYx2dK7+1vcNTxI9g==
   dependencies:
-    d3-selection "^1.4.1"
-    kapsule "^1.12.2"
-    svg-text-fit "^1.1.5"
-    svg-utils "^1.2.6"
-    tinycolor2 "^1.4.1"
+    d3-selection "^2.0.0"
+    kapsule "^1.13.3"
+    svg-text-fit "^1.1.7"
+    svg-utils "^1.2.8"
+    tinycolor2 "^1.4.2"
 
 "d3-color@1 - 2":
   version "2.0.0"
@@ -1380,7 +1380,7 @@ d3-scale-chromatic@^2.0.0:
     d3-color "1 - 2"
     d3-interpolate "1 - 2"
 
-d3-scale@^3.2.1, d3-scale@^3.2.3:
+d3-scale@^3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/d3-scale/-/d3-scale-3.2.3.tgz#be380f57f1f61d4ff2e6cbb65a40593a51649cfd"
   integrity sha512-8E37oWEmEzj57bHcnjPVOBS3n4jqakOeuv1EDdQSiSrYnMCBdMd3nc4HtKk7uia8DUHcY/CGuJ42xxgtEYrX0g==
@@ -1396,7 +1396,7 @@ d3-selection@2, d3-selection@^2.0.0:
   resolved "https://registry.yarnpkg.com/d3-selection/-/d3-selection-2.0.0.tgz#94a11638ea2141b7565f883780dabc7ef6a61066"
   integrity sha512-XoGGqhLUN/W14NmaqcO/bb1nqjDAw5WtSYb2X8wiuQWvSZUsUVYsOSkOybUrNvcBjaywBdYPy03eXHMXjk9nZA==
 
-d3-selection@^1.3.0, d3-selection@^1.4.1:
+d3-selection@^1.3.0:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/d3-selection/-/d3-selection-1.4.2.tgz#dcaa49522c0dbf32d6c1858afc26b6094555bc5c"
   integrity sha512-SJ0BqYihzOjDnnlfyeHT0e30k0K1+5sR3d5fNueCNeuhZTnGw4M4o8mqJchSwgKMXCNFo+e2VTChiSJ0vYtXkg==
@@ -1919,7 +1919,7 @@ json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-kapsule@^1.12.2, kapsule@^1.13.3:
+kapsule@^1.13.3:
   version "1.13.3"
   resolved "https://registry.yarnpkg.com/kapsule/-/kapsule-1.13.3.tgz#01092e9ee1f1da10e511d91b45e57198b1fe7b90"
   integrity sha512-Qgzn1p0ywJsXJ3NBjIGst/EGvH2VF+YeVsVfWHZ1ZFX1v7AJfz215OWf3mRFy6NZBbN67yc1qUxAuJU+vuTtAA==
@@ -2787,22 +2787,22 @@ supports-color@^7.0.0, supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svg-text-fit@^1.1.5, svg-text-fit@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/svg-text-fit/-/svg-text-fit-1.1.6.tgz#adbea84af0e9b798d0fc686b5951ca2870fdc06e"
-  integrity sha512-zQUQAIgN93FoTkon4vWPVLtfDzNPWixocZQNFXEx0ev6TXyyE42E8XRA6jD357Z+7QqURoH2fI4Zao7KlkUcZg==
+svg-text-fit@^1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/svg-text-fit/-/svg-text-fit-1.1.7.tgz#baee9b1f504db832f594ad50704f0d2afabd51c5"
+  integrity sha512-XzRviJbNgV33LWeQQrENcOnkHpuMCIp80I8W2u4Ya+/dRp8oDL91zUeqpmkXu1dtav3G81Lcf5t43P5NbfyDnQ==
   dependencies:
-    kapsule "^1.12.2"
+    kapsule "^1.13.3"
 
-svg-utils@^1.2.6, svg-utils@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/svg-utils/-/svg-utils-1.2.7.tgz#78279d6787c2d15d7fda511a661fac1286d6777b"
-  integrity sha512-KUXhqOSYG33zdpOdLU8M1sCR/9Nsu4j+bnV/L8i7JfdpNqXj9iqybDdxardPQMHcnUGzNMnlbHrIWMxhb4T65A==
+svg-utils@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/svg-utils/-/svg-utils-1.2.8.tgz#b9400110c8863d57c1ac8904925d7c7a7ed38fed"
+  integrity sha512-uUK6nuAIVetYdfUDs843qYbys+b0LvJrBRotMTJk5WhhcE6d9+0AWe/42WMDtpW/6LbOGqWbE5xkP82kWxwSOA==
   dependencies:
-    d3-array "^2.4.0"
-    d3-scale "^3.2.1"
-    d3-selection "^1.4.1"
-    kapsule "^1.12.2"
+    d3-array "^2.8.0"
+    d3-scale "^3.2.3"
+    d3-selection "^2.0.0"
+    kapsule "^1.13.3"
 
 svgo@^1.0.0:
   version "1.3.2"
@@ -2837,7 +2837,7 @@ timsort@^0.3.0:
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
 
-tinycolor2@^1.4.1:
+tinycolor2@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.2.tgz#3f6a4d1071ad07676d7fa472e1fac40a719d8803"
   integrity sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==

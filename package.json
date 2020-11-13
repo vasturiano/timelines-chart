@@ -64,8 +64,5 @@
     "rollup-plugin-postcss": "^3.1.8",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.0.2"
-  },
-  "peerDependencies": {
-    "postcss": "^8.1.0"
   }
 }

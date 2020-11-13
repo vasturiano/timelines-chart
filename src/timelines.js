@@ -24,8 +24,7 @@ import {
 } from 'd3-scale';
 
 import {
-  event as d3Event,
-  mouse as d3Mouse,
+  pointer as d3Pointer,
   select as d3Select
 } from 'd3-selection';
 import {
@@ -416,7 +415,7 @@ export default Kapsule({
           }
         }
 
-        return this.domain()[this.domain().length-1];
+        return this.domain()[this.domain().length - 1];
       }
 
       function addOverviewArea() {
@@ -432,13 +431,13 @@ export default Kapsule({
           .currentSelection(state.zoomX)
           (state.overviewAreaElem.node());
 
-        state.svg.on('zoomScent', function() {
-          const zoomX = d3Event.detail.zoomX;
+        state.svg.on('zoomScent', function (event) {
+          const zoomX = event.detail.zoomX;
 
           if (!state.overviewArea || !zoomX) return;
 
           // Out of overview bounds > extend it
-          if (zoomX[0]<state.overviewArea.domainRange()[0] || zoomX[1]>state.overviewArea.domainRange()[1]) {
+          if (zoomX[0] < state.overviewArea.domainRange()[0] || zoomX[1] > state.overviewArea.domainRange()[1]) {
             state.overviewArea.domainRange([
               new Date(Math.min(zoomX[0], state.overviewArea.domainRange()[0])),
               new Date(Math.max(zoomX[1], state.overviewArea.domainRange()[1]))
@@ -455,11 +454,8 @@ export default Kapsule({
         .attr('class', 'chart-tooltip group-tooltip')
         .direction('w')
         .offset([0, 0])
-        .html(d => {
-          const leftPush = (d.hasOwnProperty('timeRange')
-            ?state.xScale(d.timeRange[0])
-            :0
-          );
+        .html((event, d) => {
+          const leftPush = (d.hasOwnProperty('timeRange') ? state.xScale(d.timeRange[0]) : 0);
           const topPush = (d.hasOwnProperty('label')
             ?state.grpScale(d.group)-state.yScale(d.group+'+&+'+d.label)
             :0
@@ -474,7 +470,7 @@ export default Kapsule({
         .attr('class', 'chart-tooltip line-tooltip')
         .direction('e')
         .offset([0, 0])
-        .html(d => {
+        .html((event, d) => {
           const rightPush = (d.hasOwnProperty('timeRange')?state.xScale.range()[1]-state.xScale(d.timeRange[1]):0);
           state.lineTooltip.offset([0, rightPush]);
           return d.label;
@@ -486,7 +482,7 @@ export default Kapsule({
         .attr('class', 'chart-tooltip segment-tooltip')
         .direction('s')
         .offset([5, 0])
-        .html(d => {
+        .html((event, d) => {
           if (state.segmentTooltipContent) {
             return state.segmentTooltipContent(d);
           }
@@ -503,13 +499,15 @@ export default Kapsule({
     }
 
     function addZoomSelection() {
-      state.graph.on('mousedown', function() {
+      const getPointerCoords = event => d3Pointer(event, state.graph.node());
+
+      state.graph.on('mousedown', function (event) {
         if (d3Select(window).on('mousemove.zoomRect')!=null) // Selection already active
           return;
 
-        const e = this;
+        const startCoords = getPointerCoords(event);
 
-        if (d3Mouse(e)[0]<0 || d3Mouse(e)[0]>state.graphW || d3Mouse(e)[1]<0 || d3Mouse(e)[1]>state.graphH)
+        if (startCoords[0] < 0 || startCoords[0] > state.graphW || startCoords[1] < 0 || startCoords[1] > state.graphH)
           return;
 
         state.disableHover=true;
@@ -517,14 +515,13 @@ export default Kapsule({
         const rect = state.graph.append('rect')
           .attr('class', 'chart-zoom-selection');
 
-        const startCoords = d3Mouse(e);
-
         d3Select(window)
-          .on('mousemove.zoomRect', function() {
-            d3Event.stopPropagation();
+          .on('mousemove.zoomRect', function (event) {
+            event.stopPropagation();
+            const pointerCoords = getPointerCoords(event);
             const newCoords = [
-              Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),
-              Math.max(0, Math.min(state.graphH, d3Mouse(e)[1]))
+              Math.max(0, Math.min(state.graphW, pointerCoords[0])),
+              Math.max(0, Math.min(state.graphH, pointerCoords[1]))
             ];
             rect.attr('x', Math.min(startCoords[0], newCoords[0]))
               .attr('y', Math.min(startCoords[1], newCoords[1]))
@@ -539,15 +536,15 @@ export default Kapsule({
               )
             }});
           })
-          .on('mouseup.zoomRect', function() {
+          .on('mouseup.zoomRect', function (event) {
             d3Select(window).on('mousemove.zoomRect', null).on('mouseup.zoomRect', null);
             d3Select('body').classed('stat-noselect', false);
             rect.remove();
             state.disableHover=false;
-
+            const pointerCoords = getPointerCoords(event);
             const endCoords = [
-              Math.max(0, Math.min(state.graphW, d3Mouse(e)[0])),
-              Math.max(0, Math.min(state.graphH, d3Mouse(e)[1]))
+              Math.max(0, Math.min(state.graphW, pointerCoords[0])),
+              Math.max(0, Math.min(state.graphH, pointerCoords[1]))
             ];
 
             if (startCoords[0]==endCoords[0] && startCoords[1]==endCoords[1])
@@ -571,7 +568,7 @@ export default Kapsule({
             }
           }, true);
 
-        d3Event.stopPropagation();
+        event.stopPropagation();
       });
 
       state.resetBtn = state.svg.append('text')
@@ -591,8 +588,8 @@ export default Kapsule({
 
     function setEvents() {
 
-      state.svg.on('zoom', function() {
-        const evData = d3Event.detail,
+      state.svg.on('zoom', function (event) {
+        const evData = event.detail,
           zoomX = evData.zoomX,
           zoomY = evData.zoomY,
           redraw = (evData.redraw==null)?true:evData.redraw;
@@ -613,7 +610,7 @@ export default Kapsule({
         if (state.onZoom) state.onZoom(state.zoomX, state.zoomY);
       });
 
-      state.svg.on('resetZoom', function() {
+      state.svg.on('resetZoom', function () {
         const prevZoomX = state.zoomX;
         const prevZoomY = state.zoomY || [null, null];
 

@@ -1,6 +1,8 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonJs from '@rollup/plugin-commonjs';
 import postCss from 'rollup-plugin-postcss';
+import postCssSimpleVars from 'postcss-simple-vars';
+import postCssNested from 'postcss-nested';
 import babel from 'rollup-plugin-babel';
 import { terser } from "rollup-plugin-terser";
 import dts from 'rollup-plugin-dts';
@@ -30,7 +32,12 @@ export default [
       }
     ],
     plugins: [
-      postCss(),
+      postCss({
+        plugins: [
+          postCssSimpleVars(),
+          postCssNested()
+        ]
+      }),
       resolve(),
       commonJs(),
       babel({ exclude: 'node_modules/**' })
@@ -50,7 +57,12 @@ export default [
     ],
     external: [...Object.keys(dependencies || {}), ...Object.keys(peerDependencies || {})],
     plugins: [
-      postCss(),
+      postCss({
+        plugins: [
+          postCssSimpleVars(),
+          postCssNested()
+        ]
+      }),
       babel()
     ]
   },

@@ -6,14 +6,13 @@ import Kapsule from 'kapsule';
 import { brushX as d3BrushX } from 'd3-brush';
 import { axisBottom as d3AxisBottom } from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
-import { scaleTime as d3ScaleTime } from 'd3-scale';
 
 export default Kapsule({
   props: {
     width: { default: 300 },
     height: { default: 20 },
     margins: { default: { top: 0, right: 0, bottom: 20, left: 0 }},
-    scale: d3ScaleTime(),
+    scale: {},
     domainRange: {},
     currentSelection: {},
     tickFormat: {},

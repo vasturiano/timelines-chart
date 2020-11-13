@@ -31,7 +31,7 @@ import {
   timeFormat as d3TimeFormat,
   utcFormat as d3UtcFormat
 } from 'd3-time-format';
-import { tip as d3Tip } from 'd3-v6-tip';
+import d3Tip from 'd3-tip';
 import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
 import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
@@ -499,13 +499,13 @@ export default Kapsule({
     }
 
     function addZoomSelection() {
-      const getPointerCoord = (event) => d3Pointer(event, state.graph.node());
+      const getPointerCoords = event => d3Pointer(event, state.graph.node());
 
       state.graph.on('mousedown', function (event) {
         if (d3Select(window).on('mousemove.zoomRect')!=null) // Selection already active
           return;
 
-        const startCoords = getPointerCoord(event);
+        const startCoords = getPointerCoords(event);
 
         if (startCoords[0] < 0 || startCoords[0] > state.graphW || startCoords[1] < 0 || startCoords[1] > state.graphH)
           return;
@@ -518,10 +518,10 @@ export default Kapsule({
         d3Select(window)
           .on('mousemove.zoomRect', function (event) {
             event.stopPropagation();
-            const pointer = getPointerCoord(event);
+            const pointerCoords = getPointerCoords(event);
             const newCoords = [
-              Math.max(0, Math.min(state.graphW, pointer[0])),
-              Math.max(0, Math.min(state.graphH, pointer[1]))
+              Math.max(0, Math.min(state.graphW, pointerCoords[0])),
+              Math.max(0, Math.min(state.graphH, pointerCoords[1]))
             ];
             rect.attr('x', Math.min(startCoords[0], newCoords[0]))
               .attr('y', Math.min(startCoords[1], newCoords[1]))
@@ -541,10 +541,10 @@ export default Kapsule({
             d3Select('body').classed('stat-noselect', false);
             rect.remove();
             state.disableHover=false;
-            const pointer = getPointerCoord(event);
+            const pointerCoords = getPointerCoords(event);
             const endCoords = [
-              Math.max(0, Math.min(state.graphW, pointer[0])),
-              Math.max(0, Math.min(state.graphH, pointer[1]))
+              Math.max(0, Math.min(state.graphW, pointerCoords[0])),
+              Math.max(0, Math.min(state.graphH, pointerCoords[1]))
             ];
 
             if (startCoords[0]==endCoords[0] && startCoords[1]==endCoords[1])

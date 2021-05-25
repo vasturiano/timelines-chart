@@ -895,7 +895,7 @@ export default Kapsule({
       if (state.onLabelClick) {
         state.svg.selectAll('g.y-axis,g.grp-axis').selectAll('text')
           .style('cursor', 'pointer')
-          .on('click', function(d) {
+          .on('click', function(ev, d) {
             const segms = d.split('+&+');
             state.onLabelClick(...segms.reverse());
           });
@@ -1026,7 +1026,7 @@ export default Kapsule({
             .attr('height', state.lineHeight)
             .style('fill-opacity', .8);
         })
-        .on('click', function (s) {
+        .on('click', function (ev, s) {
           if (state.onSegmentClick)
             state.onSegmentClick(s);
         });

@@ -103,6 +103,13 @@ export interface TimelinesChartGenericInstance<ChainableInstance> {
     timeRange: Range<TS>
   }) => void): ChainableInstance;
 
+  segmentTooltipContent(cb: (segment: {
+    group: string,
+    label: string,
+    val: Val,
+    timeRange: Range<TS>
+  }) => string): ChainableInstance;
+
   refresh(): ChainableInstance;
 }
 

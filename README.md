@@ -3,7 +3,7 @@ Timelines Chart
 
 [![NPM package][npm-img]][npm-url]
 [![Build Size][build-size-img]][build-size-url]
-[![Dependencies][dependencies-img]][dependencies-url]
+[![NPM Downloads][npm-downloads-img]][npm-downloads-url]
 
 <p align="center">
      <a href="http://bl.ocks.org/vasturiano/ded69192b8269a78d2d97e24211e64e0"><img width="80%" src="http://gist.github.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/preview.png"></a>
@@ -20,23 +20,23 @@ Check out the examples:
 
 ## Quick start
 
-```
+```js
 import TimelinesChart from 'timelines-chart';
 ```
 or
-```
-TimelinesChart = require('timelines-chart');
+```js
+const TimelinesChart = require('timelines-chart');
 ```
 or even
-```
+```html
 <script src="//unpkg.com/timelines-chart"></script>
 ```
 then
-```
+```js
 const myChart = TimelinesChart();
 myChart
-    .data(<myData>)
-    (<myDOMElement>);
+  .data(<myData>)
+  (<myDOMElement>);
 ```
 
 ## API reference
@@ -81,7 +81,7 @@ myChart
 
 ## Data syntax
 
-```
+```js
 [
   {
     group: "group1name",
@@ -97,21 +97,21 @@ myChart
             timeRange: [<date>, <date>],
             val: <val>
           },
-          (...)
+          ...
         ]
       },
       {
         label: "label2name",
         data: [...]
       },
-      (...)
+      ...
     ],
   },
   {
     group: "group2name",
     data: [...]
   },
-  (...)
+  ...
 ]
 ```
 
@@ -119,9 +119,9 @@ myChart
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url) If this project has helped you and you'd like to contribute back, you can always [buy me a ☕](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url)!
 
-[npm-img]: https://img.shields.io/npm/v/timelines-chart.svg
+[npm-img]: https://img.shields.io/npm/v/timelines-chart
 [npm-url]: https://npmjs.org/package/timelines-chart
-[build-size-img]: https://img.shields.io/bundlephobia/minzip/timelines-chart.svg
+[build-size-img]: https://img.shields.io/bundlephobia/minzip/timelines-chart
 [build-size-url]: https://bundlephobia.com/result?p=timelines-chart
-[dependencies-img]: https://img.shields.io/david/vasturiano/timelines-chart.svg
-[dependencies-url]: https://david-dm.org/vasturiano/timelines-chart
+[npm-downloads-img]: https://img.shields.io/npm/dt/timelines-chart
+[npm-downloads-url]: https://www.npmtrends.com/timelines-chart

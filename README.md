@@ -81,7 +81,7 @@ myChart
 
 ## Data syntax
 
-```js
+```
 [
   {
     group: "group1name",

@@ -557,7 +557,7 @@ export default Kapsule({
               + ((state.zoomY && state.zoomY[0])?state.zoomY[0]:0)
             );
 
-            const changeX=((newDomainX[1] - newDomainX[0])>(60*1000)); // Zoom damper
+            const changeX=((newDomainX[1] - newDomainX[0]) > 1000); // Zoom damper
             const changeY=(newDomainY[0]!=state.zoomY[0] || newDomainY[1]!=state.zoomY[1]);
 
             if (changeX || changeY) {

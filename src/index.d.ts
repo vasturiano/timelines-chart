@@ -19,8 +19,8 @@ export type Val = number | string; // qualitative vs quantitative
 
 type GroupLabel = {
   group: string;
-  label:string;
-}
+  label: string;
+};
 
 type Range<DomainType> = [DomainType, DomainType];
 
@@ -75,14 +75,19 @@ export interface TimelinesChartGenericInstance<ChainableInstance> {
 
   sort(cmpFn: CompareFn<string>): ChainableInstance;
   sortAlpha(ascending: boolean): ChainableInstance;
-  sortChrono(ascending: boolean): ChainableInstance;
+  sortChrono(ascending: boolean, startTime: boolean): ChainableInstance;
   zoomX(): Range<TS | null> | null;
   zoomX(xRange: Range<TS | null> | null): ChainableInstance;
   zoomY(): Range<number | null> | null;
   zoomY(yRange: Range<number | null> | null): ChainableInstance;
   zoomYLabels(): Range<GroupLabel | null> | null;
   zoomYLabels(yLabelRange: Range<GroupLabel | null> | null): ChainableInstance;
-  onZoom(cb: (zoomX: Range<TS | null> | null, zoomY: Range<number | null> | null) => void): ChainableInstance;
+  onZoom(
+    cb: (
+      zoomX: Range<TS | null> | null,
+      zoomY: Range<number | null> | null
+    ) => void
+  ): ChainableInstance;
 
   enableOverview(): boolean;
   enableOverview(enable: boolean): ChainableInstance;
@@ -96,24 +101,29 @@ export interface TimelinesChartGenericInstance<ChainableInstance> {
   enableAnimations(animations: boolean): ChainableInstance;
 
   onLabelClick(cb: (label: string, group: string) => void): ChainableInstance;
-  onSegmentClick(cb: (segment: {
-    group: string,
-    label: string,
-    val: Val,
-    timeRange: Range<TS>
-  }) => void): ChainableInstance;
+  onSegmentClick(
+    cb: (segment: {
+      group: string;
+      label: string;
+      val: Val;
+      timeRange: Range<TS>;
+    }) => void
+  ): ChainableInstance;
 
-  segmentTooltipContent(cb: (segment: {
-    group: string,
-    label: string,
-    val: Val,
-    timeRange: Range<TS>
-  }) => string): ChainableInstance;
+  segmentTooltipContent(
+    cb: (segment: {
+      group: string;
+      label: string;
+      val: Val;
+      timeRange: Range<TS>;
+    }) => string
+  ): ChainableInstance;
 
   refresh(): ChainableInstance;
 }
 
-export type TimelinesChartInstance = TimelinesChartGenericInstance<TimelinesChartInstance>;
+export type TimelinesChartInstance =
+  TimelinesChartGenericInstance<TimelinesChartInstance>;
 
 declare function TimelinesChart(): TimelinesChartInstance;
 

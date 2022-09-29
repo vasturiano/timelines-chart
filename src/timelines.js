@@ -236,7 +236,9 @@ export default Kapsule({
       const alphaCmp = function (a, b) { return alphaNumCmp(asc?a:b, asc?b:a); };
       return this.sort(alphaCmp, alphaCmp);
     },
-    sortChrono(state, asc) {
+    sortChrono(state, asc,startTime) {
+      // if startTime null then startTime is the priority else endTime
+      if(startTime==null){startTime=true}
       if (asc==null) { asc=true }
 
       function buildIdx(accessFunction) {
@@ -253,21 +255,42 @@ export default Kapsule({
         }
         return idx;
       }
+      let timeCmp;
+      if(startTime==false)
+      {
+         timeCmp = function (a, b) {
 
-      const timeCmp = function (a, b) {
-
-        const aT = a[1], bT=b[1];
-
-        if (!aT || !bT) return null; // One of the two vals is null
-
-        if (aT[1].getTime()==bT[1].getTime()) {
-          if (aT[0].getTime()==bT[0].getTime()) {
-            return alphaNumCmp(a[0],b[0]); // If first and last is same, use alphaNum
+          const aT = a[1], bT=b[1];
+  
+          if (!aT || !bT) return null; // One of the two vals is null
+  
+          if (aT[1].getTime()==bT[1].getTime()) {
+            if (aT[0].getTime()==bT[0].getTime()) {
+              return alphaNumCmp(a[0],b[0]); // If first and last is same, use alphaNum
+            }
+            return aT[0]-bT[0];   // If last is same, earliest first wins
           }
-          return aT[0]-bT[0];   // If last is same, earliest first wins
-        }
-        return bT[1]-aT[1]; // latest last wins
-      };
+          return bT[1]-aT[1]; // latest last wins
+        };
+      }
+      else{
+         timeCmp = function (a, b) {
+
+          const aT = a[1], bT=b[1];
+  
+          if (!aT || !bT) return null; // One of the two vals is null
+  
+          if (aT[0].getTime()==bT[0].getTime()) {
+            if (aT[1].getTime()==bT[1].getTime()) {
+              return alphaNumCmp(a[0],b[0]); // If first and last is same, use alphaNum
+            }
+            return aT[1]-bT[1];   // If last is same, earliest first wins
+          }
+          return bT[0]-aT[0]; // latest last wins
+        };
+
+      }
+      
 
       function getCmpFunction(accessFunction, asc) {
         return (a, b) => timeCmp(accessFunction(asc?a:b), accessFunction(asc?b:a));

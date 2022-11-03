@@ -1044,6 +1044,7 @@ export default Kapsule({
           return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
         })
         .attr('height', state.lineHeight)
+        .style('fill', d => state.zColorScale(d.val))
         .style('fill-opacity', .8);
     }
   }

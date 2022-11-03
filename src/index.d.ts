@@ -73,7 +73,7 @@ export interface TimelinesChartGenericInstance<ChainableInstance> {
   zScaleLabel(): string;
   zScaleLabel(text: string): ChainableInstance;
 
-  sort(labelcmpFn: CompareFn<string>,grpcmpFn: CompareFn<string>): ChainableInstance;
+  sort(labelcmpFn: CompareFn<string>, grpcmpFn: CompareFn<string>): ChainableInstance;
   sortAlpha(ascending: boolean): ChainableInstance;
   sortChrono(ascending: boolean): ChainableInstance;
   zoomX(): Range<TS | null> | null;

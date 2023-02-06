@@ -23,11 +23,7 @@ Check out the examples:
 ```js
 import TimelinesChart from 'timelines-chart';
 ```
-or
-```js
-const TimelinesChart = require('timelines-chart');
-```
-or even
+or using a *script* tag
 ```html
 <script src="//unpkg.com/timelines-chart"></script>
 ```

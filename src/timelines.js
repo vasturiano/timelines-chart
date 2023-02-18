@@ -84,7 +84,8 @@ export default Kapsule({
                   timeRange: timeRange.map(d => new Date(d)),
                   val,
                   labelVal: labelVal !== undefined ? labelVal : val,
-                  data: rawData[i].data[j].data[k]
+                  data: rawData[i].data[j].data[k],
+                  description: rawData[i].data[j].data[k].description
                 });
               }
               state.totalNLines++;
@@ -948,83 +949,94 @@ export default Kapsule({
 
     function renderTimelines(maxElems) {
 
-      if (maxElems<0) maxElems=null;
+      if (maxElems < 0) maxElems = null;
 
       const hoverEnlargeRatio = .4;
 
       const dataFilter = (d, i) =>
-        (maxElems==null || i<maxElems) &&
-        (state.grpScale.domain().indexOf(d.group)+1 &&
-        d.timeRange[1]>=state.xScale.domain()[0] &&
-        d.timeRange[0]<=state.xScale.domain()[1] &&
-        state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
+        (maxElems == null || i < maxElems) &&
+        (state.grpScale.domain().indexOf(d.group) + 1 &&
+          d.timeRange[1] >= state.xScale.domain()[0] &&
+          d.timeRange[0] <= state.xScale.domain()[1] &&
+          state.yScale.domain().indexOf(d.group + '+&+' + d.label) + 1);
 
-      state.lineHeight = state.graphH/state.nLines*0.8;
+      state.lineHeight = state.graphH / state.nLines * 0.8;
 
-      let timelines = state.graph.selectAll('rect.series-segment').data(
+      let timelines = state.graph.selectAll('g').data(
         state.flatData.filter(dataFilter),
-        d => d.group + d.label + d.timeRange[0]
+        d => d.group + d.label + d.description + d.timeRange[0] + d.timeRange[1]
       );
 
       timelines.exit()
         .transition().duration(state.transDuration)
         .style('fill-opacity', 0)
         .remove();
-
-      const newSegments = timelines.enter().append('rect')
+      const newSegments = timelines.enter().append('g')
         .attr('class', 'series-segment')
-        .attr('rx', 1)
-        .attr('ry', 1)
-        .attr('x', state.graphW/2)
-        .attr('y', state.graphH/2)
-        .attr('width', 0)
-        .attr('height', 0)
+        .attr("transform", d =>
+          "translate(" + state.xScale(d.timeRange[0]) + "," + (state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2) + ")")
         .style('fill', d => state.zColorScale(d.val))
-        .style('fill-opacity', 0)
+        .style('fill-opacity', 1)
         .on('mouseover.groupTooltip', state.groupTooltip.show)
         .on('mouseout.groupTooltip', state.groupTooltip.hide)
         .on('mouseover.lineTooltip', state.lineTooltip.show)
         .on('mouseout.lineTooltip', state.lineTooltip.hide)
         .on('mouseover.segmentTooltip', state.segmentTooltip.show)
         .on('mouseout.segmentTooltip', state.segmentTooltip.hide);
+      const segment = newSegments.append("svg")
+        .attr('class', 'svgband')
+        .attr('width', d => d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]))
+        .attr('height', state.lineHeight)
+        .style('fill-opacity', .8)
+        .attr('x', 0)
+        .attr('y', 0);
+      segment.append("rect")
+        .attr('class', 'rectband')
+        .attr('rx', 1)
+        .attr('ry', 1)
+        .attr('x', 0)
+        .attr('y', 0);
+      const fontSize = d3Min([20, state.lineHeight*0.8]);
+      segment.append("text")
+        .text(d => d.description)
+        .style("fill", "black")
+        .style("font-size", fontSize)
+        .style("font-weight", "bold")
+        .style("font-family", "sans-serif")
+        .attr('x', '50%')
+        .attr('y', '50%')
+        .attr('dominant-baseline', 'middle')
+        .attr('text-anchor', 'middle');
 
       newSegments
-        .on('mouseover', function() {
+        .on('mouseover', function () {
           if ('disableHover' in state && state.disableHover)
             return;
 
           MoveToFront()(this);
 
-          const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
+          const hoverEnlarge = state.lineHeight * hoverEnlargeRatio;
 
           d3Select(this)
             .transition().duration(70)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0])-hoverEnlarge/2;
-            })
-            .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
-            })
-            .attr('height', state.lineHeight+hoverEnlarge)
-            .style('fill-opacity', 1);
+            .attr('height', state.lineHeight + hoverEnlarge)
+            .style('fill-opacity', 1)
+            .attr("transform", d =>
+              "translate(" + (state.xScale(d.timeRange[0]) - hoverEnlarge / 2) + "," +
+              (state.yScale(d.group + '+&+' + d.label) - (state.lineHeight + hoverEnlarge)/2) + ")");
+          d3Select(this).selectAll('.rectband, .svgband')
+            .attr('height', state.lineHeight + hoverEnlarge)
+            .style('fill-opacity', 1)
         })
-        .on('mouseout', function() {
+        .on('mouseout', function () {
           d3Select(this)
             .transition().duration(250)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0]);
-            })
-            .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-            })
             .attr('height', state.lineHeight)
-            .style('fill-opacity', .8);
+            .style('fill-opacity', .8)
+            .attr("transform", d => "translate(" + state.xScale(d.timeRange[0]) + "," + (state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2) + ")")
+          d3Select(this).selectAll('.rectband, .svgband')
+            .attr('height', state.lineHeight)
+            .style('fill-opacity', 0.8)
         })
         .on('click', function (ev, s) {
           if (state.onSegmentClick)
@@ -1033,18 +1045,15 @@ export default Kapsule({
 
       timelines = timelines.merge(newSegments);
 
-      timelines.transition().duration(state.transDuration)
-        .attr('x', function (d) {
-          return state.xScale(d.timeRange[0]);
-        })
-        .attr('width', function (d) {
-          return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-        })
-        .attr('y', function (d) {
-          return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-        })
+      timelines.transition()
+        .duration(state.transDuration)
         .attr('height', state.lineHeight)
-        .style('fill', d => state.zColorScale(d.val))
+        .style('fill-opacity', .8)
+        .attr("transform", d => "translate(" + state.xScale(d.timeRange[0]) + "," + (state.yScale(d.group + '+&+' + d.label) - state.lineHeight / 2) + ")");
+
+      timelines.selectAll('.rectband, .svgband')
+        .attr('width', d => d3Max([1, state.xScale(d.timeRange[1]) - state.xScale(d.timeRange[0])]))
+        .attr('height', state.lineHeight)
         .style('fill-opacity', .8);
     }
   }

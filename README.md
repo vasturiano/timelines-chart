@@ -6,7 +6,7 @@ Timelines Chart
 [![NPM Downloads][npm-downloads-img]][npm-downloads-url]
 
 <p align="center">
-     <a href="https://vasturiano.github.io/timelines-chart/example/categorical/"><img width="80%" src="https://gist.github.com/vasturiano/ded69192b8269a78d2d97e24211e64e0/raw/preview.png"></a>
+     <a href="https://vasturiano.github.io/timelines-chart/example/categorical/"><img width="80%" src="https://user-images.githubusercontent.com/9079737/219823159-5197f697-cc83-4ea3-8ae0-ed4db3fce3e5.png"></a>
 </p>
 
 A parallel timelines layout (swimlanes) for representing state of time-series over time.

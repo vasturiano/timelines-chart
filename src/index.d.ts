@@ -11,6 +11,7 @@ export interface Line {
 export interface Segment {
   timeRange: [TS, TS];
   val: Val;
+  description : string;
 }
 
 export type TS = Date | number;

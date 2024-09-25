@@ -1,6 +1,6 @@
 {
   "name": "timelines-chart",
-  "version": "2.12.1",
+  "version": "2.12.2",
   "description": "A parallel (swimlanes) timelines D3 chart for representing state of time-series over time.",
   "keywords": [
     "timelines",

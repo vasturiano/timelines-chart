@@ -60,6 +60,8 @@ export interface TimelinesChartGenericInstance<ChainableInstance> {
   dateMarker(date: TS | null | boolean): ChainableInstance;
   minSegmentDuration(): number;
   minSegmentDuration(duration: number): ChainableInstance;
+  minSegmentWidth(): number;
+  minSegmentWidth(width: number): ChainableInstance;
 
   getNLines(): number;
   getTotalNLines(): number;

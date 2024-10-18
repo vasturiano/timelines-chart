@@ -52,6 +52,7 @@ myChart
 | <b>xTickFormat</b>([<i>function</i>]) | X axis tick label formatter function, as pass-through to [d3-axis](https://github.com/d3/d3-axis#axis_tickFormat). By default, it uses a [multi-scale time format](https://bl.ocks.org/mbostock/4149176). | |
 | <b>dateMarker</b>([<i>date object</i>]) | Getter/setter for the date marker to show as a vertical line. If a falsy value is used, no marker is shown. | `null` |
 | <b>minSegmentDuration</b>([<i>number</i>]) | Getter/setter for the minimum time duration (in msecs) of a segment in order for it to be shown. | 0 |
+| <b>minSegmentWidth</b>([<i>number</i>]) | Getter/setter for the minimum displayed px width of a segment. | 1 |
 | <b>getNLines</b>() | Returns number of timelines currently visible in the chart. | - |
 | <b>getTotalNLines</b>() | Returns total number of timelines in the chart. | - |
 | <b>zQualitative</b>([<i>boolean</i>]) | Getter/setter for whether the segment data color values are categorical (true) or quantitative (false). This will affect how the color legend is presented, and changing it will automatically toggle the `zColorScale` between defaults. | false |

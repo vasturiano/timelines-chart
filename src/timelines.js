@@ -127,6 +127,7 @@ export default Kapsule({
       }
     },
     minSegmentDuration: {},
+    minSegmentWidth: { default: 1 },
     zColorScale: { default: d3ScaleSequential(interpolateRdYlBu) },
     zQualitative: { default: false, onChange(discrete, state) {
       state.zColorScale = discrete
@@ -1003,7 +1004,7 @@ export default Kapsule({
               return state.xScale(d.timeRange[0])-hoverEnlarge/2;
             })
             .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
+              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
             })
             .attr('y', function (d) {
               return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
@@ -1018,7 +1019,7 @@ export default Kapsule({
               return state.xScale(d.timeRange[0]);
             })
             .attr('width', function (d) {
-              return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
             })
             .attr('y', function (d) {
               return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
@@ -1038,7 +1039,7 @@ export default Kapsule({
           return state.xScale(d.timeRange[0]);
         })
         .attr('width', function (d) {
-          return d3Max([1, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
+          return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
         })
         .attr('y', function (d) {
           return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;

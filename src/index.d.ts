@@ -29,94 +29,90 @@ type CompareFn<ItemType> = (a: ItemType, b: ItemType) => number;
 
 type Scale<DomainType, RangeType> = (input: DomainType) => RangeType;
 
-export interface TimelinesChartGenericInstance<ChainableInstance> {
-  (element: HTMLElement): ChainableInstance;
+declare class TimelinesChart {
+  constructor(element: HTMLElement);
 
   width(): number;
-  width(width: number): ChainableInstance;
+  width(width: number): TimelinesChart;
   maxHeight(): number;
-  maxHeight(height: number): ChainableInstance;
+  maxHeight(height: number): TimelinesChart;
   maxLineHeight(): number;
-  maxLineHeight(height: number): ChainableInstance;
+  maxLineHeight(height: number): TimelinesChart;
   leftMargin(): number;
-  leftMargin(margin: number): ChainableInstance;
+  leftMargin(margin: number): TimelinesChart;
   rightMargin(): number;
-  rightMargin(margin: number): ChainableInstance;
+  rightMargin(margin: number): TimelinesChart;
   topMargin(): number;
-  topMargin(margin: number): ChainableInstance;
+  topMargin(margin: number): TimelinesChart;
   bottomMargin(): number;
-  bottomMargin(margin: number): ChainableInstance;
+  bottomMargin(margin: number): TimelinesChart;
 
   data(): Group[];
-  data(data: Group[]): ChainableInstance;
+  data(data: Group[]): TimelinesChart;
 
   useUtc(): boolean;
-  useUtc(utc: boolean): ChainableInstance;
+  useUtc(utc: boolean): TimelinesChart;
   timeFormat(): string;
-  timeFormat(format: string): ChainableInstance;
+  timeFormat(format: string): TimelinesChart;
   xTickFormat(): Formatter<Date> | null;
-  xTickFormat(formatter: Formatter<Date> | null): ChainableInstance;
+  xTickFormat(formatter: Formatter<Date> | null): TimelinesChart;
   dateMarker(): TS | null | boolean;
-  dateMarker(date: TS | null | boolean): ChainableInstance;
+  dateMarker(date: TS | null | boolean): TimelinesChart;
   minSegmentDuration(): number;
-  minSegmentDuration(duration: number): ChainableInstance;
+  minSegmentDuration(duration: number): TimelinesChart;
   minSegmentWidth(): number;
-  minSegmentWidth(width: number): ChainableInstance;
+  minSegmentWidth(width: number): TimelinesChart;
 
   getNLines(): number;
   getTotalNLines(): number;
 
   zQualitative(): boolean;
-  zQualitative(isQualitative: boolean): ChainableInstance;
+  zQualitative(isQualitative: boolean): TimelinesChart;
   zColorScale(): Scale<Val, string>;
-  zColorScale(scale: Scale<Val, string>): ChainableInstance;
+  zColorScale(scale: Scale<Val, string>): TimelinesChart;
   zDataLabel(): string;
-  zDataLabel(text: string): ChainableInstance;
+  zDataLabel(text: string): TimelinesChart;
   zScaleLabel(): string;
-  zScaleLabel(text: string): ChainableInstance;
+  zScaleLabel(text: string): TimelinesChart;
 
-  sort(labelcmpFn: CompareFn<string>, grpcmpFn: CompareFn<string>): ChainableInstance;
-  sortAlpha(ascending: boolean): ChainableInstance;
-  sortChrono(ascending: boolean): ChainableInstance;
+  sort(labelcmpFn: CompareFn<string>, grpcmpFn: CompareFn<string>): TimelinesChart;
+  sortAlpha(ascending: boolean): TimelinesChart;
+  sortChrono(ascending: boolean): TimelinesChart;
   zoomX(): Range<TS | null> | null;
-  zoomX(xRange: Range<TS | null> | null): ChainableInstance;
+  zoomX(xRange: Range<TS | null> | null): TimelinesChart;
   zoomY(): Range<number | null> | null;
-  zoomY(yRange: Range<number | null> | null): ChainableInstance;
+  zoomY(yRange: Range<number | null> | null): TimelinesChart;
   zoomYLabels(): Range<GroupLabel | null> | null;
-  zoomYLabels(yLabelRange: Range<GroupLabel | null> | null): ChainableInstance;
-  onZoom(cb: (zoomX: Range<TS | null> | null, zoomY: Range<number | null> | null) => void): ChainableInstance;
+  zoomYLabels(yLabelRange: Range<GroupLabel | null> | null): TimelinesChart;
+  onZoom(cb: (zoomX: Range<TS | null> | null, zoomY: Range<number | null> | null) => void): TimelinesChart;
 
   enableOverview(): boolean;
-  enableOverview(enable: boolean): ChainableInstance;
+  enableOverview(enable: boolean): TimelinesChart;
   overviewDomain(): Range<TS | null>;
-  overviewDomain(xRange: Range<TS | null>): ChainableInstance;
+  overviewDomain(xRange: Range<TS | null>): TimelinesChart;
 
   getVisibleStructure(): Group[];
   getSvg(): string;
 
   enableAnimations(): boolean;
-  enableAnimations(animations: boolean): ChainableInstance;
+  enableAnimations(animations: boolean): TimelinesChart;
 
-  onLabelClick(cb: (label: string, group: string) => void): ChainableInstance;
+  onLabelClick(cb: (label: string, group: string) => void): TimelinesChart;
   onSegmentClick(cb: (segment: {
     group: string,
     label: string,
     val: Val,
     timeRange: Range<TS>
-  }) => void): ChainableInstance;
+  }) => void): TimelinesChart;
 
   segmentTooltipContent(cb: (segment: {
     group: string,
     label: string,
     val: Val,
     timeRange: Range<TS>
-  }) => string): ChainableInstance;
+  }) => string): TimelinesChart;
 
-  refresh(): ChainableInstance;
+  refresh(): TimelinesChart;
 }
-
-export type TimelinesChartInstance = TimelinesChartGenericInstance<TimelinesChartInstance>;
-
-declare function TimelinesChart(): TimelinesChartInstance;
 
 export default TimelinesChart;

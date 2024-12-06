@@ -29,10 +29,8 @@ or using a *script* tag
 ```
 then
 ```js
-const myChart = TimelinesChart();
-myChart
-  .data(<myData>)
-  (<myDOMElement>);
+const myChart = new TimelinesChart(<myDOMElement>)
+  .data(<myData>);
 ```
 
 ## API reference

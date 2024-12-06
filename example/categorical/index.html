@@ -9,7 +9,7 @@
   <script>
     const myData = getRandomData(true);
 
-    TimelinesChart()(document.body)
+    new TimelinesChart(document.body)
       .zScaleLabel('My Scale Units')
       .zQualitative(true)
       .data(myData);

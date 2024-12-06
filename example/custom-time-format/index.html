@@ -5,7 +5,7 @@
 
 <body>
   <script>
-    TimelinesChart()(document.body)
+    new TimelinesChart(document.body)
       .xTickFormat(n => +n)
       .timeFormat('%Q')
       .data(genRandomData());

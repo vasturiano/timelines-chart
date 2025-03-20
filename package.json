@@ -18,6 +18,7 @@
   "license": "MIT",
   "type": "module",
   "unpkg": "dist/timelines-chart.min.js",
+  "jsdelivr": "dist/timelines-chart.min.js",
   "main": "dist/timelines-chart.mjs",
   "module": "dist/timelines-chart.mjs",
   "types": "dist/timelines-chart.d.ts",

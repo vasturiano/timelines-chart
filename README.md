@@ -25,7 +25,7 @@ import TimelinesChart from 'timelines-chart';
 ```
 or using a *script* tag
 ```html
-<script src="//unpkg.com/timelines-chart"></script>
+<script src="//cdn.jsdelivr.net/npm/timelines-chart"></script>
 ```
 then
 ```js

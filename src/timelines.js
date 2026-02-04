@@ -34,7 +34,7 @@ import {
 import d3Tip from 'd3-tip';
 import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
-import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
+import { gradient as Gradient } from 'svg-utils';
 import { fitToBox as TextFitToBox } from 'svg-text-fit';
 import ColorLegend from 'd3-color-legend';
 import TimeOverview from './time-overview.js';
@@ -994,7 +994,14 @@ export default Kapsule({
           if ('disableHover' in state && state.disableHover)
             return;
 
-          MoveToFront()(this);
+          // Bring this block in front of all the other blocks
+          // Moving this element to the back breaks the pointerleave/click on some browsers, so move all other elements infront instead
+          let node = this.nextSibling;
+          while (node) {
+            const next = node.nextSibling;
+            this.parentNode.insertBefore(node, this);
+            node = next;
+          }
 
           const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
 

@@ -77,13 +77,14 @@ export default Kapsule({
 
             for (let j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
               for (let k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
-                const { timeRange, val, labelVal } = rawData[i].data[j].data[k];
+                const { timeRange, val, labelVal, labelValSub } = rawData[i].data[j].data[k];
                 state.completeFlatData.push({
                   group: group,
                   label: rawData[i].data[j].label,
                   timeRange: timeRange.map(d => new Date(d)),
                   val,
                   labelVal: labelVal !== undefined ? labelVal : val,
+                  labelValSub: labelValSub !== undefined ? labelValSub : '',
                   data: rawData[i].data[j].data[k]
                 });
               }
@@ -490,7 +491,9 @@ export default Kapsule({
 
           const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
           const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`${state.timeFormat}${state.useUtc?' (UTC)':''}`);
-          return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
+          return '<strong>' + d.labelVal + ' </strong>'
+            + (d.labelValSub ? '<br>' + d.labelValSub : '')
+            + state.zDataLabel
             + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
             + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
             + '<strong>To: </strong>' + dateFormat(d.timeRange[1]);
@@ -960,7 +963,7 @@ export default Kapsule({
         d.timeRange[0]<=state.xScale.domain()[1] &&
         state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
 
-      state.lineHeight = state.graphH/state.nLines*0.8;
+      state.lineHeight = state.graphH/state.nLines*0.72;
 
       let timelines = state.graph.selectAll('rect.series-segment').data(
         state.flatData.filter(dataFilter),
@@ -980,6 +983,9 @@ export default Kapsule({
         .attr('y', state.graphH/2)
         .attr('width', 0)
         .attr('height', 0)
+        .attr('stroke', 'transparent')
+        .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
+        .style('pointer-events', 'all')
         .style('fill', d => state.zColorScale(d.val))
         .style('fill-opacity', 0)
         .on('mouseover.groupTooltip', state.groupTooltip.show)
@@ -1045,6 +1051,9 @@ export default Kapsule({
           return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
         })
         .attr('height', state.lineHeight)
+        .attr('rx', state.lineHeight * 0.4)
+        .attr('ry', state.lineHeight * 0.4)
+        .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
         .style('fill', d => state.zColorScale(d.val))
         .style('fill-opacity', .8);
     }

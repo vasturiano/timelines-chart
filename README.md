@@ -86,7 +86,9 @@ const myChart = new TimelinesChart(<myDOMElement>)
         data: [
           {
             timeRange: [<date>, <date>],
-            val: <val: number (continuous dataScale) or string (ordinal dataScale)>
+            val: <val: number (continuous dataScale) or string (ordinal dataScale)>,
+            labelVal: <optional primary tooltip label; defaults to val>,
+            labelValSub: <optional secondary tooltip label>
           },
           {
             timeRange: [<date>, <date>],

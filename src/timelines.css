@@ -59,6 +59,10 @@
     .legendText {
       fill: #666;
     }
+
+    .color-slot.expanded text {
+      font-size: 10px !important;
+    }
   }
 
   .reset-zoom-btn {

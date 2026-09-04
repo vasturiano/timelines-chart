@@ -46,6 +46,7 @@ export default Kapsule({
       default: [],
       onChange(data, state) {
         state.hoveredVal = null;
+        state.lockedVals = [];
         parseData(data);
 
         state.zoomX = [
@@ -317,6 +318,8 @@ export default Kapsule({
     graph: null,
     overviewAreaElem: null,
     overviewArea: null,
+    legendG: null,
+    legendObserver: null,
 
     graphW: null,
     graphH: null,
@@ -333,6 +336,7 @@ export default Kapsule({
     transDuration: 700,   // ms for transition duration
 
     hoveredVal: null,
+    lockedVals: [],
 
     labelCmpFunction: alphaNumCmp,
     grpCmpFunction: alphaNumCmp
@@ -385,11 +389,12 @@ export default Kapsule({
       state.grpAxis.scale(state.grpScale)
         .tickSize(0);
 
-      state.colorLegend = ColorLegend()
-        (state.svg.append('g')
-          .attr('class', 'legendG')
-          .node()
-        );
+      state.legendG = state.svg.append('g').attr('class', 'legendG');
+      state.colorLegend = ColorLegend()(state.legendG.node());
+      state.legendObserver = new MutationObserver(() => {
+        if (state.bindLegendInteractions) state.bindLegendInteractions();
+      });
+      state.legendObserver.observe(state.legendG.node(), { childList: true, subtree: true });
 
       state.graph = state.svg.append('g');
 
@@ -650,6 +655,9 @@ export default Kapsule({
 
   update(state) {
 
+    state.bindLegendInteractions = bindLegendInteractions;
+    bindLegendInteractions(); // Bind slots created by the legend's initial async render.
+
     applyFilters();
     setupDimensions();
 
@@ -817,6 +825,25 @@ export default Kapsule({
           height: Math.min(13,state.topMargin *.8)
         })
         (state.resetBtn.node());
+    }
+
+    function bindLegendInteractions() {
+      const legendSlots = state.legendG.selectAll('.color-slot')
+        .style('cursor', 'crosshair')
+        .on('mouseenter.valueHighlight', function(event, legendVal) {
+          setHoveredValue(legendVal);
+        })
+        .on('mouseleave.valueHighlight', function() {
+          setHoveredValue(null);
+        })
+        .on('click.valueHighlight', function(event, legendVal) {
+          toggleLockedValue(legendVal);
+        });
+
+      // The native title obscures the chart tooltip and is no longer needed now
+      // that legend values are interactive.
+      legendSlots.select('title').remove();
+      layoutLegendSlots(state.lockedVals.length ? state.lockedVals : [state.hoveredVal]);
     }
 
     function renderAxises() {
@@ -1009,6 +1036,7 @@ export default Kapsule({
           setHoveredValue(null);
         })
         .on('click', function (ev, s) {
+          toggleLockedValue(s.val);
           if (state.onSegmentClick)
             state.onSegmentClick(s);
         });
@@ -1038,14 +1066,26 @@ export default Kapsule({
     }
 
     function setHoveredValue(val) {
-      if (state.hoveredVal === val) return;
+      if (state.lockedVals.length || state.hoveredVal === val) return;
       state.hoveredVal = val;
       updateValueHighlight();
     }
 
     function getTargetFillOpacity(val) {
-      if (state.hoveredVal == null) return .8;
-      return legendValueMatch(val, state.hoveredVal) ? 1 : .2;
+      const activeValues = state.lockedVals.length
+        ? state.lockedVals
+        : state.hoveredVal == null ? [] : [state.hoveredVal];
+      if (!activeValues.length) return .8;
+      return activeValues.some(activeVal => legendValueMatch(val, activeVal)) ? 1 : .2;
+    }
+
+    function toggleLockedValue(val) {
+      const isLocked = state.lockedVals.some(lockedVal => legendValueMatch(lockedVal, val));
+      state.lockedVals = isLocked
+        ? state.lockedVals.filter(lockedVal => !legendValueMatch(lockedVal, val))
+        : [...state.lockedVals, val];
+      state.hoveredVal = null;
+      updateValueHighlight();
     }
 
     function updateValueHighlight(animate = true) {
@@ -1055,6 +1095,29 @@ export default Kapsule({
         segments = segments.transition('valueHighlight').duration(state.hoveredVal == null ? 180 : 90);
       }
       segments.style('fill-opacity', d => getTargetFillOpacity(d.val));
+      layoutLegendSlots(state.lockedVals.length ? state.lockedVals : [state.hoveredVal]);
+    }
+
+    function layoutLegendSlots(expandedValues) {
+      const slots = state.svg.selectAll('.color-slot');
+      if (!slots.size()) return;
+
+      const domain = state.zColorScale.domain();
+      const baseWidth = state.colorLegend.width() / Math.max(domain.length, 1);
+      let offset = 0;
+
+      slots.each(function(legendVal) {
+        const slot = d3Select(this);
+        const isExpanded = expandedValues.some(val => legendValueMatch(val, legendVal));
+        const text = slot.classed('expanded', isExpanded).select('text');
+        const width = isExpanded
+          ? Math.max(baseWidth, text.node().getComputedTextLength() + 10)
+          : baseWidth;
+        slot.attr('transform', `translate(${offset},0)`);
+        slot.select('rect').attr('x', 0).attr('width', width);
+        text.attr('x', width / 2);
+        offset += width;
+      });
     }
 
     function reconcileVisualState() {

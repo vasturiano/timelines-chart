@@ -618,10 +618,10 @@ export default Kapsule({
       });
 
       state.svg.on('resetZoom', function () {
-        const prevZoomX = state.zoomX;
+        const prevZoomX = state.zoomX || [null, null];
         const prevZoomY = state.zoomY || [null, null];
 
-        const newZoomX = state.enableOverview
+        const newZoomX = state.enableOverview && state.overviewArea
           ?state.overviewArea.domainRange()
           :[
             d3Min(state.flatData, d => d.timeRange[0]),
@@ -629,14 +629,12 @@ export default Kapsule({
           ],
           newZoomY = [null, null];
 
-        if (prevZoomX[0]<newZoomX[0] || prevZoomX[1]>newZoomX[1]
-          || prevZoomY[0]!=newZoomY[0] || prevZoomY[1]!=newZoomX[1]) {
+        const needsResetX = prevZoomX[0] != newZoomX[0] || prevZoomX[1] != newZoomX[1];
+        const needsResetY = prevZoomY[0] != newZoomY[0] || prevZoomY[1] != newZoomY[1];
 
-          state.zoomX = [
-            new Date(Math.min(prevZoomX[0],newZoomX[0])),
-            new Date(Math.max(prevZoomX[1],newZoomX[1]))
-          ];
-          state.zoomY = newZoomY;
+        if (needsResetX || needsResetY) {
+          state.zoomX = newZoomX.slice();
+          state.zoomY = newZoomY.slice();
           state.svg.dispatch('zoomScent', { detail: {
             zoomX: state.zoomX,
             zoomY: state.zoomY
@@ -675,8 +673,12 @@ export default Kapsule({
         : state.completeFlatData
       );
 
+      const isNullRange = range => !range
+        || range.length !== 2
+        || (range[0] == null && range[1] == null);
+
       // zoomY
-      if (state.zoomY==null || state.zoomY==[null, null]) {
+      if (isNullRange(state.zoomY)) {
         state.structData = state.completeStructData;
         state.nLines=0;
         for (let i=0, len=state.structData.length; i<len; i++) {

@@ -34,7 +34,7 @@ import {
 import d3Tip from 'd3-tip';
 import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
-import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
+import { gradient as Gradient } from 'svg-utils';
 import { fitToBox as TextFitToBox } from 'svg-text-fit';
 import ColorLegend from 'd3-color-legend';
 import TimeOverview from './time-overview.js';
@@ -45,6 +45,7 @@ export default Kapsule({
     data: {
       default: [],
       onChange(data, state) {
+        state.hoveredVal = null;
         parseData(data);
 
         state.zoomX = [
@@ -330,6 +331,8 @@ export default Kapsule({
     minSegmentDuration: 0, // ms
 
     transDuration: 700,   // ms for transition duration
+
+    hoveredVal: null,
 
     labelCmpFunction: alphaNumCmp,
     grpCmpFunction: alphaNumCmp
@@ -661,6 +664,7 @@ export default Kapsule({
 
     renderTimelines();
     adjustLegend();
+    reconcileVisualState();
 
     //
 
@@ -954,8 +958,6 @@ export default Kapsule({
 
       if (maxElems<0) maxElems=null;
 
-      const hoverEnlargeRatio = .4;
-
       const dataFilter = (d, i) =>
         (maxElems==null || i<maxElems) &&
         (state.grpScale.domain().indexOf(d.group)+1 &&
@@ -996,42 +998,13 @@ export default Kapsule({
         .on('mouseout.segmentTooltip', state.segmentTooltip.hide);
 
       newSegments
-        .on('mouseover', function() {
+        .on('mouseenter', function(event, d) {
           if ('disableHover' in state && state.disableHover)
             return;
-
-          this.nextElementSibling && MoveToFront()(this);
-
-          const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
-
-          d3Select(this)
-            .transition().duration(70)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0])-hoverEnlarge/2;
-            })
-            .attr('width', function (d) {
-              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
-            })
-            .attr('height', state.lineHeight+hoverEnlarge)
-            .style('fill-opacity', 1);
+          setHoveredValue(d.val);
         })
-        .on('mouseout', function() {
-          d3Select(this)
-            .transition().duration(250)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0]);
-            })
-            .attr('width', function (d) {
-              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-            })
-            .attr('height', state.lineHeight)
-            .style('fill-opacity', .8);
+        .on('mouseleave', function() {
+          setHoveredValue(null);
         })
         .on('click', function (ev, s) {
           if (state.onSegmentClick)
@@ -1055,7 +1028,35 @@ export default Kapsule({
         .attr('ry', state.lineHeight * 0.4)
         .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
         .style('fill', d => state.zColorScale(d.val))
-        .style('fill-opacity', .8);
+        .style('fill-opacity', d => getTargetFillOpacity(d.val));
+    }
+
+    function legendValueMatch(segmentVal, legendVal) {
+      return segmentVal === legendVal;
+    }
+
+    function setHoveredValue(val) {
+      if (state.hoveredVal === val) return;
+      state.hoveredVal = val;
+      updateValueHighlight();
+    }
+
+    function getTargetFillOpacity(val) {
+      if (state.hoveredVal == null) return .8;
+      return legendValueMatch(val, state.hoveredVal) ? 1 : .2;
+    }
+
+    function updateValueHighlight(animate = true) {
+      let segments = state.graph.selectAll('rect.series-segment')
+        .interrupt('valueHighlight');
+      if (animate && state.transDuration) {
+        segments = segments.transition('valueHighlight').duration(state.hoveredVal == null ? 180 : 90);
+      }
+      segments.style('fill-opacity', d => getTargetFillOpacity(d.val));
+    }
+
+    function reconcileVisualState() {
+      updateValueHighlight(false);
     }
   }
 });

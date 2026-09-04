@@ -74,6 +74,8 @@ const myChart = new TimelinesChart(<myDOMElement>)
 | <b>segmentTooltipContent</b>([<i>function</i>]) | Getter/setter for the callback function to populate a custom tooltip for segments. The segment data point is provided as sole argument: `segmentTooltipContent(d)`. Supports plain text or HTML content. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 
+Hovering a segment highlights every segment with the same value.
+
 ## Data syntax
 
 ```

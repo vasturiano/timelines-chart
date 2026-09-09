@@ -391,8 +391,11 @@ export default Kapsule({
 
       state.legendG = state.svg.append('g').attr('class', 'legendG');
       state.colorLegend = ColorLegend()(state.legendG.node());
-      state.legendObserver = new MutationObserver(() => {
-        if (state.bindLegendInteractions) state.bindLegendInteractions();
+      state.legendObserver = new MutationObserver(records => {
+        // Ignore removals, including the native titles removed when binding.
+        if (records.some(record => record.addedNodes.length) && state.syncLegend) {
+          state.syncLegend();
+        }
       });
       state.legendObserver.observe(state.legendG.node(), { childList: true, subtree: true });
 
@@ -655,8 +658,10 @@ export default Kapsule({
 
   update(state) {
 
-    state.bindLegendInteractions = bindLegendInteractions;
-    bindLegendInteractions(); // Bind slots created by the legend's initial async render.
+    state.syncLegend = () => {
+      bindLegendInteractions();
+      layoutLegendSlots(getActiveValues());
+    };
 
     applyFilters();
     setupDimensions();
@@ -670,7 +675,7 @@ export default Kapsule({
 
     renderTimelines();
     adjustLegend();
-    reconcileVisualState();
+    updateValueHighlight(false);
 
     //
 
@@ -843,7 +848,6 @@ export default Kapsule({
       // The native title obscures the chart tooltip and is no longer needed now
       // that legend values are interactive.
       legendSlots.select('title').remove();
-      layoutLegendSlots(state.lockedVals.length ? state.lockedVals : [state.hoveredVal]);
     }
 
     function renderAxises() {
@@ -984,6 +988,7 @@ export default Kapsule({
     }
 
     function renderTimelines(maxElems) {
+      const activeValues = getActiveValues();
 
       if (maxElems<0) maxElems=null;
 
@@ -1058,11 +1063,13 @@ export default Kapsule({
         .attr('ry', state.lineHeight * 0.4)
         .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
         .style('fill', d => state.zColorScale(d.val))
-        .style('fill-opacity', d => getTargetFillOpacity(d.val));
+        .style('fill-opacity', d => getTargetFillOpacity(d.val, activeValues));
     }
 
-    function legendValueMatch(segmentVal, legendVal) {
-      return segmentVal === legendVal;
+    function getActiveValues() {
+      return state.lockedVals.length
+        ? state.lockedVals
+        : state.hoveredVal == null ? [] : [state.hoveredVal];
     }
 
     function setHoveredValue(val) {
@@ -1071,44 +1078,49 @@ export default Kapsule({
       updateValueHighlight();
     }
 
-    function getTargetFillOpacity(val) {
-      const activeValues = state.lockedVals.length
-        ? state.lockedVals
-        : state.hoveredVal == null ? [] : [state.hoveredVal];
+    function getTargetFillOpacity(val, activeValues) {
       if (!activeValues.length) return .8;
-      return activeValues.some(activeVal => legendValueMatch(val, activeVal)) ? 1 : .2;
+      return activeValues.some(activeVal => val === activeVal) ? 1 : .2;
     }
 
     function toggleLockedValue(val) {
-      const isLocked = state.lockedVals.some(lockedVal => legendValueMatch(lockedVal, val));
+      const isLocked = state.lockedVals.some(lockedVal => lockedVal === val);
       state.lockedVals = isLocked
-        ? state.lockedVals.filter(lockedVal => !legendValueMatch(lockedVal, val))
+        ? state.lockedVals.filter(lockedVal => lockedVal !== val)
         : [...state.lockedVals, val];
       state.hoveredVal = null;
       updateValueHighlight();
     }
 
     function updateValueHighlight(animate = true) {
+      const activeValues = getActiveValues();
       let segments = state.graph.selectAll('rect.series-segment')
         .interrupt('valueHighlight');
       if (animate && state.transDuration) {
         segments = segments.transition('valueHighlight').duration(state.hoveredVal == null ? 180 : 90);
       }
-      segments.style('fill-opacity', d => getTargetFillOpacity(d.val));
-      layoutLegendSlots(state.lockedVals.length ? state.lockedVals : [state.hoveredVal]);
+      segments.style('fill-opacity', d => getTargetFillOpacity(d.val, activeValues));
+      layoutLegendSlots(activeValues);
     }
 
     function layoutLegendSlots(expandedValues) {
-      const slots = state.svg.selectAll('.color-slot');
+      const slots = state.legendG.selectAll('.color-slot');
       if (!slots.size()) return;
 
       const domain = state.zColorScale.domain();
       const baseWidth = state.colorLegend.width() / Math.max(domain.length, 1);
+      // Fit every collapsed label using the same font size, capped below the
+      // active size. Measure collapsed styles so active size and weight do not affect it.
+      slots.classed('expanded', false);
+      const widestLabel = d3Max(slots.select('text').nodes(), text =>
+        text.getComputedTextLength() / parseFloat(getComputedStyle(text).fontSize)
+      ) || 1;
+      state.legendG.style('--legend-font-size', `${Math.min(8, baseWidth * .9 / widestLabel)}px`);
       let offset = 0;
 
       slots.each(function(legendVal) {
         const slot = d3Select(this);
-        const isExpanded = expandedValues.some(val => legendValueMatch(val, legendVal));
+        const isExpanded = expandedValues.some(val => val === legendVal);
         const text = slot.classed('expanded', isExpanded).select('text');
         const width = isExpanded
           ? Math.max(baseWidth, text.node().getComputedTextLength() + 10)
@@ -1120,8 +1132,5 @@ export default Kapsule({
       });
     }
 
-    function reconcileVisualState() {
-      updateValueHighlight(false);
-    }
   }
 });

@@ -74,6 +74,8 @@ const myChart = new TimelinesChart(<myDOMElement>)
 | <b>segmentTooltipContent</b>([<i>function</i>]) | Getter/setter for the callback function to populate a custom tooltip for segments. The segment data point is provided as sole argument: `segmentTooltipContent(d)`. Supports plain text or HTML content. | `null` |
 | <b>refresh</b>() | Rerenders chart. | - |
 
+In qualitative mode, hovering a segment or legend item highlights every segment with the same value. Clicking a segment or legend item locks that value's highlight; multiple values can be locked, and clicking a locked value removes it from the selection.
+
 ## Data syntax
 
 ```
@@ -86,7 +88,9 @@ const myChart = new TimelinesChart(<myDOMElement>)
         data: [
           {
             timeRange: [<date>, <date>],
-            val: <val: number (continuous dataScale) or string (ordinal dataScale)>
+            val: <val: number (continuous dataScale) or string (ordinal dataScale)>,
+            labelVal: <optional primary tooltip label; defaults to val>,
+            labelValSub: <optional secondary tooltip label>
           },
           {
             timeRange: [<date>, <date>],

@@ -34,7 +34,7 @@ import {
 import d3Tip from 'd3-tip';
 import { schemeCategory10, schemeSet3, interpolateRdYlBu } from 'd3-scale-chromatic';
 
-import { moveToFront as MoveToFront, gradient as Gradient } from 'svg-utils';
+import { gradient as Gradient } from 'svg-utils';
 import { fitToBox as TextFitToBox } from 'svg-text-fit';
 import ColorLegend from 'd3-color-legend';
 import TimeOverview from './time-overview.js';
@@ -45,6 +45,8 @@ export default Kapsule({
     data: {
       default: [],
       onChange(data, state) {
+        state.hoveredVal = null;
+        state.lockedVals = [];
         parseData(data);
 
         state.zoomX = [
@@ -77,13 +79,14 @@ export default Kapsule({
 
             for (let j= 0, jlen=rawData[i].data.length; j<jlen; j++) {
               for (let k= 0, klen=rawData[i].data[j].data.length; k<klen; k++) {
-                const { timeRange, val, labelVal } = rawData[i].data[j].data[k];
+                const { timeRange, val, labelVal, labelValSub } = rawData[i].data[j].data[k];
                 state.completeFlatData.push({
                   group: group,
                   label: rawData[i].data[j].label,
                   timeRange: timeRange.map(d => new Date(d)),
                   val,
                   labelVal: labelVal !== undefined ? labelVal : val,
+                  labelValSub: labelValSub !== undefined ? labelValSub : '',
                   data: rawData[i].data[j].data[k]
                 });
               }
@@ -315,6 +318,8 @@ export default Kapsule({
     graph: null,
     overviewAreaElem: null,
     overviewArea: null,
+    legendG: null,
+    legendObserver: null,
 
     graphW: null,
     graphH: null,
@@ -329,6 +334,9 @@ export default Kapsule({
     minSegmentDuration: 0, // ms
 
     transDuration: 700,   // ms for transition duration
+
+    hoveredVal: null,
+    lockedVals: [],
 
     labelCmpFunction: alphaNumCmp,
     grpCmpFunction: alphaNumCmp
@@ -381,11 +389,15 @@ export default Kapsule({
       state.grpAxis.scale(state.grpScale)
         .tickSize(0);
 
-      state.colorLegend = ColorLegend()
-        (state.svg.append('g')
-          .attr('class', 'legendG')
-          .node()
-        );
+      state.legendG = state.svg.append('g').attr('class', 'legendG');
+      state.colorLegend = ColorLegend()(state.legendG.node());
+      state.legendObserver = new MutationObserver(records => {
+        // Ignore removals, including the native titles removed when binding.
+        if (records.some(record => record.addedNodes.length) && state.syncLegend) {
+          state.syncLegend();
+        }
+      });
+      state.legendObserver.observe(state.legendG.node(), { childList: true, subtree: true });
 
       state.graph = state.svg.append('g');
 
@@ -490,7 +502,9 @@ export default Kapsule({
 
           const normVal = state.zColorScale.domain()[state.zColorScale.domain().length-1] - state.zColorScale.domain()[0];
           const dateFormat = (state.useUtc ? d3UtcFormat : d3TimeFormat)(`${state.timeFormat}${state.useUtc?' (UTC)':''}`);
-          return '<strong>' + d.labelVal + ' </strong>' + state.zDataLabel
+          return '<strong>' + d.labelVal + ' </strong>'
+            + (d.labelValSub ? '<br>' + d.labelValSub : '')
+            + state.zDataLabel
             + (normVal?' (<strong>' + Math.round((d.val-state.zColorScale.domain()[0])/normVal*100*100)/100 + '%</strong>)':'') + '<br>'
             + '<strong>From: </strong>' + dateFormat(d.timeRange[0]) + '<br>'
             + '<strong>To: </strong>' + dateFormat(d.timeRange[1]);
@@ -612,10 +626,10 @@ export default Kapsule({
       });
 
       state.svg.on('resetZoom', function () {
-        const prevZoomX = state.zoomX;
+        const prevZoomX = state.zoomX || [null, null];
         const prevZoomY = state.zoomY || [null, null];
 
-        const newZoomX = state.enableOverview
+        const newZoomX = state.enableOverview && state.overviewArea
           ?state.overviewArea.domainRange()
           :[
             d3Min(state.flatData, d => d.timeRange[0]),
@@ -623,14 +637,12 @@ export default Kapsule({
           ],
           newZoomY = [null, null];
 
-        if (prevZoomX[0]<newZoomX[0] || prevZoomX[1]>newZoomX[1]
-          || prevZoomY[0]!=newZoomY[0] || prevZoomY[1]!=newZoomX[1]) {
+        const needsResetX = prevZoomX[0] != newZoomX[0] || prevZoomX[1] != newZoomX[1];
+        const needsResetY = prevZoomY[0] != newZoomY[0] || prevZoomY[1] != newZoomY[1];
 
-          state.zoomX = [
-            new Date(Math.min(prevZoomX[0],newZoomX[0])),
-            new Date(Math.max(prevZoomX[1],newZoomX[1]))
-          ];
-          state.zoomY = newZoomY;
+        if (needsResetX || needsResetY) {
+          state.zoomX = newZoomX.slice();
+          state.zoomY = newZoomY.slice();
           state.svg.dispatch('zoomScent', { detail: {
             zoomX: state.zoomX,
             zoomY: state.zoomY
@@ -646,6 +658,11 @@ export default Kapsule({
 
   update(state) {
 
+    state.syncLegend = () => {
+      bindLegendInteractions();
+      layoutLegendSlots(getActiveValues());
+    };
+
     applyFilters();
     setupDimensions();
 
@@ -658,6 +675,7 @@ export default Kapsule({
 
     renderTimelines();
     adjustLegend();
+    updateValueHighlight(false);
 
     //
 
@@ -668,8 +686,12 @@ export default Kapsule({
         : state.completeFlatData
       );
 
+      const isNullRange = range => !range
+        || range.length !== 2
+        || (range[0] == null && range[1] == null);
+
       // zoomY
-      if (state.zoomY==null || state.zoomY==[null, null]) {
+      if (isNullRange(state.zoomY)) {
         state.structData = state.completeStructData;
         state.nLines=0;
         for (let i=0, len=state.structData.length; i<len; i++) {
@@ -810,6 +832,24 @@ export default Kapsule({
         (state.resetBtn.node());
     }
 
+    function bindLegendInteractions() {
+      const legendSlots = state.legendG.selectAll('.color-slot')
+        .style('cursor', 'crosshair')
+        .on('mouseenter.valueHighlight', function(event, legendVal) {
+          setHoveredValue(legendVal);
+        })
+        .on('mouseleave.valueHighlight', function() {
+          setHoveredValue(null);
+        })
+        .on('click.valueHighlight', function(event, legendVal) {
+          toggleLockedValue(legendVal);
+        });
+
+      // The native title obscures the chart tooltip and is no longer needed now
+      // that legend values are interactive.
+      legendSlots.select('title').remove();
+    }
+
     function renderAxises() {
 
       state.svg.select('.axises')
@@ -948,10 +988,9 @@ export default Kapsule({
     }
 
     function renderTimelines(maxElems) {
+      const activeValues = getActiveValues();
 
       if (maxElems<0) maxElems=null;
-
-      const hoverEnlargeRatio = .4;
 
       const dataFilter = (d, i) =>
         (maxElems==null || i<maxElems) &&
@@ -960,7 +999,7 @@ export default Kapsule({
         d.timeRange[0]<=state.xScale.domain()[1] &&
         state.yScale.domain().indexOf(d.group+'+&+'+d.label)+1);
 
-      state.lineHeight = state.graphH/state.nLines*0.8;
+      state.lineHeight = state.graphH/state.nLines*0.72;
 
       let timelines = state.graph.selectAll('rect.series-segment').data(
         state.flatData.filter(dataFilter),
@@ -980,6 +1019,9 @@ export default Kapsule({
         .attr('y', state.graphH/2)
         .attr('width', 0)
         .attr('height', 0)
+        .attr('stroke', 'transparent')
+        .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
+        .style('pointer-events', 'all')
         .style('fill', d => state.zColorScale(d.val))
         .style('fill-opacity', 0)
         .on('mouseover.groupTooltip', state.groupTooltip.show)
@@ -990,44 +1032,16 @@ export default Kapsule({
         .on('mouseout.segmentTooltip', state.segmentTooltip.hide);
 
       newSegments
-        .on('mouseover', function() {
+        .on('mouseenter', function(event, d) {
           if ('disableHover' in state && state.disableHover)
             return;
-
-          this.nextElementSibling && MoveToFront()(this);
-
-          const hoverEnlarge = state.lineHeight*hoverEnlargeRatio;
-
-          d3Select(this)
-            .transition().duration(70)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0])-hoverEnlarge/2;
-            })
-            .attr('width', function (d) {
-              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])])+hoverEnlarge;
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-(state.lineHeight+hoverEnlarge)/2;
-            })
-            .attr('height', state.lineHeight+hoverEnlarge)
-            .style('fill-opacity', 1);
+          setHoveredValue(d.val);
         })
-        .on('mouseout', function() {
-          d3Select(this)
-            .transition().duration(250)
-            .attr('x', function (d) {
-              return state.xScale(d.timeRange[0]);
-            })
-            .attr('width', function (d) {
-              return d3Max([state.minSegmentWidth, state.xScale(d.timeRange[1])-state.xScale(d.timeRange[0])]);
-            })
-            .attr('y', function (d) {
-              return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
-            })
-            .attr('height', state.lineHeight)
-            .style('fill-opacity', .8);
+        .on('mouseleave', function() {
+          setHoveredValue(null);
         })
         .on('click', function (ev, s) {
+          toggleLockedValue(s.val);
           if (state.onSegmentClick)
             state.onSegmentClick(s);
         });
@@ -1045,8 +1059,78 @@ export default Kapsule({
           return state.yScale(d.group+'+&+'+d.label)-state.lineHeight/2;
         })
         .attr('height', state.lineHeight)
+        .attr('rx', state.lineHeight * 0.4)
+        .attr('ry', state.lineHeight * 0.4)
+        .attr('stroke-width', Math.max(4, state.lineHeight * 0.2))
         .style('fill', d => state.zColorScale(d.val))
-        .style('fill-opacity', .8);
+        .style('fill-opacity', d => getTargetFillOpacity(d.val, activeValues));
     }
+
+    function getActiveValues() {
+      return state.lockedVals.length
+        ? state.lockedVals
+        : state.hoveredVal == null ? [] : [state.hoveredVal];
+    }
+
+    function setHoveredValue(val) {
+      if (state.lockedVals.length || state.hoveredVal === val) return;
+      state.hoveredVal = val;
+      updateValueHighlight();
+    }
+
+    function getTargetFillOpacity(val, activeValues) {
+      if (!activeValues.length) return .8;
+      return activeValues.some(activeVal => val === activeVal) ? 1 : .2;
+    }
+
+    function toggleLockedValue(val) {
+      const isLocked = state.lockedVals.some(lockedVal => lockedVal === val);
+      state.lockedVals = isLocked
+        ? state.lockedVals.filter(lockedVal => lockedVal !== val)
+        : [...state.lockedVals, val];
+      state.hoveredVal = null;
+      updateValueHighlight();
+    }
+
+    function updateValueHighlight(animate = true) {
+      const activeValues = getActiveValues();
+      let segments = state.graph.selectAll('rect.series-segment')
+        .interrupt('valueHighlight');
+      if (animate && state.transDuration) {
+        segments = segments.transition('valueHighlight').duration(state.hoveredVal == null ? 180 : 90);
+      }
+      segments.style('fill-opacity', d => getTargetFillOpacity(d.val, activeValues));
+      layoutLegendSlots(activeValues);
+    }
+
+    function layoutLegendSlots(expandedValues) {
+      const slots = state.legendG.selectAll('.color-slot');
+      if (!slots.size()) return;
+
+      const domain = state.zColorScale.domain();
+      const baseWidth = state.colorLegend.width() / Math.max(domain.length, 1);
+      // Fit every collapsed label using the same font size, capped below the
+      // active size. Measure collapsed styles so active size and weight do not affect it.
+      slots.classed('expanded', false);
+      const widestLabel = d3Max(slots.select('text').nodes(), text =>
+        text.getComputedTextLength() / parseFloat(getComputedStyle(text).fontSize)
+      ) || 1;
+      state.legendG.style('--legend-font-size', `${Math.min(8, baseWidth * .9 / widestLabel)}px`);
+      let offset = 0;
+
+      slots.each(function(legendVal) {
+        const slot = d3Select(this);
+        const isExpanded = expandedValues.some(val => val === legendVal);
+        const text = slot.classed('expanded', isExpanded).select('text');
+        const width = isExpanded
+          ? Math.max(baseWidth, text.node().getComputedTextLength() + 10)
+          : baseWidth;
+        slot.attr('transform', `translate(${offset},0)`);
+        slot.select('rect').attr('x', 0).attr('width', width);
+        text.attr('x', width / 2);
+        offset += width;
+      });
+    }
+
   }
 });

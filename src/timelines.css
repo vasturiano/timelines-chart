@@ -59,6 +59,16 @@
     .legendText {
       fill: #666;
     }
+
+    /* Override the dependency's per-label inline font fitting. */
+    .color-slot text {
+      font-size: var(--legend-font-size, 8px) !important;
+    }
+
+    .color-slot.expanded text {
+      font-size: 10px !important;
+      font-weight: 600;
+    }
   }
 
   .reset-zoom-btn {
